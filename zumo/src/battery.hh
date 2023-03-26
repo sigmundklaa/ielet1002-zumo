@@ -16,7 +16,7 @@ namespace swbat
  * cloud, nonvolatile physical storage etc.).
  *
  */
-template <class T> class store__
+class store__
 {
   protected:
     /**
@@ -33,21 +33,25 @@ template <class T> class store__
     };
     packet m_packet_buf;
 
-    const io::sink* m_sink;
+    io::sink* m_sink;
 
   public:
     uint32_t balance;
 
-    store__(const T* sink) : balance(0), m_sink(sink) {}
+    store__(io::sink* sink) : m_sink(sink), balance(0) {}
 
     void
     save()
     {
         m_packet_buf = (struct packet){
+            .voltage = 0,
             .balance = this->balance,
         };
 
-        size_t written = m_sink->write(&m_packet_buf, sizeof(m_packet_buf));
+        size_t written = m_sink->write(
+            reinterpret_cast<const uint8_t*>(&m_packet_buf),
+            sizeof(m_packet_buf)
+        );
 
         if (written != sizeof(m_packet_buf)) {
             LOG_ERR(
@@ -57,7 +61,7 @@ template <class T> class store__
         }
     }
 };
-extern store__<io::mqtt_sink> store_mqtt;
+extern store__ store_mqtt;
 
 class battery__
 {
