@@ -13,3 +13,4 @@ PenaltyBreakAssignment: 6
 PenaltyBreakAssignment: 20
 PenaltyBreakBeforeFirstCallParameter: 0
 PenaltyReturnTypeOnItsOwnLine: 100
+IndentAccessModifiers: false
