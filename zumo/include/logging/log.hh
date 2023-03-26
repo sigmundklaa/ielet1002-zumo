@@ -113,7 +113,7 @@ class logger_
 #if LOG_LEVEL <= LOG_LEVEL_DISABLED
 #define LOG_REGISTER(sink)                                                     \
     static logging::logger_ __attribute__((section("log_instances"), used))    \
-    LOG_INSTANCE_(reinterpret_cast<const char*>(LOG_STR_(LOG_MODULE)), sink)
+    LOG_INSTANCE_(LOG_STR_(LOG_MODULE), sink)
 #else
 #define LOG_REGISTER(sink)
 #endif
