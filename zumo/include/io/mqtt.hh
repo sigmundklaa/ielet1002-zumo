@@ -4,16 +4,8 @@
 
 #include "io.hh"
 #include <PubSubClient.h>
-#include <logging/log.hh>
-
-#define LOG_MODULE io_mqtt
-
-#if LOG_LEVEL <= LOG_LEVEL_DISABLED
-#include "serial.hh"
-
-static io::serial_sink sink_;
-LOG_REGISTER(reinterpret_cast<io::sink*>(&sink_));
-#endif
+#include <assert.h>
+#include <utils/compile.hh>
 
 namespace io
 {
@@ -36,16 +28,15 @@ class mqtt_sink : public sink
     }
 
     size_t
-    write_(const uint8_t* data, size_t size) override
+    write_(const uint8_t* data, size_t size) override__
     {
         return m_client.publish(m_pub_topic, data, size) ? size : 0;
     }
 
     size_t
-    read_(uint8_t* buf, size_t buf_size) override
+    read_(uint8_t* buf, size_t buf_size) override__
     {
-        // TOOD: assert
-        LOG_ERR(<< "mqtt_sink does not support reading\n");
+        assert(0);
         return 0;
     }
 };

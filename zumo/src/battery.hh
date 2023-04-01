@@ -43,22 +43,6 @@ class store__
     void
     save()
     {
-        m_packet_buf = (struct packet){
-            .voltage = 0,
-            .balance = this->balance,
-        };
-
-        size_t written = m_sink->write(
-            reinterpret_cast<const uint8_t*>(&m_packet_buf),
-            sizeof(m_packet_buf)
-        );
-
-        if (written != sizeof(m_packet_buf)) {
-            LOG_ERR(
-                << "store: unable to save (only " << String(written)
-                << " bytes written)\n"
-            );
-        }
     }
 };
 extern store__ store_mqtt;
@@ -67,7 +51,6 @@ class battery__
 {
   protected:
   public:
-    battery__() = default;
 };
 extern battery__ battery;
 

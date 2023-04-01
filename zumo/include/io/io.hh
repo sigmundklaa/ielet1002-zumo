@@ -9,6 +9,8 @@
 namespace io
 {
 
+#define IO_MAX_PRINT_SIZE_ (512)
+
 /**
  * @brief Pure virtual class for the sink interface
  *

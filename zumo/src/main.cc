@@ -1,16 +1,13 @@
-#include <Arduino.h>
 
-#define DEFAULT_VALUE (2)
+extern void setup(void);
+extern void loop(void);
 
-void
-setup()
+int
+main(void)
 {
-    // put your setup code here, to run once:
-    int x = DEFAULT_VALUE;
-}
+    setup();
 
-void
-loop()
-{
-    // put your main code here, to run repeatedly:
+    for (;;) {
+        loop();
+    }
 }
