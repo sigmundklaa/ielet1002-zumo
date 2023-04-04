@@ -6,10 +6,9 @@
 
 class PubSubClient
 {
+  public:
     boolean
-    PubSubClient::publish(
-        const char* topic, const uint8_t* payload, unsigned int plength
-    )
+    publish(const char* topic, const uint8_t* payload, unsigned int plength)
     {
 
         return 0;

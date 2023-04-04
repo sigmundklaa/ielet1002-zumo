@@ -20,10 +20,6 @@ namespace io
  * compiled in for Arduino code.
  * When compiled for the host machine this can be used as a replacement for
  * the Serial sink.
- *
- * @param data
- * @param size
- * @return size_t
  */
 class std_sink : public sink
 {

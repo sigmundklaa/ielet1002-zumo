@@ -18,11 +18,11 @@ namespace io
 class mqtt_sink : public sink
 {
   protected:
-    PubSubClient& m_client;
+    PubSubClient* m_client;
     const char* m_pub_topic;
 
   public:
-    mqtt_sink(PubSubClient& client, const char* topic)
+    mqtt_sink(PubSubClient* client, const char* topic)
         : m_client(client), m_pub_topic(topic)
     {
     }
@@ -30,7 +30,7 @@ class mqtt_sink : public sink
     size_t
     write_(const uint8_t* data, size_t size) override__
     {
-        return m_client.publish(m_pub_topic, data, size) ? size : 0;
+        return m_client->publish(m_pub_topic, data, size) ? size : 0;
     }
 
     size_t

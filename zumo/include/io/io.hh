@@ -22,16 +22,18 @@ class sink
     virtual size_t read_(uint8_t* buf, size_t size) = 0;
 
   public:
+    template <typename T>
     size_t
-    write(const uint8_t* data, size_t size)
+    write(const T* data, size_t size)
     {
-        return this->write_(data, size);
+        return this->write_(reinterpret_cast<const uint8_t*>(data), size);
     }
 
+    template <typename T>
     size_t
-    read(uint8_t* buf, size_t buf_size)
+    read(T* buf, size_t buf_size)
     {
-        return this->read_(buf, buf_size);
+        return this->read_(reinterpret_cast<uint8_t*>(buf), buf_size);
     }
 };
 

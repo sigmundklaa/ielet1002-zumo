@@ -24,10 +24,10 @@ loop()
     static char buf[512];
     snprintf(buf, 512, "hello world!\n");
 
-    sink.write(reinterpret_cast<const uint8_t*>(buf), 15);
-    // sink.read(reinterpret_cast<uint8_t*>(buf), 512);
+    sink.write(buf, 15);
+    // sink.read(buf, 512);
 
-    // sink.write(reinterpret_cast<const uint8_t*>(buf), 512);
+    // sink.write(buf, 512);
 
     LOG_ERR(<< "Error !");
     LOG_SAVE();

@@ -26,8 +26,7 @@ class logger_
     size_t
     send_buf_()
     {
-        size_t sent =
-            m_sink->write(reinterpret_cast<const uint8_t*>(m_buf), m_written);
+        size_t sent = m_sink->write(m_buf, m_written);
         m_written -= sent;
 
         return sent;
