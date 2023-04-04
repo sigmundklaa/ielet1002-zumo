@@ -13,4 +13,10 @@ class PubSubClient
 
         return 0;
     }
+
+    PubSubClient&
+    setCallback(void (*callback)(char*, uint8_t*, unsigned int))
+    {
+        return *this;
+    }
 };
