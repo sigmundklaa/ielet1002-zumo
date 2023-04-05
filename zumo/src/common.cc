@@ -2,13 +2,11 @@
 #include "common.hh"
 #include <io/eeprom.hh>
 #include <io/mqtt.hh>
+#include <logging/log.hh>
 #include <new.h>
 
-void
-io::mqtt_client_init(PubSubClient& client)
-{
-    new (&client) PubSubClient();
-}
+#define LOG_MODULE common
+LOG_REGISTER(&common::log_sink);
 
 namespace common
 {
@@ -34,3 +32,9 @@ store<local_data> local_store(
 );
 
 }; // namespace common
+
+void
+io::mqtt_client_init(PubSubClient& client)
+{
+    new (&client) PubSubClient();
+}
