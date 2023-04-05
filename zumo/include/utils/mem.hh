@@ -47,7 +47,7 @@ template <typename T> struct alignof_3__ {
     enum {
         x = alignof_1__<T>::value,
         y = alignof_2__<T>::value,
-        value = x < y ? x : y
+        value = (int)x < (int)y ? x : y
     };
 };
 

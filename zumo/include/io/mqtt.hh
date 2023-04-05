@@ -127,7 +127,7 @@ class mqtt_handler__
     void
     handle_callback(char* topic, uint8_t* payload, size_t size)
     {
-        for (int i = 0; i < n_entries_; i++) {
+        for (size_t i = 0; i < n_entries_; i++) {
             entry_* e = &entries_[i];
 
             if (strcmp(e->topic, topic) == 0) {
