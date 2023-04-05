@@ -15,8 +15,6 @@
 namespace io
 {
 
-extern PubSubClient& mqtt_client;
-
 /**
  * @brief Defined by the user.
  *
@@ -29,10 +27,9 @@ be used by another constructor before it is initialized, and considering the
 PubSubClient uses malloc to allocate its buffer we could get a segmentation
 fault when trying to e.g. subscribe to a topic from within a constructor.
 */
+static PubSubClient& mqtt_client =
+    reinterpret_cast<PubSubClient&>(utils::init_guard<PubSubClient>::mem);
 static utils::init_guard<PubSubClient> ps_init_guard__(mqtt_client_init);
-
-class mqtt_handler__;
-extern mqtt_handler__ mqtt_handler;
 
 /**
  * @brief MQTT sink that communicates with the MQTT broker. Each instance only
@@ -70,11 +67,7 @@ class mqtt_sink : public sink
     }
 
   public:
-    mqtt_sink(PubSubClient* client, const char* topic)
-        : m_client(client), m_pub_topic(topic)
-    {
-        mqtt_handler.register_sink(topic, this);
-    }
+    mqtt_sink(PubSubClient* client, const char* topic);
 
     void
     push(const uint8_t* data, size_t size)
@@ -98,11 +91,7 @@ class mqtt_sink : public sink
 class mqtt_handler__
 {
   protected:
-    static void
-    callback_(char* topic, uint8_t* payload, unsigned int size)
-    {
-        mqtt_handler.handle_callback(topic, payload, static_cast<size_t>(size));
-    }
+    static void callback_(char* topic, uint8_t* payload, unsigned int size);
 
     struct entry_ {
         const char* topic;
@@ -151,43 +140,29 @@ class mqtt_handler__
     }
 };
 
+static mqtt_handler__& mqtt_handler =
+    reinterpret_cast<mqtt_handler__&>(utils::init_guard<mqtt_handler__>::mem);
+
+static utils::init_guard<mqtt_handler__>
+    mqtt_handler_init_guard__(mqtt_handler__::init);
+
+inline mqtt_sink::mqtt_sink(PubSubClient* client, const char* topic)
+    : m_client(client), m_pub_topic(topic)
+{
+    mqtt_handler.register_sink(topic, this);
+}
+
+inline void
+mqtt_handler__::callback_(char* topic, uint8_t* payload, unsigned int size)
+{
+    mqtt_handler.handle_callback(topic, payload, static_cast<size_t>(size));
+}
+
 #define IO_MQTT_NODE_ZUMO (1)
 
 #ifndef IO_MQTT_NODE
 #define IO_MQTT_NODE IO_MQTT_NODE_ZUMO
 #endif
-
-static utils::init_guard<mqtt_handler__>
-    mqtt_handler_init_guard__(mqtt_handler__::init);
-
-/**
- * @brief Helper class that ensures the MQTT connection is initialized when the
- * an object of this type is declared, so that any dependency on the mqtt_client
- * works as expected. This is because we need to establish a connection and
- * request data before any @code mqtt_sink @endcode  using the client can be
- * constructed. NOTE: This initializer assumes that there is only one MQTT
- * connection active on this device.
- *
- * Example:
- * static mqtt_init_guard guard_(IO_MQTT_NODE_ZUMO);
- * // After this point the mqtt client is guaranteed to be properly initialized
- */
-class mqtt_init_guard
-{
-  public:
-    struct params {
-        const IPAddress& addr;
-        uint16_t port;
-        Client& client;
-    };
-
-  protected:
-    void init_(const params& args);
-
-  public:
-    mqtt_init_guard(const params& args);
-    mqtt_init_guard(const IPAddress& addr, uint16_t port, Client& client);
-};
 
 }; // namespace io
 

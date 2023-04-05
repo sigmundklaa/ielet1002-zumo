@@ -19,4 +19,10 @@ class PubSubClient
     {
         return *this;
     }
+
+    boolean
+    subscribe(const char* topic)
+    {
+        return 0;
+    }
 };

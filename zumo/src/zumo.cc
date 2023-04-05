@@ -4,7 +4,6 @@
 #include <io/serial.hh>
 #include <stdio.h>
 
-#include <io/mqtt.impl.hh>
 static io::serial_sink sink;
 
 #include <logging/log.hh>

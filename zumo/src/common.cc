@@ -2,6 +2,13 @@
 #include "common.hh"
 #include <io/eeprom.hh>
 #include <io/mqtt.hh>
+#include <new.h>
+
+void
+io::mqtt_client_init(PubSubClient& client)
+{
+    new (&client) PubSubClient();
+}
 
 namespace common
 {
