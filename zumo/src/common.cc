@@ -8,8 +8,7 @@ namespace common
 
 io::serial_sink log_sink;
 
-static PubSubClient mqtt_client_; /* TODO: Add credentials */
-static io::mqtt_sink mqtt_sink_(&mqtt_client_, "/store");
+static io::mqtt_sink mqtt_sink_(&io::mqtt_client, "/store");
 
 store<remote_data> remote_store(
     &mqtt_sink_,
