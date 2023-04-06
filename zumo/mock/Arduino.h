@@ -27,4 +27,11 @@ class String
         return 0;
     }
 };
+
+inline uint64_t
+micros()
+{
+    return 0;
+}
+
 #endif

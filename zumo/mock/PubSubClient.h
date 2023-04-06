@@ -25,4 +25,9 @@ class PubSubClient
     {
         return 0;
     }
+
+    void
+    loop()
+    {
+    }
 };

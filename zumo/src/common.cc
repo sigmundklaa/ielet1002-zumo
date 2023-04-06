@@ -1,5 +1,6 @@
 
 #include "common.hh"
+#include <Arduino.h>
 #include <io/eeprom.hh>
 #include <io/mqtt.hh>
 #include <logging/log.hh>
@@ -8,6 +9,8 @@
 
 #define LOG_MODULE common
 LOG_REGISTER(&common::log_sink);
+
+#define SYNC_TIMEOUT_US_ (5e6)
 
 namespace common
 {
@@ -18,6 +21,21 @@ static inline void
 init_mqtt_(io::mqtt_sink& sink)
 {
     new (&sink) io::mqtt_sink(&io::mqtt_client, "/store/1", "/sync/1");
+
+    /* Send no data to indicate we are requesting sync data */
+    sink.write("", 0);
+
+    /* Wait to recieve data before we can continue. Only try for X amount of
+     * microseconds to prevent hang */
+    for (uint64_t start = micros(); micros() - start < SYNC_TIMEOUT_US_;) {
+        if (sink.avail()) {
+            return;
+        }
+
+        sink.ps_client()->loop();
+    }
+
+    LOG_ERR(<< "error syncing data");
 }
 
 static io::mqtt_sink& mqtt_sink_ = init_guarded(io::mqtt_sink, init_mqtt_);

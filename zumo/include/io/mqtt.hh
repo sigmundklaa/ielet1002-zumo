@@ -84,6 +84,18 @@ class mqtt_sink : public sink
         memcpy(buf_.mem + buf_.index, data, size);
         buf_.index += size;
     }
+
+    uint8_t
+    avail() const
+    {
+        return buf_.index > 0;
+    }
+
+    PubSubClient*
+    ps_client() const
+    {
+        return m_client;
+    }
 };
 
 #define IO_MQTT_NUM_SINKS_MAX_ (10)
