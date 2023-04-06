@@ -7,10 +7,10 @@
 #include <IPAddress.h>
 #include <PubSubClient.h>
 #include <assert.h>
-#include <new.h>
 #include <stddef.h>
 #include <utils/compile.hh>
 #include <utils/init.hh>
+#include <utils/new.hh>
 
 namespace io
 {

@@ -4,8 +4,8 @@
 #include <io/eeprom.hh>
 #include <io/mqtt.hh>
 #include <logging/log.hh>
-#include <new.h>
 #include <utils/init.hh>
+#include <utils/new.hh>
 
 #define LOG_MODULE common
 LOG_REGISTER(&common::log_sink);

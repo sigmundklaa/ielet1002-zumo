@@ -1,6 +1,6 @@
 
-#ifndef ZNEW_HH__
-#define ZNEW_HH__
+#ifndef UTILS_NEW_HH__
+#define UTILS_NEW_HH__
 
 #include <stddef.h>
 #include <utils/compile.hh>
@@ -14,9 +14,9 @@ operator new(unsigned int sz, void* ptr) noexcept__
     return ptr;
 }
 
-#include_next <new.h>
+#include <new.h>
 #else
 #include <new>
 #endif
 
-#endif // ZNEW_HH__
+#endif // UTILS_NEW_HH__
