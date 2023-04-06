@@ -1,38 +1,23 @@
 
+#include "common.hh"
 #include <Arduino.h>
 #include <io/mqtt.hh>
 #include <io/serial.hh>
+#include <logging/log.hh>
 #include <stdio.h>
 
-static io::serial_sink sink;
-
-#include <logging/log.hh>
+#include "housekeep.hh"
 
 #define LOG_MODULE main
-LOG_REGISTER(&sink);
+LOG_REGISTER(&common::log_sink);
 
 void
 setup()
 {
-    // put your setup code here, to run once:
 }
 
 void
 loop()
 {
-    // put your main code here, to run repeatedly:
-    // logging::save_all();
-    static char buf[512];
-    snprintf(buf, 512, "hello world!\n");
-
-    sink.write(buf, 15);
-    // sink.read(buf, 512);
-
-    // sink.write(buf, 512);
-
-    LOG_ERR(<< "Error !");
-    LOG_SAVE();
-
-    for (;;)
-        ;
+    hk::update();
 }

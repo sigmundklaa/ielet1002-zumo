@@ -27,9 +27,7 @@ be used by another constructor before it is initialized, and considering the
 PubSubClient uses malloc to allocate its buffer we could get a segmentation
 fault when trying to e.g. subscribe to a topic from within a constructor.
 */
-static PubSubClient& mqtt_client =
-    reinterpret_cast<PubSubClient&>(utils::init_guard<PubSubClient>::mem);
-static utils::init_guard<PubSubClient> ps_init_guard__(mqtt_client_init);
+static PubSubClient& mqtt_client = init_guarded(PubSubClient, mqtt_client_init);
 
 /**
  * @brief MQTT sink that communicates with the MQTT broker. Each instance only
@@ -141,10 +139,7 @@ class mqtt_handler__
 };
 
 static mqtt_handler__& mqtt_handler =
-    reinterpret_cast<mqtt_handler__&>(utils::init_guard<mqtt_handler__>::mem);
-
-static utils::init_guard<mqtt_handler__>
-    mqtt_handler_init_guard__(mqtt_handler__::init);
+    init_guarded(mqtt_handler__, mqtt_handler__::init);
 
 inline mqtt_sink::mqtt_sink(PubSubClient* client, const char* topic)
     : m_client(client), m_pub_topic(topic)

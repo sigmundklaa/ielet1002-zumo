@@ -32,6 +32,11 @@ template <typename T> class init_guard
 };
 }; // namespace utils
 
+/* Helper macro to hide the ugliness of creating an init guard. */
+#define init_guarded(type, cons)                                               \
+    (utils::init_guard<type>(cons),                                            \
+     reinterpret_cast<type&>(utils::init_guard<type>::mem))
+
 #include "init.icc"
 
 #endif // UTILS_INIT_HH__

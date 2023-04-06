@@ -4,6 +4,7 @@
 #include <io/mqtt.hh>
 #include <logging/log.hh>
 #include <new.h>
+#include <utils/init.hh>
 
 #define LOG_MODULE common
 LOG_REGISTER(&common::log_sink);
@@ -13,7 +14,13 @@ namespace common
 
 io::serial_sink log_sink;
 
-static io::mqtt_sink mqtt_sink_(&io::mqtt_client, "/store");
+static inline void
+init_mqtt_(io::mqtt_sink& sink)
+{
+    new (&sink) io::mqtt_sink(&io::mqtt_client, "/store");
+}
+
+static io::mqtt_sink& mqtt_sink_ = init_guarded(io::mqtt_sink, init_mqtt_);
 
 store<remote_data> remote_store(
     &mqtt_sink_,
