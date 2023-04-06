@@ -22,6 +22,8 @@ init_mqtt_(io::mqtt_sink& sink)
 {
     new (&sink) io::mqtt_sink(&io::mqtt_client, "/store/1", "/sync/1");
 
+    LOG_INFO(<< "requesting sync from remote");
+
     /* Send no data to indicate we are requesting sync data */
     sink.write("", 0);
 
