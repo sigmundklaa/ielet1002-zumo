@@ -17,7 +17,7 @@ io::serial_sink log_sink;
 static inline void
 init_mqtt_(io::mqtt_sink& sink)
 {
-    new (&sink) io::mqtt_sink(&io::mqtt_client, "/store");
+    new (&sink) io::mqtt_sink(&io::mqtt_client, "/store/1", "/sync/1");
 }
 
 static io::mqtt_sink& mqtt_sink_ = init_guarded(io::mqtt_sink, init_mqtt_);

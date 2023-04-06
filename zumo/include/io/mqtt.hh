@@ -65,7 +65,9 @@ class mqtt_sink : public sink
     }
 
   public:
-    mqtt_sink(PubSubClient* client, const char* topic);
+    mqtt_sink(
+        PubSubClient* client, const char* pub_topic, const char* sub_topic
+    );
 
     void
     push(const uint8_t* data, size_t size)
@@ -141,10 +143,12 @@ class mqtt_handler__
 static mqtt_handler__& mqtt_handler =
     init_guarded(mqtt_handler__, mqtt_handler__::init);
 
-inline mqtt_sink::mqtt_sink(PubSubClient* client, const char* topic)
-    : m_client(client), m_pub_topic(topic)
+inline mqtt_sink::mqtt_sink(
+    PubSubClient* client, const char* pub_topic, const char* sub_topic
+)
+    : m_client(client), m_pub_topic(pub_topic)
 {
-    mqtt_handler.register_sink(topic, this);
+    mqtt_handler.register_sink(sub_topic, this);
 }
 
 inline void
