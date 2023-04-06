@@ -160,7 +160,9 @@ inline mqtt_sink::mqtt_sink(
 )
     : m_client(client), m_pub_topic(pub_topic)
 {
-    mqtt_handler.register_sink(sub_topic, this);
+    if (sub_topic != nullptr) {
+        mqtt_handler.register_sink(sub_topic, this);
+    }
 }
 
 inline void
