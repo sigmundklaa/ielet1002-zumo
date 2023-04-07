@@ -53,8 +53,7 @@ class controller_
         void stop_();
 
       public:
-        side_();
-        void assign_side(side_num s);
+        side_(side_num sn);
 
         void run();
 
@@ -68,7 +67,7 @@ class controller_
 
   protected:
     uint64_t total_run_time_us_;
-    side_ sides_[2];
+    side_ left, right;
 
   public:
     controller_();

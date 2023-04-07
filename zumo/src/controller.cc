@@ -15,12 +15,9 @@ namespace hal
 
 controller_ controller;
 
-controller_::side_::side_() : cur_state_(STATE_STOPPED_) {}
-
-void
-controller_::side_::assign_side(controller_::side_::side_num s)
+controller_::side_::side_(side_num sn)
+    : cur_state_(STATE_STOPPED_), side_num_(sn)
 {
-    side_num_ = s;
 }
 
 void
@@ -142,17 +139,15 @@ controller_::side_::running()
 }
 
 controller_::controller_()
+    : left(controller_::side_::LEFT), right(controller_::side_::RIGHT)
 {
-    sides_[0].assign_side(controller_::side_::LEFT);
-    sides_[1].assign_side(controller_::side_::RIGHT);
 }
 
 void
 controller_::run()
 {
-    for (size_t i = 0; i < 2; i++) {
-        sides_[i].run();
-    }
+    left.run();
+    right.run();
 }
 
 }; // namespace hal
