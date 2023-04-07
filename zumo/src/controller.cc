@@ -2,6 +2,7 @@
 #include "controller.hh"
 #include "common.hh"
 #include <Arduino.h>
+#include <Zumo32U4Motors.h>
 #include <logging/log.hh>
 
 #define LOG_MODULE controller
@@ -14,7 +15,7 @@ namespace hal
 
 controller_ controller;
 
-controller_::side_::side_() {}
+controller_::side_::side_() : cur_state_(STATE_STOPPED_) {}
 
 void
 controller_::side_::assign_side(controller_::side_::side_num s)
@@ -39,7 +40,28 @@ controller_::side_::run()
         break;
     }
     case STATE_RUNNING_:
-    case STATE_SLEEP_:
+    case STATE_STOPPED_:
+        break;
+    }
+}
+
+void
+controller_::side_::set_motor_speed_(uint8_t s)
+{
+    /* Convert to the 0-400 range that the Zumo expects. We use the range 0-255
+    because there is not really any good reason to use 0-400. */
+    int16_t conv = map(s, 0, 255, 0, 400);
+
+    if (direction_ == DIR_BWARD) {
+        conv = -conv;
+    }
+
+    switch (side_num_) {
+    case LEFT:
+        Zumo32U4Motors::setLeftSpeed(conv);
+        break;
+    case RIGHT:
+        Zumo32U4Motors::setRightSpeed(conv);
         break;
     }
 }
@@ -48,23 +70,34 @@ void
 controller_::side_::start_()
 {
     start_time_us_ = micros();
+
+    set_motor_speed_(speed_);
 }
 
 void
 controller_::side_::stop_()
 {
     stop_time_us_ = micros();
+
+    set_motor_speed_(0);
 }
 
 void
 controller_::side_::transition_(side_::state_ st)
 {
+    /* We are changing direction so we need to wait until we are done with that
+     * before we can transition to any other state. TODO: either error return or
+     * queue transition */
+    if (cur_state_ == STATE_CHANGE_DIR_) {
+        return;
+    }
+
     switch (st) {
     case STATE_RUNNING_:
         start_();
         break;
     case STATE_CHANGE_DIR_:
-    case STATE_SLEEP_:
+    case STATE_STOPPED_:
         stop_();
         break;
     };
@@ -84,15 +117,27 @@ controller_::side_::set_dir(side_::direction dir)
 }
 
 void
+controller_::side_::set_speed(uint8_t speed)
+{
+    speed_ = speed;
+}
+
+void
 controller_::side_::stop()
 {
-    transition_(STATE_SLEEP_);
+    transition_(STATE_STOPPED_);
 }
 
 void
 controller_::side_::start()
 {
     transition_(STATE_RUNNING_);
+}
+
+uint8_t
+controller_::side_::running()
+{
+    return cur_state_ == STATE_RUNNING_;
 }
 
 controller_::controller_()

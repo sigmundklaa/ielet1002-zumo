@@ -34,7 +34,7 @@ class controller_
         enum state_ {
             STATE_CHANGE_DIR_,
             STATE_RUNNING_,
-            STATE_SLEEP_,
+            STATE_STOPPED_,
         };
 
         state_ cur_state_;
@@ -44,6 +44,9 @@ class controller_
 
         uint64_t stop_time_us_;
         uint64_t start_time_us_;
+        uint8_t speed_;
+
+        void set_motor_speed_(uint8_t s);
 
         void transition_(state_ st);
         void start_();
@@ -56,8 +59,11 @@ class controller_
         void run();
 
         void set_dir(direction dir);
+        void set_speed(uint8_t speed);
         void stop();
         void start();
+
+        uint8_t running();
     };
 
   protected:
