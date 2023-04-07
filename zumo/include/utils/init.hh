@@ -3,6 +3,7 @@
 #define UTILS_INIT_HH__
 
 #include "mem.hh"
+#include "new.hh"
 #include <stdint.h>
 
 namespace utils
@@ -30,6 +31,14 @@ template <typename T> class init_guard
 
     init_guard(constructor c);
 };
+
+template <typename T>
+void
+init_empty(T& mem)
+{
+    new (&mem) T();
+}
+
 }; // namespace utils
 
 /* Helper macro to hide the ugliness of creating an init guard. */

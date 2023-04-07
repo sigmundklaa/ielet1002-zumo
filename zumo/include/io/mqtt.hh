@@ -10,7 +10,6 @@
 #include <stddef.h>
 #include <utils/compile.hh>
 #include <utils/init.hh>
-#include <utils/new.hh>
 
 namespace io
 {
@@ -114,12 +113,6 @@ class mqtt_handler__
     size_t n_entries_;
 
   public:
-    static void
-    init(mqtt_handler__& mem)
-    {
-        new (&mem) mqtt_handler__();
-    }
-
     void
     register_sink(const char* topic, mqtt_sink* sink)
     {
@@ -153,7 +146,7 @@ class mqtt_handler__
 };
 
 static mqtt_handler__& mqtt_handler =
-    init_guarded(mqtt_handler__, mqtt_handler__::init);
+    init_guarded(mqtt_handler__, utils::init_empty);
 
 inline mqtt_sink::mqtt_sink(
     PubSubClient* client, const char* pub_topic, const char* sub_topic
