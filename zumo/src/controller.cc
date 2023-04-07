@@ -49,7 +49,8 @@ void
 controller_::side_::set_motor_speed_(uint8_t s)
 {
     /* Convert to the 0-400 range that the Zumo expects. We use the range 0-255
-    because there is not really any good reason to use 0-400. */
+    because there is not really any good reason to use 0-400 outside of the
+    value set in the register, which is handled by the Zumo32U4 functions. */
     int16_t conv = map(s, 0, 255, 0, 400);
 
     if (direction_ == DIR_BWARD) {
