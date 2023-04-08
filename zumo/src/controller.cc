@@ -2,6 +2,7 @@
 #include "controller.hh"
 #include "common.hh"
 #include <Arduino.h>
+#include <Wire.h>
 #include <Zumo32U4Motors.h>
 #include <logging/log.hh>
 

@@ -49,7 +49,7 @@ store<remote_data> remote_store(
     }
 );
 
-static io::eeprom_sink eeprom_; /* TODO: implement eeprom */
+static io::eeprom_sink eeprom_;
 
 store<local_data> local_store(
     &eeprom_,
