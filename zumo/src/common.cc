@@ -17,6 +17,8 @@ namespace common
 
 io::serial_sink log_sink;
 
+/* TODO: sinks should not use an init guard as there may be multiple instances.
+ * This can probably be implemented with an init guard for the store instead. */
 static inline void
 init_mqtt_(io::mqtt_sink& sink)
 {
