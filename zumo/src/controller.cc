@@ -2,8 +2,8 @@
 #include "controller.hh"
 #include "common.hh"
 #include <Arduino.h>
-#include <Wire.h>
-#include <Zumo32U4Motors.h>
+#include <Wire.hh>
+#include <Zumo32U4.h>
 #include <logging/log.hh>
 
 #define LOG_MODULE controller
@@ -13,6 +13,10 @@ LOG_REGISTER(&common::log_sink);
 
 namespace hal
 {
+
+static struct {
+    Zumo32U4IMU imu;
+} components_;
 
 controller_ controller;
 
@@ -142,6 +146,9 @@ controller_::side_::running()
 controller_::controller_()
     : left(controller_::side_::LEFT), right(controller_::side_::RIGHT)
 {
+    if (!components_.imu.init()) {
+        LOG_ERR(<< "unable to init imu");
+    }
 }
 
 void

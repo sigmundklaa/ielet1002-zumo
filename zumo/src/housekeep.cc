@@ -32,6 +32,9 @@ calc_vel(float base, int16_t accel, int16_t d_us)
 void
 update()
 {
+    data = (data_){
+
+    };
 }
 
 }; // namespace hk
