@@ -9,6 +9,8 @@
 namespace report
 {
 
+#define REPORT_INTERVAL_US_ (10e6)
+
 void
 init_reporter_(zumo_reporter_& mem)
 {
@@ -22,6 +24,8 @@ init_reporter_(zumo_reporter_& mem)
 size_t
 zumo_reporter_::generate_()
 {
+
+    return sizeof(buf_);
 }
 
 }; // namespace report

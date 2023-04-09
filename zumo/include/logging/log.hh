@@ -11,7 +11,19 @@ Implements a memory efficient, low footprint logging library.
 namespace logging
 {
 
+#ifndef LOG_USE_BUF
+#define LOG_USE_BUF 0
+#endif
+
+/* While we would ideally not want to send directly to the sink each time,
+ * devices with RAM constraints may need to do that as using a buffer would
+ * consume too much RAM. */
+#if LOG_USE_BUF
 #define LOG_BUF_SIZE_ (128)
+#else
+#define LOG_BUF_SIZE_ (0)
+#endif
+
 inline const char* level_to_str_(unsigned int level);
 
 class logger_
@@ -42,6 +54,10 @@ class logger_
     size_t
     write_(const char* data, size_t size)
     {
+        if (!LOG_USE_BUF) {
+            return m_sink->write(data, size);
+        }
+
         if (size >= sizeof(m_buf)) {
             // TODO: error handle
             return 0;
@@ -77,6 +93,10 @@ class logger_
     void
     save()
     {
+        if (!LOG_USE_BUF) {
+            return;
+        }
+
         send_buf_();
     }
 
@@ -131,7 +151,7 @@ level_to_str_(unsigned int level)
  *
  * @param sink Sink to send logged messages to
  */
-#if LOG_LEVEL <= LOG_LEVEL_DISABLED
+#if LOG_LEVEL < LOG_LEVEL_DISABLED
 #define LOG_REGISTER(sink)                                                     \
     static logging::logger_ /*arch_section__("log_instances")*/                \
         __attribute__((used)) LOG_INSTANCE_(LOG_STR_(LOG_MODULE), sink)
@@ -199,7 +219,7 @@ level_to_str_(unsigned int level)
 #define LOG_ERR(x) (void)0
 #endif
 
-#if LOG_LEVEL <= LOG_LEVEL_DISABLED
+#if LOG_LEVEL < LOG_LEVEL_DISABLED
 #define LOG_SAVE()                                                             \
     do {                                                                       \
         (LOG_INSTANCE_).save();                                                \

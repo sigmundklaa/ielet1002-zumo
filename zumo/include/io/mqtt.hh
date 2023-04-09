@@ -38,6 +38,7 @@ class mqtt_sink : public sink
 {
   protected:
     struct {
+        /* TODO: set this size as low as possible */
         uint8_t mem[128];
         size_t index;
     } buf_;

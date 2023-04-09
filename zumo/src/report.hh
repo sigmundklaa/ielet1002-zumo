@@ -5,8 +5,6 @@
 #include <io/mqtt.hh>
 #include <report/report.hh>
 
-#define REPORT_INTERVAL_US_ (10e6)
-
 namespace report
 {
 
