@@ -20,7 +20,10 @@ io::serial_sink log_sink;
 static inline void
 init_mqtt_(io::mqtt_sink& sink)
 {
-    new (&sink) io::mqtt_sink(&io::mqtt_client, "/store/1", "/sync/1");
+    new (&sink) io::mqtt_sink(
+        &io::mqtt_client, IO_MQTT_PATH("/store/", IO_MQTT_NODE_ZUMO),
+        IO_MQTT_PATH("/sync/", IO_MQTT_NODE_ZUMO)
+    );
 
     LOG_INFO(<< "requesting sync from remote");
 

@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <utils/compile.hh>
 #include <utils/init.hh>
+#include <utils/macros.hh>
 
 namespace io
 {
@@ -164,11 +165,9 @@ mqtt_handler__::callback_(char* topic, uint8_t* payload, unsigned int size)
     mqtt_handler.handle_callback(topic, payload, static_cast<size_t>(size));
 }
 
-#define IO_MQTT_NODE_ZUMO (1)
+#define IO_MQTT_NODE_ZUMO 1
 
-#ifndef IO_MQTT_NODE
-#define IO_MQTT_NODE IO_MQTT_NODE_ZUMO
-#endif
+#define IO_MQTT_PATH(path, node) UTILS_STR_CONCAT(path, UTILS_STR(node))
 
 }; // namespace io
 
