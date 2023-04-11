@@ -99,7 +99,14 @@ class controller_
      *
      * @return int16_t* int16_t[3] of X,Y,Z accelerations
      */
-    int16_t* accel();
+    int16_t* accel_data();
+
+    /**
+     * @brief Get the latest measurements from the encoder
+     *
+     * @return int16_t* int16_t[2] of left, right encoder values
+     */
+    int16_t* encoder_data();
 };
 extern controller_ controller;
 

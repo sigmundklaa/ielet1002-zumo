@@ -42,9 +42,9 @@ update(uint64_t delta_us)
     }
 
     /* TODO: figure out what axis is correct for acceleration */
-    int16_t* accel = hal::controller.accel();
+    int16_t* accel = hal::controller.accel_data();
 
-    data.velocity = calc_vel(data.velocity, accel[0], delta_us);
+    data.velocity_calc = calc_vel(data.velocity_calc, accel[0], delta_us);
 
     ::memcpy(&data.accel_meas, accel, sizeof(*accel) * 3);
 }

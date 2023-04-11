@@ -190,9 +190,15 @@ controller_::run()
 }
 
 int16_t*
-controller_::accel()
+controller_::accel_data()
 {
     return readings_.accel;
+}
+
+int16_t*
+controller_::encoder_data()
+{
+    return readings_.encoder;
 }
 
 }; // namespace hal
