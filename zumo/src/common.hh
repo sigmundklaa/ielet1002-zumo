@@ -59,7 +59,23 @@ template <typename T> class store
     inline int
     save()
     {
-        return sink_->write(&this->data, sizeof(T)) != sizeof(T);
+        static T buf = {0};
+
+        size_t written = sink_->write(&this->data, sizeof(T)) != sizeof(T);
+
+        if (written != sizeof(T)) {
+            return written;
+        }
+
+        /* Read the updated contents into a buffer first, and then if there is
+         * no error we can safely update the real data field. */
+        size_t read = sink_->read(&buf, sizeof(buf));
+
+        if (read == sizeof(T)) {
+            ::memcpy(&this->data, &buf, sizeof(T));
+        }
+
+        return read;
     }
 };
 
