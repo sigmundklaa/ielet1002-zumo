@@ -84,7 +84,7 @@ template <typename T> class store
  *
  */
 struct __attribute__((packed)) remote_data {
-    uint8_t batt_voltage;
+    uint8_t bank_currency;
 };
 
 /**

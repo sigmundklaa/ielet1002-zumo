@@ -48,7 +48,7 @@ static io::mqtt_sink& mqtt_sink_ = init_guarded(io::mqtt_sink, init_mqtt_);
 store<remote_data> remote_store(
     &mqtt_sink_,
     (remote_data){
-        .batt_voltage = 0,
+        0,
     }
 );
 
