@@ -12,6 +12,15 @@ struct data_ {
     };
 
     float velocity;
+
+    float velocity_sum;
+
+    /* How many measurements have been added to the sum. To get the average:
+     * velocity_sum / velocity_sum_n */
+    float velocity_sum_n;
+
+    float velocity_max;
+
     vector<int16_t> accel_meas;
 };
 extern data_ data;

@@ -32,5 +32,4 @@ setup()
 void
 loop()
 {
-    hk::update();
 }
