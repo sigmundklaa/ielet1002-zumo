@@ -6,7 +6,7 @@
 #include <logging/log.hh>
 
 #define LOG_MODULE sw_battery
-LOG_REGISTER(&common::log_sink);
+LOG_REGISTER(common::log_sink);
 
 namespace swbat
 {

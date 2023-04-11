@@ -8,7 +8,7 @@
 #include <utils/new.hh>
 
 #define LOG_MODULE common
-LOG_REGISTER(&common::log_sink);
+LOG_REGISTER(common::log_sink);
 
 #define SYNC_TIMEOUT_US_ (5e6)
 

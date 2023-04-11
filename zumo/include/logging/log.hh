@@ -30,7 +30,7 @@ class logger_
 {
   protected:
     const char* m_name;
-    io::sink* m_sink;
+    io::sink& m_sink;
 
     uint8_t m_buf[LOG_BUF_SIZE_];
     size_t m_written;
@@ -38,7 +38,7 @@ class logger_
     size_t
     send_buf_()
     {
-        size_t sent = m_sink->write(m_buf, m_written);
+        size_t sent = m_sink.write(m_buf, m_written);
         m_written -= sent;
 
         return sent;
@@ -55,7 +55,7 @@ class logger_
     write_(const char* data, size_t size)
     {
         if (!LOG_USE_BUF) {
-            return m_sink->write(data, size);
+            return m_sink.write(data, size);
         }
 
         if (size >= sizeof(m_buf)) {
@@ -84,7 +84,7 @@ class logger_
     }
 
   public:
-    logger_(const char* name, io::sink* sink)
+    logger_(const char* name, io::sink& sink)
         : m_name(name), m_sink(sink), m_written(0)
     {
         memset(m_buf, 0, sizeof(m_buf));

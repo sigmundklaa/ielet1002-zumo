@@ -7,7 +7,7 @@
 #include <logging/log.hh>
 
 #define LOG_MODULE controller
-LOG_REGISTER(&common::log_sink);
+LOG_REGISTER(common::log_sink);
 
 #define DIR_CHANGE_DELAY_US_ (100e3)
 
