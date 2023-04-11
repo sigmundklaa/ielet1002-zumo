@@ -1,6 +1,6 @@
 
 CC=g++
-CC_FLAGS=-std=gnu++03 -g -D__MACH=1 -D__unix__=1 -O0
+CC_FLAGS=-std=gnu++11 -g -D__MACH=1 -D__unix__=1 -O0
 
 DIST=./dist/
 SRC=./src/
@@ -32,5 +32,4 @@ $(TARGET): $(OBJ_FILES)
 
 $(DIST)/%.o: $(SRC)/%.cc
 	$(dir_guard)
-	@echo $(CC_FLAGS)
-	@$(CC) -c $(CC_FLAGS) -o $@ $^
+	$(CC) -c $(CC_FLAGS) -o $@ $^

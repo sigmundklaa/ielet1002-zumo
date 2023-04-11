@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 
+#if __cplusplus < 201103L
 namespace utils
 {
 
@@ -54,6 +55,10 @@ template <typename T> struct alignof_3__ {
 }; // namespace utils
 
 #define alignof__(x) (utils::alignof_3__<x>::value)
+#else
+#define alignof__(x) alignof(x)
+#endif
+
 #define aligned__(size, alignment) ((size + (alignment - 1)) & ~(alignment - 1))
 
 #endif // UTILS_MEM_HH__

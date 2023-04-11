@@ -1,6 +1,7 @@
 
 class wire__
 {
+  public:
     void
     begin()
     {

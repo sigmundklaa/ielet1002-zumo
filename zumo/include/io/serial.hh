@@ -2,19 +2,10 @@
 #ifndef IO_SERIAL_HH__
 #define IO_SERIAL_HH__
 
-#if defined(__unix__)
-#include "std.hh"
-
-namespace io
-{
-typedef std_sink serial_sink;
-};
-
-#else
-
 #include "io.hh"
 #include <Arduino.h>
 #include <utils/compile.hh>
+#include <utils/init.hh>
 
 namespace io
 {
@@ -22,10 +13,12 @@ namespace io
 class serial_sink : public sink
 {
   protected:
+    Serial_& hw_serial_;
+
     size_t
     write_(const uint8_t* data, size_t size) override__
     {
-        return Serial.write(data, size);
+        return hw_serial_.write(data, size);
     }
 
     size_t
@@ -33,16 +26,20 @@ class serial_sink : public sink
     {
         size_t i = 0;
 
-        for (; Serial.available() && i < buf_size; i++) {
-            buf[i] = Serial.read();
+        for (; hw_serial_.available() && i < buf_size; i++) {
+            buf[i] = hw_serial_.read();
         }
 
         return i;
     }
+
+  public:
+    serial_sink(Serial_& hw_serial, uint32_t baudrate) : hw_serial_(hw_serial)
+    {
+        hw_serial_.begin(baudrate);
+    }
 };
 
 }; // namespace io
-
-#endif
 
 #endif // IO_SERIAL_HH__

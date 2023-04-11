@@ -8,11 +8,18 @@
 namespace common
 {
 
+static inline void
+init_log_sink_(io::serial_sink& mem)
+{
+    new (&mem) io::serial_sink(Serial, 9600);
+}
+
 /**
  * @brief Common sink for logging
  *
  */
-extern io::serial_sink log_sink;
+static io::serial_sink& log_sink =
+    init_guarded(io::serial_sink, init_log_sink_);
 
 /**
  * @brief Manages storage. Saves and retrieves data from the connected sink when
