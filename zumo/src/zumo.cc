@@ -2,6 +2,7 @@
 #include "common.hh"
 #include <Arduino.h>
 #include <Wire.h>
+#include <io/espnow.hh>
 #include <io/mqtt.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
