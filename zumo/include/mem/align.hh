@@ -1,11 +1,11 @@
 
-#ifndef UTILS_MEM_HH__
-#define UTILS_MEM_HH__
+#ifndef MEM_ALIGN_HH__
+#define MEM_ALIGN_HH__
 
 #include <stddef.h>
 
 #if __cplusplus < 201103L
-namespace utils
+namespace mem
 {
 
 /*
@@ -52,13 +52,13 @@ template <typename T> struct alignof_3__ {
     };
 };
 
-}; // namespace utils
+}; // namespace mem
 
-#define alignof__(x) (utils::alignof_3__<x>::value)
+#define alignof__(x) (mem::alignof_3__<x>::value)
 #else
 #define alignof__(x) alignof(x)
 #endif
 
 #define aligned__(size, alignment) ((size + (alignment - 1)) & ~(alignment - 1))
 
-#endif // UTILS_MEM_HH__
+#endif // MEM_ALIGN_HH__

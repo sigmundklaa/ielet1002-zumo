@@ -2,8 +2,8 @@
 #ifndef UTILS_INIT_HH__
 #define UTILS_INIT_HH__
 
-#include "mem.hh"
 #include "new.hh"
+#include <mem/align.hh>
 #include <stdint.h>
 
 namespace utils

@@ -11,15 +11,9 @@
 
 namespace io
 {
-class esp_now_sink : public sink
+class esp_now_sink : public pushable_sink
 {
   protected:
-    /* Implement a buffer to temporarily store data recieved from the callbacks.
-     */
-    struct {
-        uint8_t mem[128];
-        size_t index;
-    } buf_;
     esp_now_peer_info_t peer_info_;
 
     size_t
@@ -32,19 +26,6 @@ class esp_now_sink : public sink
         }
 
         return size;
-    }
-
-    size_t
-    read_(uint8_t* buf, size_t buf_size) override__
-    {
-        if (!buf_.index) {
-            return 0;
-        }
-
-        buf_size = buf_size < buf_.index ? buf_size : buf_.index;
-
-        ::memcpy(buf, buf_.mem, buf_size);
-        return buf_size;
     }
 
   public:
@@ -64,21 +45,6 @@ class esp_now_sink : public sink
         if (status != ESP_OK) {
             return;
         }
-    }
-
-    void
-    push(const uint8_t* data, size_t size)
-    {
-        if (size > sizeof(buf_.mem)) {
-            return;
-        }
-
-        if (buf_.index + size >= sizeof(buf_.mem)) {
-            buf_.index = 0;
-        }
-
-        ::memcpy(buf_.mem + buf_.index, data, size);
-        buf_.index += size;
     }
 };
 
