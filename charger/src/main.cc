@@ -1,14 +1,40 @@
 
 #include <Arduino.h>
+#include <WiFi.h>
+#include <esp_now.h>
 
-void
-setup()
+#include <charge.cc>
+#include <payment.cc>
+#include <esp_now.cc>
+
+void setupPins()
 {
-    // put your setup code here, to run once:
+    pinMode(button_pin_1, INPUT);
 }
 
-void
-loop()
+// SETUP
+void setup()
 {
-    // put your main code here, to run repeatedly:
+    Serial.begin(9600);
+    setupEspNow();
+    setupPins();
+}
+
+// LOOP
+void loop()
+{
+    // Checks if there is a customer at the station
+    if(c.customer_id != 0){
+        customer = true;
+    } else {
+        customer = false;
+    }
+
+    switch(customer){
+        case true:
+            esp_now_register_recv_cb(process_customer);
+            break;
+        case false:
+            break;           
+    }
 }
