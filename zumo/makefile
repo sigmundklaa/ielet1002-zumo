@@ -11,7 +11,7 @@ TARGET=$(DIST)/zumo
 SRC_FILES=$(shell find $(SRC) -name "*.cc")
 OBJ_FILES=$(patsubst $(SRC)/%.cc, $(DIST)/%.o, $(SRC_FILES))
 
-INC_DIRS= $(INC) ./mock/ \
+INC_DIRS= $(INC) ./mock/ ../lib \
 #	.pio/libdeps/32u416m/PubSubClient/src \
 #	$(PIO_DIR)/packages/framework-arduino-avr/cores/arduino/ \
 #	$(PIO_DIR)/packages/toolchain-atmelavr/avr/include
