@@ -1,5 +1,7 @@
 
-class wire__
+#pragma once
+
+static class wire__
 {
   public:
     void

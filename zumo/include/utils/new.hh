@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <utils/compile.hh>
 
-#ifndef __unix__
+#if defined(MCU__) && MCU__
 
 /* Arduino (atleast ESP32 in particular) doesn't include an overload for
  * placement new */

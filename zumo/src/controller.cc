@@ -23,7 +23,9 @@ static struct {
 
 /* We perform a memcpy from the .a struct to an array so we need to be sure that
  * the sizes are the same. */
-static_assert(sizeof(Zumo32U4IMU::a) == sizeof(int16_t[3]));
+static_assert(
+    sizeof(Zumo32U4IMU::a) == sizeof(int16_t[3]), "sizeof accel is 3*int16_t"
+);
 
 controller_ controller;
 

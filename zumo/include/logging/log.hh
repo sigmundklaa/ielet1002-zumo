@@ -159,9 +159,18 @@ level_to_str_(unsigned int level)
 #define LOG_REGISTER(sink)
 #endif
 
+#ifndef LOG_SAVE_ON_WRITE
+#define LOG_SAVE_ON_WRITE (0)
+#endif
+
 #define LOG_HEAD__(level, x)                                                   \
     do {                                                                       \
-        (LOG_INSTANCE_ << "[" << logging::level_to_str_(level)) << "]: " x;    \
+        (LOG_INSTANCE_ << "[" << logging::level_to_str_(level))                \
+            << "]: " x << "\n";                                                \
+                                                                               \
+        if (LOG_SAVE_ON_WRITE) {                                               \
+            LOG_SAVE();                                                        \
+        }                                                                      \
     } while (0)
 
 /**

@@ -2,24 +2,34 @@
 #ifndef COMMON_HH__
 #define COMMON_HH__
 
+#if !defined(MCU__) || !MCU__
+#include <io/std.hh>
+#else
 #include <io/serial.hh>
+#endif
+
 #include <string.h>
+#include <utils/init.hh>
 
 namespace common
 {
 
+#if !defined(MCU__) || !MCU__
+static io::std_sink& log_sink = init_guarded(io::std_sink, utils::init_empty);
+#else
 static inline void
-init_log_sink_(io::serial_sink& mem)
+init_log_sink_(io::serial_sink<Serial_>& mem)
 {
-    new (&mem) io::serial_sink(Serial, 9600);
+    new (&mem) io::serial_sink<Serial_>(Serial, 9600);
 }
 
 /**
  * @brief Common sink for logging
  *
  */
-static io::serial_sink& log_sink =
-    init_guarded(io::serial_sink, init_log_sink_);
+static io::serial_sink<Serial_>& log_sink =
+    init_guarded(io::serial_sink<Serial_>, init_log_sink_);
+#endif
 
 /**
  * @brief Manages storage. Saves and retrieves data from the connected sink when

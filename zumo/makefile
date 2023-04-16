@@ -1,6 +1,7 @@
 
 CC=g++
-CC_FLAGS=-std=gnu++11 -g -D__MACH=1 -D__unix__=1 -O0
+CC_FLAGS=-std=gnu++11 -g -DMCU__=0 -D__unix__=1 -O0 -DLOG_LEVEL=0  \
+	-DLOG_USE_BUF=0 -DLOG_SAVE_ON_WRITE=1
 
 DIST=./dist/
 SRC=./src/

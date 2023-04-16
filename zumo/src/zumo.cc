@@ -22,12 +22,11 @@ struct __attribute__((packed)) mystruct {
 void
 setup()
 {
-    mystruct ms = {
-        .x = 3,
-        .y = 2,
-    };
-
-    common::log_sink.write(&ms, sizeof(ms));
+    LOG_ERR(<< "test");
+    LOG_INFO(<< "setting up");
+    LOG_ERR(<< "test");
+    LOG_ERR(<< "test");
+    LOG_SAVE();
 }
 
 void

@@ -10,10 +10,10 @@
 namespace io
 {
 
-class serial_sink : public sink
+template <typename T> class serial_sink : public sink
 {
   protected:
-    Serial_& hw_serial_;
+    T& hw_serial_;
 
     size_t
     write_(const uint8_t* data, size_t size) override__
@@ -34,9 +34,10 @@ class serial_sink : public sink
     }
 
   public:
-    serial_sink(Serial_& hw_serial, uint32_t baudrate) : hw_serial_(hw_serial)
+    template <typename... Args>
+    serial_sink(T& hw_serial, Args... args) : hw_serial_(hw_serial)
     {
-        hw_serial_.begin(baudrate);
+        hw_serial_.begin(args...);
     }
 };
 
