@@ -30,17 +30,24 @@ static_assert(sizeof(header_type_) == 1, "size of header type is 1");
 
 struct __attribute__((packed)) serial_header_ {
     header_type_ type;
-    uint8_t argc;
+    uint8_t dst_size;
+    uint8_t size;
 };
 
+static uint8_t buf_[256];
+
 static size_t
-prepare_header_(header_type_ type, uint8_t* buf, void* data, size_t size)
+prepare_header_(
+    header_type_ type, uint8_t* buf, const void* dst_data, size_t dst_size,
+    size_t data_size
+)
 {
+    size_t size = dst_size + data_size;
     assert(size <= UINT8_MAX);
 
     serial_header_* header = reinterpret_cast<serial_header_*>(buf);
     header->type = type;
-    header->argc = static_cast<uint8_t>(size);
+    header->dst_size = static_cast<uint8_t>(dst_size);
 
     if (size > MAX_PACKET_SIZE_) {
         LOG_ERR(<< "packet too big");
@@ -49,10 +56,27 @@ prepare_header_(header_type_ type, uint8_t* buf, void* data, size_t size)
     }
 
     if (size > 0) {
-        ::memcpy(buf + sizeof(*header), data, size);
+        ::memcpy(buf + sizeof(*header), dst_data, dst_size);
     }
 
-    return sizeof(*header) + size;
+    return sizeof(*header) + dst_size;
+}
+
+static void
+redirect_serial_(
+    header_type_ type, uint8_t* buf, const void* header_data,
+    size_t header_size, const void* data, size_t data_size
+)
+{
+    size_t size =
+        prepare_header_(type, buf_, header_data, header_size, data_size);
+
+    ::memcpy(buf_ + size, data, data_size);
+
+    size += data_size;
+    if (serial_sink_.write(buf_, size) != size) {
+        LOG_ERR(<< "serial write blocked");
+    }
 }
 
 static io::esp_now_sink esp_sinks_[2];
@@ -62,7 +86,11 @@ esp_callback(const uint8_t* mac_addr, const uint8_t* data, size_t recv_sz)
 {
     for (size_t i = 0; i < sizeof(esp_sinks_) / sizeof(esp_sinks_[0]); i++) {
         if (memcmp(mac_addr, esp_sinks_[i].addr(), ESP_NOW_ETH_ALEN) == 0) {
-            /* Send through serial */
+            redirect_serial_(
+                PACKET_ESPNOW, buf_, mac_addr, ESP_NOW_ETH_ALEN, data, recv_sz
+            );
+
+            return;
         }
     }
 

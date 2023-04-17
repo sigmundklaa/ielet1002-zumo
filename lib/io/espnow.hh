@@ -31,13 +31,13 @@ class esp_now_sink : public pushable_sink
   public:
     esp_now_sink(uint8_t peer_addr[6])
     {
-        ::memcpy(&peer_info_.peer_addr, peer_addr, sizeof(peer_addr));
+        ::memcpy(peer_info_.peer_addr, peer_addr, sizeof(peer_addr));
 
         ::esp_err_t status = ::esp_now_init();
 
         if (status != ESP_OK) {
             /* TODO: err handle */
-            return
+            return;
         }
 
         status = ::esp_now_add_peer(&peer_info_);
@@ -45,6 +45,12 @@ class esp_now_sink : public pushable_sink
         if (status != ESP_OK) {
             return;
         }
+    }
+
+    uint8_t*
+    addr()
+    {
+        return peer_info_.peer_addr;
     }
 };
 
