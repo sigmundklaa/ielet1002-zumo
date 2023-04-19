@@ -1,11 +1,8 @@
-
 #include <Arduino.h>
-#include <WiFi.h>
-#include <esp_now.h>
 
-#include <charge.cc>
-#include <payment.cc>
-#include <esp_now.cc>
+#include <common.hh>
+#include <esp_now.hh>
+#include <charger.hh>
 
 void setupPins()
 {
@@ -16,6 +13,7 @@ void setupPins()
 void setup()
 {
     Serial.begin(9600);
+    
     setupEspNow();
     setupPins();
 }
@@ -25,6 +23,7 @@ void loop()
 {
     // Checks if there is a customer at the station
     if(c.customer_id != 0){
+        Serial.println("Customer arrived.");
         customer = true;
     } else {
         customer = false;
@@ -32,6 +31,7 @@ void loop()
 
     switch(customer){
         case true:
+            Serial.println("Starting charging process.");
             esp_now_register_recv_cb(process_customer);
             break;
         case false:

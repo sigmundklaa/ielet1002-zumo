@@ -1,20 +1,11 @@
 
-#include <WiFi.h>
-#include <esp_now.h>
-
-#include <common.hh>
+#include <esp_now.hh>
 
 /*
 ESP-NOW: Everything related to the ESP-NOW connection management
-*/
+*/  
 
-esp_now_peer_info_t routerDeviceInfo = {
-    // Change this address to the address of the router ESP32
-    .peer_addr = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
-    .channel = 0,
-    .encrypt = false,
-};
-
+// Functions:
 void setupEspNow()
 {
     WiFi.mode(WIFI_STA);
