@@ -17,9 +17,8 @@ inline const int LED_pin_input = -1;
 inline const int LED_pin_error = -1;
 
     // Status
-inline bool customer = false;
-inline bool ran_out = false;
-inline float power_price = 0.00;
+inline bool customer_waiting = false;
+inline int customer_order = 0;
 
     // Structs
     // Struct for customer data

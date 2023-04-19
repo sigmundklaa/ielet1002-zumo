@@ -2,22 +2,45 @@
 #include <charger.hh>
 #include <payment.hh>
 
-// PRE-CHARGE: Defines struct with data recieved for ESP-NOW
-void process_customer(const uint8_t * mac, const uint8_t *data, int len){
-    Customer* c = (Customer*) data;
-    Serial.println("Customer data reviced");
-
-    charged = false;
-    ran_out = false;
-    
-    // #TODO Ask for desired charge.
-    desired_charge = 100;
+// PRE-SERVICE:
+void loopStationCode(){
+    switch(customer_waiting){
+        case true:
+            begin_service();
+            break;
+        case false:
+            break;
+    }
 }
 
-// CHARGING
+void begin_service(){
+    unsigned long order_wait_millis = 0;
+
+    //INPUT
+    customer_order = 1; // TEMP UNTILL INPUT
+    switch(customer_order){
+        case 0: // Wait for order
+            break;
+        case 1: // Charge battery to desired level, default 100%
+            charge_battery();
+            break;
+        case 2:
+            change_battery(); // Change battery
+            break;
+        case 3:
+            // ???
+            break;
+    }
+}
+
+// SERVICE
+    // CHARGING
 void charge_battery()
 {
     unsigned long charge_millis = 0;
+
+    //DESIRED CHARGE INPUT
+    desired_charge = 100; // TEMP UNTILL DESIRED CHARGE INPUT
 
     // Checks for current power price
     check_price();
@@ -30,7 +53,7 @@ void charge_battery()
                     ran_out = true;
                     break;
                 }
-                if(previousMillis - charge_millis == 1000){
+                if(previousMillis - charge_millis > 1000){
                     charge_millis = millis();
                     i++;
                     c.account_balance = c.account_balance - power_price;
@@ -42,7 +65,7 @@ void charge_battery()
             break;
         case true: // If not enough cash #TODO: Ask for confirmation.
             for(int i = c.battery_level; i < desired_charge; i++){
-                if(previousMillis - charge_millis == 1000){
+                if(previousMillis - charge_millis > 1000){
                     charge_millis = millis();
                     i++;
                     c.credit = c.credit + power_price;
@@ -57,6 +80,8 @@ void charge_battery()
     // Safeguard for error in case charging went wrong
     if(c.battery_level == desired_charge){
         charged = true;
+        c.charging_cycles++;
+
         Serial.println("Battery charged.");
     } else {
         Serial.println("Error: battery_level not equal to desired_charge after charge.");
@@ -71,8 +96,20 @@ void charge_battery()
     send_zumo();
 }; 
 
-// Fuction for sending Zumo away after charge, seperate for sendData bc it might need to do more than just send data
-// #TODO Something more than sendData
+    // CHANGE BATTERY
+void change_battery(){
+    // TODO delay?
+    Serial.println("Changing customer battery.");
+    c.charging_cycles = 0;
+    c.battery_health = 100;
+
+    
+
+    send_zumo();
+}
+
+
+// POST-SERVICE
 void send_zumo(){
     Serial.println("Sending customer away.");
     sendData(c, routerDeviceInfo);
@@ -84,8 +121,7 @@ void sendData(Customer s_c, esp_now_peer_info_t &peerInfo)
    
     if (result == ESP_OK) {
         Serial.println("Data successfully sent.");
-        //Clear customer_id so station goes back to waiting. 
-        c.customer_id = 0;
+        customer_waiting = false; // Inform station that customer successfully left.
     } else {
         Serial.println("Error sending data.");
     }

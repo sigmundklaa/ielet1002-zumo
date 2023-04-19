@@ -8,9 +8,10 @@ PAYMENT: All things related to payment
 void check_price()
 {
     power_price = 0.80; //TODO make it get price from server. 
+    battery_price = 120.60; //TODO ^^
     
-    Serial.print("Power price: ");
-    Serial.println(power_price);
+    Serial.print("Power price: "); Serial.print(power_price);
+    Serial.print(". Battery price: "); Serial.println(battery_price);
 };
 
 bool check_credit()

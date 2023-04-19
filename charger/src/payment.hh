@@ -5,7 +5,9 @@
 #include <common.hh>
 
 // Variables:
-
+inline bool ran_out = false;
+inline float power_price = 0.00;
+inline float battery_price = 000.00;
 
 // Functions:
 void check_price();

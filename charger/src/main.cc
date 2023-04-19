@@ -6,7 +6,7 @@
 
 void setupPins()
 {
-    pinMode(button_pin_1, INPUT);
+    //pinMode(button_pin_1, INPUT);
 }
 
 // SETUP
@@ -21,20 +21,5 @@ void setup()
 // LOOP
 void loop()
 {
-    // Checks if there is a customer at the station
-    if(c.customer_id != 0){
-        Serial.println("Customer arrived.");
-        customer = true;
-    } else {
-        customer = false;
-    }
-
-    switch(customer){
-        case true:
-            Serial.println("Starting charging process.");
-            esp_now_register_recv_cb(process_customer);
-            break;
-        case false:
-            break;           
-    }
+    loopStationCode();
 }
