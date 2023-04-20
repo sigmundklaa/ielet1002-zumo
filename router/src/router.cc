@@ -5,6 +5,7 @@
 #include <io/serial.hh>
 #include <logging/log.hh>
 #include <string.h>
+#include <wifi.hh>
 
 #define RX_PIN_ (26)
 #define TX_PIN_ (22)
@@ -79,32 +80,98 @@ redirect_serial_(
     }
 }
 
-static io::esp_now_sink esp_sinks_[2];
+static void
+redirect_mqtt_(serial_header_* header, uint8_t* buf, size_t size)
+{
+    static char topic_buf[20] = {0};
+
+    /* Topic recieved in packet is not null-terminated */
+    ::memcpy(topic_buf, buf, header->dst_size);
+
+    io::mqtt_client.publish(topic_buf, buf + header->dst_size, header->size);
+}
+
+static ::esp_now_peer_info_t esp_peers_[] = {
+    {
+        .peer_addr =
+            {
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+            },
+    },
+};
 
 static void
-esp_callback(const uint8_t* mac_addr, const uint8_t* data, size_t recv_sz)
+redirect_espnow_(serial_header_* header, uint8_t* buf, size_t size)
 {
-    for (size_t i = 0; i < sizeof(esp_sinks_) / sizeof(esp_sinks_[0]); i++) {
-        if (memcmp(mac_addr, esp_sinks_[i].addr(), ESP_NOW_ETH_ALEN) == 0) {
-            redirect_serial_(
-                PACKET_ESPNOW, buf_, mac_addr, ESP_NOW_ETH_ALEN, data, recv_sz
-            );
+}
 
-            return;
-        }
+static void
+redirect_network_(serial_header_* header, uint8_t* buf, size_t size)
+{
+    switch (header->type) {
+    case PACKET_MQTT:
+        redirect_mqtt_(header, buf, size);
+        break;
+    case PACKET_ESPNOW:
+        redirect_espnow_(header, buf, size);
+        break;
+    case PACKET_HOST:
+        /* Not meant to be redirected anywhere */
+        break;
     }
+}
 
-    LOG_ERR(<< "unknown mac address, discarding");
+static void
+esp_callback_(const uint8_t* mac_addr, const uint8_t* data, int recv_sz)
+{
+    redirect_serial_(
+        PACKET_ESPNOW, buf_, mac_addr, ESP_NOW_ETH_ALEN, data, recv_sz
+    );
+}
+
+static void
+mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
+{
+    redirect_serial_(PACKET_MQTT, buf_, topic, ::strlen(topic), data, sz);
 }
 
 void
 setup()
 {
-    // put your setup code here, to run once:
+    WiFi.begin(SSID_NAME, SSID_PASS);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        LOG_INFO(<< "waiting for wifi connection");
+        delay(500);
+    }
+
+    for (size_t i = 0; i < sizeof(esp_peers_) / sizeof(esp_peers_[0]); i++) {
+        ::esp_now_add_peer(&esp_peers_[i]);
+    }
+
+    ::esp_now_register_recv_cb(esp_callback_);
+
+    io::mqtt_client.setServer(MQTT_HOST, MQTT_PORT);
+    io::mqtt_client.setCallback(mqtt_callback_);
 }
 
 void
 loop()
 {
-    // put your main code here, to run repeatedly:
+    static uint8_t buf[256];
+
+    size_t bread = serial_sink_.read(buf, sizeof(serial_header_));
+
+    if (bread != 0) {
+        serial_header_* header = reinterpret_cast<serial_header_*>(buf);
+        bread +=
+            serial_sink_.read(buf + bread, header->dst_size + header->size);
+
+        redirect_network_(header, buf + sizeof(*header), bread);
+    }
 }

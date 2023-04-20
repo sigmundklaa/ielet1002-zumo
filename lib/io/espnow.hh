@@ -11,6 +11,16 @@
 
 namespace io
 {
+/**
+ * @brief Ensure initialization of esp_now before being used in a constructor
+ *
+ */
+static class esp_init__
+{
+  public:
+    esp_init__() { ::esp_now_init(); }
+} esp_init_;
+
 class esp_now_sink : public pushable_sink
 {
   protected:
@@ -33,14 +43,7 @@ class esp_now_sink : public pushable_sink
     {
         ::memcpy(peer_info_.peer_addr, peer_addr, sizeof(peer_addr));
 
-        ::esp_err_t status = ::esp_now_init();
-
-        if (status != ESP_OK) {
-            /* TODO: err handle */
-            return;
-        }
-
-        status = ::esp_now_add_peer(&peer_info_);
+        ::esp_err_t status = ::esp_now_add_peer(&peer_info_);
 
         if (status != ESP_OK) {
             return;
