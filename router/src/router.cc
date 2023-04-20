@@ -1,10 +1,12 @@
 
 #include <Arduino.h>
+#include <WiFi.h>
 #include <io/espnow.hh>
 #include <io/mqtt.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
 #include <string.h>
+#include <utils/trace.hh>
 #include <wifi.hh>
 
 #define RX_PIN_ (26)
@@ -69,6 +71,8 @@ redirect_serial_(
     size_t header_size, const void* data, size_t data_size
 )
 {
+    TRACE_ENTER(__func__);
+
     size_t size =
         prepare_header_(type, buf_, header_data, header_size, data_size);
 
@@ -78,17 +82,27 @@ redirect_serial_(
     if (serial_sink_.write(buf_, size) != size) {
         LOG_ERR(<< "serial write blocked");
     }
+
+    TRACE_EXIT(__func__);
 }
 
 static void
 redirect_mqtt_(serial_header_* header, uint8_t* buf, size_t size)
 {
+    TRACE_ENTER(__func__);
+
     static char topic_buf[20] = {0};
 
     /* Topic recieved in packet is not null-terminated */
     ::memcpy(topic_buf, buf, header->dst_size);
 
-    io::mqtt_client.publish(topic_buf, buf + header->dst_size, header->size);
+    if (!io::mqtt_client.publish(
+            topic_buf, buf + header->dst_size, header->size
+        )) {
+        LOG_ERR(<< "unable to publish");
+    }
+
+    TRACE_EXIT(__func__);
 }
 
 static ::esp_now_peer_info_t esp_peers_[] = {
@@ -108,6 +122,9 @@ static ::esp_now_peer_info_t esp_peers_[] = {
 static void
 redirect_espnow_(serial_header_* header, uint8_t* buf, size_t size)
 {
+    TRACE_ENTER(__func__);
+
+    TRACE_EXIT(__func__);
 }
 
 static void
@@ -140,9 +157,22 @@ mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
     redirect_serial_(PACKET_MQTT, buf_, topic, ::strlen(topic), data, sz);
 }
 
+static void
+reconnect(PubSubClient& client)
+{
+    while (!client.connected()) {
+        if (!client.connect("router")) {
+            LOG_INFO(<< "connecting to mqtt");
+            delay(500);
+        }
+    }
+}
+
 void
 setup()
 {
+    TRACE_ENTER(__func__);
+
     WiFi.begin(SSID_NAME, SSID_PASS);
 
     while (WiFi.status() != WL_CONNECTED) {
@@ -150,27 +180,46 @@ setup()
         delay(500);
     }
 
+    reconnect(io::mqtt_client);
+
     for (size_t i = 0; i < sizeof(esp_peers_) / sizeof(esp_peers_[0]); i++) {
-        ::esp_now_add_peer(&esp_peers_[i]);
+        ::esp_err_t status = ::esp_now_add_peer(&esp_peers_[i]);
+
+        if (status != ESP_OK) {
+            LOG_ERR(<< "unable to add peer");
+        }
     }
 
-    ::esp_now_register_recv_cb(esp_callback_);
+    if (::esp_now_register_recv_cb(esp_callback_) != ESP_OK) {
+        LOG_ERR(<< "unable to register esp callback");
+    }
 
     io::mqtt_client.setServer(MQTT_HOST, MQTT_PORT);
     io::mqtt_client.setCallback(mqtt_callback_);
+
+    TRACE_EXIT(__func__);
 }
 
 void
 loop()
 {
     static uint8_t buf[256];
+    memset(buf, 1, 255);
 
-    size_t bread = serial_sink_.read(buf, sizeof(serial_header_));
+    *(serial_header_*)buf = (serial_header_){
+        .type = PACKET_MQTT,
+        .dst_size = 5,
+        .size = 4,
+    };
+    memcpy(buf + sizeof(serial_header_), "/test", 5);
+
+    size_t bread = sizeof(serial_header_) +
+                   9; // serial_sink_.read(buf, sizeof(serial_header_));
 
     if (bread != 0) {
         serial_header_* header = reinterpret_cast<serial_header_*>(buf);
-        bread +=
-            serial_sink_.read(buf + bread, header->dst_size + header->size);
+        // bread +=
+        //     serial_sink_.read(buf + bread, header->dst_size + header->size);
 
         redirect_network_(header, buf + sizeof(*header), bread);
     }

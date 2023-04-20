@@ -56,6 +56,8 @@ class pushable_sink : public sink
     uint8_t* read_data_;
     size_t read_size_;
 
+    virtual size_t write_(const uint8_t* data, size_t size);
+
     size_t
     read_(uint8_t* buf, size_t buf_size) override__
     {

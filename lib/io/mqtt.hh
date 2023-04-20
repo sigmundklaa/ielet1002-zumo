@@ -15,11 +15,13 @@
 namespace io
 {
 
-/**
- * @brief Defined by the user.
- *
- */
-extern void mqtt_client_init(PubSubClient&);
+static inline void
+mqtt_client_init(PubSubClient& psc)
+{
+    static WiFiClient wific;
+
+    new (&psc) PubSubClient(wific);
+}
 
 /*
 Ensure initialization of the PubSubClient. If we didn't do this the client could

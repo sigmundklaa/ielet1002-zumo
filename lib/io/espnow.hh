@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include <esp_now.h>
+#include <io/io.hh>
 #include <string.h>
 #include <utils/compile.hh>
 #include <utils/init.hh>
@@ -41,7 +42,7 @@ class esp_now_sink : public pushable_sink
   public:
     esp_now_sink(uint8_t peer_addr[6])
     {
-        ::memcpy(peer_info_.peer_addr, peer_addr, sizeof(peer_addr));
+        ::memcpy(peer_info_.peer_addr, peer_addr, ESP_NOW_ETH_ALEN);
 
         ::esp_err_t status = ::esp_now_add_peer(&peer_info_);
 
