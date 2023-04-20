@@ -1,39 +1,48 @@
+//Inkluderer nødvendige bibliotek
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BME680.h"
+#include <io/mqtt.hh>
 
+static void
+io::mqtt_client_init(PubSubClient& client)
+{
+  static WiFiClient wific;
+  new (&client) PubSubClient(wific);
+}
 
+static io::mqtt_sink mqtt(&io:mqtt_client, "/myendpoint", nullptr);
+
+//Definerer en struct som skal sendes over NodeRED
+struct __attribute__ ((packed)) SensorData {
+  float temperature;
+  float humidity;
+  float pressure;
+  int lightData;
+};
+
+SensorData sensorData;
+
+//Definerer pin-navn
 #define BME_SCK 25
 #define BME_MISO 33
 #define BME_MOSI 26
 #define BME_CS 27
 #define lightsensor 34
 
-#define SEALEVELPRESSURE_HPA (1013.25)
-
+//Definerer variabler som sensorene skal lagre dataene til
 float temperature;
 float humidity;
 float pressure;
 float gasResistance;
 
+//Sier til bme688 hva pin-navnene den skal bruke heter
 Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 
-
-struct SensorData {
-  
-  float temperature;
-  float humidity;
-  float pressure;
-  int lightData;
-
-};
-
-SensorData sensorData;
-
-void getBME680Readings(){
-  // Tell BME680 to begin measurement.
+void getBME688Readings(){
+  //Forteller BME688 at den skal begynne å lese av data
   unsigned long endTime = bme.beginReading();
   if (endTime == 0) {
     Serial.println(F("Failed to begin reading :("));
@@ -51,6 +60,7 @@ void getBME680Readings(){
 
 
 void setup() {
+  //Serial og pindefinisjon
   Serial.begin(9600);
   pinMode(lightsensor, INPUT);
   pinMode(BME_MISO, INPUT);
@@ -58,6 +68,7 @@ void setup() {
   pinMode(BME_SCK, INPUT);
   pinMode(BME_MOSI, INPUT);
 
+  //BME680 Oppsett:
   while (!Serial);
   Serial.println(F("BME680 test"));
 
@@ -66,18 +77,29 @@ void setup() {
     while (1);
   }
 
-  // Set up oversampling and filter initialization
   bme.setTemperatureOversampling(BME680_OS_8X);
   bme.setHumidityOversampling(BME680_OS_2X);
   bme.setPressureOversampling(BME680_OS_4X);
   bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-  bme.setGasHeater(320, 150); // 320*C for 150 ms
+  bme.setGasHeater(320, 150);
+
+  WiFi.begin("nettverk", "passord");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+
+  io::mqtt_client.setServer("mqtt host", 1883);
+
+  //send struct
+  SensorData s = {.x = 2, .y = 3};
+  mqtt.write(&s, sizeof(s));
 
 }
 
 void loop() {
 
-  getBME680Readings();
+  getBME688Readings();
 
   sensorData.lightData = analogRead(lightsensor);
   sensorData.temperature = temperature;
@@ -86,6 +108,7 @@ void loop() {
 
   delay(2000);
 
+  //Printer dataene til Serial for enkel dataovervåking
   Serial.print("Temperature = ");
   Serial.print(bme.temperature);
   Serial.println(" *C");
