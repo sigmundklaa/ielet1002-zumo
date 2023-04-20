@@ -1,20 +1,12 @@
 
-#include <WiFi.h>
-#include <esp_now.h>
-
 #include <common.hh>
+#include <esp_now.hh>
 
 /*
 ESP-NOW: Everything related to the ESP-NOW connection management
-*/
+*/  
 
-esp_now_peer_info_t routerDeviceInfo = {
-    // Change this address to the address of the router ESP32
-    .peer_addr = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
-    .channel = 0,
-    .encrypt = false,
-};
-
+// Functions:
 void setupEspNow()
 {
     WiFi.mode(WIFI_STA);
@@ -29,6 +21,8 @@ void setupEspNow()
 
     // Give feedback if data was successfully transmitted or not.
     esp_now_register_send_cb(onDataTransmitted);
+
+    esp_now_register_recv_cb(onDataReceived);
 }
 
 void connectToEspNowPeer(esp_now_peer_info_t &peerInfo)
@@ -61,6 +55,14 @@ void onDataTransmitted(const uint8_t *receiverMacAddress, esp_now_send_status_t 
 
     Serial.println("Data transmission was successful!");
 } 
+
+void onDataReceived(const uint8_t * mac, const uint8_t *data, int len)
+{
+    Customer* c = (Customer*) data;
+    customer_waiting = true;
+    Serial.println("Customer data received.");
+
+}
 
 void printEspErrorCode(String message, esp_err_t errorCode)
 {
