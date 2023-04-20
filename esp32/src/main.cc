@@ -1,229 +1,43 @@
-
 #include <Arduino.h>
-#include <WiFi.h>
-#include <esp_now.h>
-#include <ArduinoJson.h>
+#define BME_SCK 25
+#define BME_MISO 33
+#define BME_MOSI 26
+#define BME_CS 27
 
-/*
--------------------------------------------------
--------------------------------------------------
-ZUMO ESP-RECEIVER MAC-ADRESSE : 44:17:93:5E:44:A0
--------------------------------------------------
--------------------------------------------------
-*/
+Adafruit_BME680 bme;
+Adafruit_BME680 bme(BME_CS);
+Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 
-#define RXD2 16
-#define TXD2 17
 
-DynamicJsonDocument zumoData();
+struct SensorData {
+  
+  int tempData;
+  int humidData;
+  int lightData;
 
-void setupEspNow();
-void connectToEspNowPeer(esp_now_peer_info_t &peerInfo);
-void sendData(DynamicJsonDocument jsonDoc, esp_now_peer_info_t &peerInfo);
-void onDataTransmitted(const uint8_t *receiverMacAddress, esp_now_send_status_t transmissionStatus);
-void onDataReceived(const uint8_t *senderMacAddress, const uint8_t *receivedData, int receivedDataLength);
-void processReceivedJson(DynamicJsonDocument &jsonDoc);
-void printEspErrorCode(String message, esp_err_t errorCode);
-
-// Declare an instance (variable with the datatype) of esp_now_peer_info_t
-// that holds info about the ESP32 we want to send data to
-// and receive data from in the MESH/Peer-to-Peer network.
-esp_now_peer_info_t routerDeviceInfo = {
-    // Change this address to the address of the other ESP32
-    .peer_addr = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
-    .channel = 0,
-    .encrypt = false,
 };
 
-
-/*
----------------------------
----------- SETUP ----------
----------------------------
-*/
+SensorData sensorData;
 
 
 void setup() {
-  // Setter opp Serial for kommunikasjon gjennom USB (seriemonitor)
-  Serial.begin(9600);
- 
-  // Setter opp Serial2, som er to ledninger mellom ESP32 og Zumo32U4
-  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+  Serial.begin(115200);
+  pinMode(32, INPUT);
+  pinMode(BME_MISO, INPUT);
+  pinMode(BME_CS, INPUT);
+  pinMode(BME_SCK, INPUT);
+  pinMode(BME_MOSI, INPUT);
 
-  Serial.println();
-  Serial.print("ESP Board MAC Address:  ");
-  Serial.println(WiFi.macAddress());
-
-  setupEspNow();
 }
-
-
-/*
---------------------------
----------- LOOP ----------
---------------------------
-*/
- 
 
 void loop() {
-  // Sender en streng over serieporten Serial1. 
-  // Merk at vi bruker println, som avslutter meldingen med new line (\n)
-  Serial2.println("Hei på deg");
+  Serial.println(sensorData.tempData);
+  Serial.println(sensorData.lightData);
+
   delay(1000);
-}
+  sensorData.tempData = (analogRead(32)-500)/10;
+  sensorData.humidData = analogRead(33);
+  sensorData.lightData = analogRead(34);
 
 
-/*
--------------------------------
----------- FUNCTIONS ----------
--------------------------------
-*/
-
-
-// Create a json document with the sensor data
-DynamicJsonDocument zumoData()
-{
-    DynamicJsonDocument jsonDoc(500);
-    jsonDoc["sender"] = "zumo";
-    jsonDoc["receiver"] = "webserver";
-    jsonDoc["topic"] = "zumo data";
-    return jsonDoc;
-}
-
-
-void setupEspNow()
-{
-    // Set device as a Wi-Fi Station because ESP-NOW
-    // uses parts of the Wi-Fi protocol.
-    WiFi.mode(WIFI_STA);
-
-    // Init ESP-NOW
-    esp_err_t espNowInitStatus = esp_now_init();
-    if (espNowInitStatus != ESP_OK)
-    {
-        // If the initialization fails, print a message and restart the ESP32
-        printEspErrorCode("Error initializing ESP-NOW", espNowInitStatus);
-        ESP.restart();
-    }
-
-    connectToEspNowPeer(routerDeviceInfo);
-
-    // Once ESP-NOW is successfully initialized, we will register
-    // a function that will be called when we successfully transmit data
-    esp_now_register_send_cb(onDataTransmitted);
-
-    // Register a function that will be called when data is received
-    esp_now_register_recv_cb(onDataReceived);
-}
-
-void connectToEspNowPeer(esp_now_peer_info_t &peerInfo)
-{
-    // Avoid people forgetting to change the peer mac address
-    if (peerInfo.peer_addr[0] == 0xFF)
-    {
-        Serial.println("LEGG TIL MAC-ADRESSEN TIL WEBSERVER-ESP-EN");
-        delay(5000);
-        ESP.restart();
-    }
-
-    // Add peer (other ESP32)
-    esp_err_t peerConnectionStatus = esp_now_add_peer(&peerInfo);
-    if (peerConnectionStatus != ESP_OK)
-    {
-        printEspErrorCode("Failed to add peer", peerConnectionStatus);
-        ESP.restart();
-    }
-}
-
-void sendData(DynamicJsonDocument jsonDoc, esp_now_peer_info_t &peerInfo)
-{
-    // Create a string from jsonDoc
-    // and store it in the payload variable
-    String payload;
-    int payloadSize = serializeJson(jsonDoc, payload);
-
-    // Black magic that converts the string to a byte array
-    // that can be transmitted with ESP-NOW
-    uint8_t *payloadBytes = (uint8_t *)payload.c_str();
-
-    esp_err_t status = esp_now_send(peerInfo.peer_addr, payloadBytes, payloadSize);
-
-    if (status != ESP_OK)
-    {
-        printEspErrorCode("Unable to start transmission!", status);
-        return;
-    }
-}
-
-//  Callback function for when data is sent from this ESP32
-//  The uint8_t is just a regular int with
-// specified size, in this case a 8bit/1byte size
-void onDataTransmitted(const uint8_t *receiverMacAddress, esp_now_send_status_t transmissionStatus)
-{
-    if (transmissionStatus != ESP_NOW_SEND_SUCCESS)
-    {
-        // esp_now_send_status_t is only a send status and does not contain any
-        // useful error codes. That is why printEspErrorCode() is not used here.
-        Serial.println("Data transmission failed!");
-        return;
-    }
-
-    Serial.println("Data transmission was successful!");
-}
-
-// Callback function for when data is received from other ESP32
-// The * and & symbols can mostly be ignored for our cases. Its arrays, references and pointers in the C-language used in specific cases.
-void onDataReceived(const uint8_t *senderMacAddress, const uint8_t *receivedData, int receivedDataLength)
-{
-    DynamicJsonDocument receivedJson(500);
-
-    // Read the received data and store it as json in the receiveJson variable
-    DeserializationError error = deserializeJson(receivedJson, receivedData, receivedDataLength);
-
-    // If there was an error converting the received data to json, print the error message
-    // and exit the function
-    if (error != DeserializationError::Ok)
-    {
-        Serial.print(F("deserializeJson() failed with the error message: "));
-        Serial.println(error.c_str());
-        return;
-    }
-
-    processReceivedJson(receivedJson);
-}
-
-void processReceivedJson(DynamicJsonDocument &jsonDoc)
-{
-    Serial.println("Received data:");
-
-    // Converts the jsonDoc variable to text and sends it through
-    // the Serial port using Serial.print() behind the scenes
-    serializeJson(jsonDoc, Serial);
-    Serial.println("");
-
-    // Logic based on the command received
-    String topic = jsonDoc["topic"].as<String>();
-    if (topic == "remote-commands")
-    {
-        String command = jsonDoc["command"].as<String>();
-
-        if (command == "speed-up")
-        {
-        }
-
-        if (command == "speed-down")
-        {
-        }
-
-        sendData(zumoData(), routerDeviceInfo);
-    }
-}
-
-void printEspErrorCode(String message, esp_err_t errorCode)
-{
-    Serial.println(message);
-    Serial.print("Error Code:");
-    Serial.println(errorCode, HEX);
-    Serial.println("The meaning of this error code can be found at:");
-    Serial.println("https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/error-codes.html");
 }
