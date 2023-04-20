@@ -5,18 +5,18 @@
 #include <stddef.h>
 #include <utils/compile.hh>
 
-#ifndef __unix__
+#if defined(MCU__) && MCU__
 
-/* Arduino doesn't include an overload for placement new */
+/* Arduino (atleast ESP32 in particular) doesn't include an overload for
+ * placement new */
 inline void*
 operator new(unsigned int sz, void* ptr) noexcept__
 {
     return ptr;
 }
 
-#include <new.h>
-#else
-#include <new>
 #endif
+
+#include <new>
 
 #endif // UTILS_NEW_HH__

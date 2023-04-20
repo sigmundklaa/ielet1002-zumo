@@ -2,7 +2,7 @@
 #ifndef IO_STD_HH__
 #define IO_STD_HH__
 
-#if defined(__unix__)
+#if !defined(MCU__) || !MCU__
 
 #include <assert.h>
 #include <iostream>
@@ -28,7 +28,7 @@ class std_sink : public sink
     write_(const uint8_t* data, size_t size) override__
     {
         const char* str = reinterpret_cast<const char*>(data);
-        return ::printf("%.*s\n", static_cast<int>(size), str);
+        return ::printf("%.*s", static_cast<int>(size), str);
     }
 
     size_t
