@@ -5,6 +5,7 @@
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BME680.h"
 #include <io/mqtt.hh>
+#include <WiFi.h>
 
 static void
 io::mqtt_client_init(PubSubClient& client)
@@ -13,7 +14,7 @@ io::mqtt_client_init(PubSubClient& client)
   new (&client) PubSubClient(wific);
 }
 
-static io::mqtt_sink mqtt(&io:mqtt_client, "/myendpoint", nullptr);
+static io::mqtt_sink mqtt(&io::mqtt_client, "/myendpoint", nullptr);
 
 //Definerer en struct som skal sendes over NodeRED
 struct __attribute__ ((packed)) SensorData {
@@ -91,10 +92,6 @@ void setup() {
 
   io::mqtt_client.setServer("mqtt host", 1883);
 
-  //send struct
-  SensorData s = {.x = 2, .y = 3};
-  mqtt.write(&s, sizeof(s));
-
 }
 
 void loop() {
@@ -125,6 +122,9 @@ void loop() {
   Serial.println(sensorData.lightData);
 
   Serial.println();
+
+  //sender structen
+  mqtt.write(&sensorData, sizeof(sensorData));
 
 
 }
