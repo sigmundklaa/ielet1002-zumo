@@ -67,9 +67,25 @@ class controller_
 
   protected:
     uint64_t total_run_time_us_;
-    side_ left, right;
+    uint64_t last_read_us_;
+
+    struct sensor_readings_ {
+        int16_t accel[3];   /* Acceleration X,Y,Z */
+        int16_t encoder[2]; /* Readings from left and right encoders,
+                               respectively */
+    } readings_;
+
+    /**
+     * @brief Maintains a struct of the readings of the sensors. This is done to
+     * prevent duplicate readings, and instead handle readings from one central
+     * place. That way if two components rely on readings
+     *
+     */
+    void read_sensors_();
 
   public:
+    side_ left, right;
+
     controller_();
 
     /**
@@ -77,6 +93,20 @@ class controller_
      *
      */
     void run();
+
+    /**
+     * @brief Get the latest measurements from the accelerometer
+     *
+     * @return int16_t* int16_t[3] of X,Y,Z accelerations
+     */
+    int16_t* accel_data();
+
+    /**
+     * @brief Get the latest measurements from the encoder
+     *
+     * @return int16_t* int16_t[2] of left, right encoder values
+     */
+    int16_t* encoder_data();
 };
 extern controller_ controller;
 

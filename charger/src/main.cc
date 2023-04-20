@@ -1,14 +1,25 @@
-
 #include <Arduino.h>
 
-void
-setup()
+#include <common.hh>
+#include <esp_now.hh>
+#include <charger.hh>
+
+void setupPins()
 {
-    // put your setup code here, to run once:
+    //pinMode(button_pin_1, INPUT);
 }
 
-void
-loop()
+// SETUP
+void setup()
 {
-    // put your main code here, to run repeatedly:
+    Serial.begin(9600);
+    
+    setupEspNow();
+    setupPins();
+}
+
+// LOOP
+void loop()
+{
+    loopStationCode();
 }

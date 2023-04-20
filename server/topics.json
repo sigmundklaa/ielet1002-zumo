@@ -1,0 +1,11 @@
+{
+    "red": {
+        "/report/1": [
+            {
+                "name": "velocity",
+                "kind": "u32"
+            }
+        ]
+    },
+    "device": {}
+}

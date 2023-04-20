@@ -8,49 +8,49 @@
 #include <utils/new.hh>
 
 #define LOG_MODULE common
-LOG_REGISTER(&common::log_sink);
+LOG_REGISTER(common::log_sink);
 
 #define SYNC_TIMEOUT_US_ (5e6)
 
 namespace common
 {
 
-io::serial_sink log_sink;
+static io::mqtt_sink mqtt_sink_(
+    &io::mqtt_client, IO_MQTT_PATH("/store/", IO_MQTT_NODE_ZUMO),
+    IO_MQTT_PATH("/sync/", IO_MQTT_NODE_ZUMO)
+);
 
-/* TODO: sinks should not use an init guard as there may be multiple instances.
- * This can probably be implemented with an init guard for the store instead. */
-static inline void
-init_mqtt_(io::mqtt_sink& sink)
+/* Initialize the store connected to MQTT. This class is only used for its
+ * constructor, as the store expects the connection to initialized before it is
+ * created */
+static class mqtt_initer__
 {
-    new (&sink) io::mqtt_sink(
-        &io::mqtt_client, IO_MQTT_PATH("/store/", IO_MQTT_NODE_ZUMO),
-        IO_MQTT_PATH("/sync/", IO_MQTT_NODE_ZUMO)
-    );
+  public:
+    mqtt_initer__()
+    {
+        LOG_INFO(<< "requesting sync from remote");
 
-    LOG_INFO(<< "requesting sync from remote");
+        /* Send no data to indicate we are requesting sync data */
+        mqtt_sink_.write("", 0);
 
-    /* Send no data to indicate we are requesting sync data */
-    sink.write("", 0);
+        /* Wait to recieve data before we can continue. Only try for X amount of
+         * microseconds to prevent hang */
+        for (uint64_t start = micros(); micros() - start < SYNC_TIMEOUT_US_;) {
+            if (mqtt_sink_.avail()) {
+                return;
+            }
 
-    /* Wait to recieve data before we can continue. Only try for X amount of
-     * microseconds to prevent hang */
-    for (uint64_t start = micros(); micros() - start < SYNC_TIMEOUT_US_;) {
-        if (sink.avail()) {
-            return;
+            mqtt_sink_.ps_client()->loop();
         }
 
-        sink.ps_client()->loop();
+        LOG_ERR(<< "error syncing data");
     }
-
-    LOG_ERR(<< "error syncing data");
-}
-
-static io::mqtt_sink& mqtt_sink_ = init_guarded(io::mqtt_sink, init_mqtt_);
+} mqtt_initer_instance__;
 
 store<remote_data> remote_store(
     &mqtt_sink_,
     (remote_data){
-        .batt_voltage = 0,
+        0,
     }
 );
 

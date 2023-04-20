@@ -5,18 +5,27 @@
 #include <Wire.hh>
 #include <Zumo32U4.h>
 #include <logging/log.hh>
+#include <utils/trace.hh>
 
 #define LOG_MODULE controller
-LOG_REGISTER(&common::log_sink);
+LOG_REGISTER(common::log_sink);
 
 #define DIR_CHANGE_DELAY_US_ (100e3)
+#define READ_INTERVAL_US_ (50e3)
 
 namespace hal
 {
 
 static struct {
     Zumo32U4IMU imu;
+    Zumo32U4Encoders encoders;
 } components_;
+
+/* We perform a memcpy from the .a struct to an array so we need to be sure that
+ * the sizes are the same. */
+static_assert(
+    sizeof(Zumo32U4IMU::a) == sizeof(int16_t[3]), "sizeof accel is 3*int16_t"
+);
 
 controller_ controller;
 
@@ -143,19 +152,55 @@ controller_::side_::running()
     return cur_state_ == STATE_RUNNING_;
 }
 
+void
+controller_::read_sensors_()
+{
+    TRACE_ENTER(__func__);
+
+    readings_.encoder[0] = components_.encoders.getCountsLeft();
+    readings_.encoder[1] = components_.encoders.getCountsRight();
+
+    components_.imu.readAcc();
+
+    ::memcpy(readings_.accel, &components_.imu.a, sizeof(readings_.accel));
+
+    TRACE_EXIT(__func__);
+}
+
 controller_::controller_()
     : left(controller_::side_::LEFT), right(controller_::side_::RIGHT)
 {
     if (!components_.imu.init()) {
         LOG_ERR(<< "unable to init imu");
     }
+
+    components_.imu.enableDefault();
 }
 
 void
 controller_::run()
 {
+    uint64_t tmp = micros();
+    if (tmp - last_read_us_ >= READ_INTERVAL_US_) {
+        read_sensors_();
+
+        last_read_us_ = tmp;
+    }
+
     left.run();
     right.run();
+}
+
+int16_t*
+controller_::accel_data()
+{
+    return readings_.accel;
+}
+
+int16_t*
+controller_::encoder_data()
+{
+    return readings_.encoder;
 }
 
 }; // namespace hal
