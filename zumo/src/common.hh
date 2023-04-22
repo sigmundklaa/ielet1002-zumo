@@ -15,32 +15,33 @@ namespace common
 {
 
 #if !defined(MCU__) || !MCU__
-static io::std_sink& log_sink = init_guarded(io::std_sink, utils::init_empty);
+static io::std_gateway& log_gateway =
+    init_guarded(io::std_gateway, utils::init_empty);
 #else
 static inline void
-init_log_sink_(io::serial_sink<Serial_>& mem)
+init_log_gateway_(io::serial_gateway<Serial_>& mem)
 {
-    new (&mem) io::serial_sink<Serial_>(Serial, 9600);
+    new (&mem) io::serial_gateway<Serial_>(Serial, 9600);
 }
 
 /**
- * @brief Common sink for logging
+ * @brief Common gateway for logging
  *
  */
-static io::serial_sink<Serial_>& log_sink =
-    init_guarded(io::serial_sink<Serial_>, init_log_sink_);
+static io::serial_gateway<Serial_>& log_gateway =
+    init_guarded(io::serial_gateway<Serial_>, init_log_gateway_);
 #endif
 
 /**
- * @brief Manages storage. Saves and retrieves data from the connected sink when
- * necessary
+ * @brief Manages storage. Saves and retrieves data from the connected gateway
+ * when necessary
  *
  * @tparam T Struct for store data
  */
 template <typename T> class store
 {
   protected:
-    io::sink* sink_;
+    io::gateway* gateway_;
 
   public:
     T data;
@@ -48,13 +49,13 @@ template <typename T> class store
     /**
      * @brief Construct a new store object
      *
-     * @param sink Sink to save/retreive data from
+     * @param gateway gateway to save/retreive data from
      * @param data_init Initial data, will only be used when unable to read from
-     * the sink
+     * the gateway
      */
-    inline store(io::sink* sink, const T& data_init) : sink_(sink)
+    inline store(io::gateway* gateway, const T& data_init) : gateway_(gateway)
     {
-        size_t bread = sink_->read(&this->data, sizeof(T));
+        size_t bread = gateway_->read(&this->data, sizeof(T));
 
         if (bread != sizeof(T)) {
             ::memcpy(&this->data, &data_init, sizeof(T));
@@ -62,7 +63,7 @@ template <typename T> class store
     }
 
     /**
-     * @brief Write the store to a sink. Returns 1 on success, 0 otherwise
+     * @brief Write the store to a gateway. Returns 1 on success, 0 otherwise
      *
      * @return int
      */
@@ -71,7 +72,7 @@ template <typename T> class store
     {
         static T buf = {0};
 
-        size_t written = sink_->write(&this->data, sizeof(T)) != sizeof(T);
+        size_t written = gateway_->write(&this->data, sizeof(T)) != sizeof(T);
 
         if (written != sizeof(T)) {
             return written;
@@ -79,7 +80,7 @@ template <typename T> class store
 
         /* Read the updated contents into a buffer first, and then if there is
          * no error we can safely update the real data field. */
-        size_t read = sink_->read(&buf, sizeof(buf));
+        size_t read = gateway_->read(&buf, sizeof(buf));
 
         if (read == sizeof(T)) {
             ::memcpy(&this->data, &buf, sizeof(T));

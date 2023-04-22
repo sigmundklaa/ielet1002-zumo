@@ -15,7 +15,7 @@ namespace report
 template <typename T> class reporter_
 {
   protected:
-    io::sink& sink_;
+    io::gateway& gateway_;
     uint32_t interval_us_;
     uint64_t last_write_us_;
 
@@ -30,8 +30,8 @@ template <typename T> class reporter_
     virtual size_t generate_() = 0;
 
   public:
-    reporter_(io::sink& sink, uint32_t interval)
-        : sink_(sink), interval_us_(interval)
+    reporter_(io::gateway& gateway, uint32_t interval)
+        : gateway_(gateway), interval_us_(interval)
     {
     }
 
@@ -44,7 +44,7 @@ template <typename T> class reporter_
             return;
         }
 
-        sink_.write(&buf_, generate_());
+        gateway_.write(&buf_, generate_());
         last_write_us_ = tmp;
     }
 };

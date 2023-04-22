@@ -12,7 +12,7 @@
 #include <io/serial.hh>
 
 #define LOG_MODULE main
-LOG_REGISTER(common::log_sink);
+LOG_REGISTER(common::log_gateway);
 
 struct __attribute__((packed)) mystruct {
     int x;

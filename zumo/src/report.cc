@@ -14,11 +14,11 @@ namespace report
 void
 init_reporter_(zumo_reporter_& mem)
 {
-    static io::mqtt_sink sink(
+    static io::mqtt_gateway gateway(
         &io::mqtt_client, IO_MQTT_PATH("/report/", IO_MQTT_NODE_ZUMO), nullptr
     );
 
-    new (&mem) zumo_reporter_(sink, REPORT_INTERVAL_US_);
+    new (&mem) zumo_reporter_(gateway, REPORT_INTERVAL_US_);
 }
 
 size_t

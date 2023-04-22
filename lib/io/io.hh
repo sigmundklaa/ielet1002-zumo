@@ -18,10 +18,10 @@ static mem::arena<256>& read_buf =
     init_guarded(mem::arena<256>, utils::init_empty);
 
 /**
- * @brief Pure virtual class for the sink interface
+ * @brief Pure virtual class for the gateway interface
  *
  */
-class sink
+class gateway
 {
   protected:
     virtual size_t write_(const uint8_t* data, size_t size) = 0;
@@ -44,13 +44,13 @@ class sink
 };
 
 /**
- * @brief The pushable sink is used for when the implementation of the
- * underlying device uses callbacks. We want to be able to poll the sink through
- * the read method, and so we push the data to the sink from the callback
- * function and temporarily store it until we call read.
+ * @brief The pushable gateway is used for when the implementation of the
+ * underlying device uses callbacks. We want to be able to poll the gateway
+ * through the read method, and so we push the data to the gateway from the
+ * callback function and temporarily store it until we call read.
  *
  */
-class pushable_sink : public sink
+class pushable_gateway : public gateway
 {
   protected:
     uint8_t* read_data_;

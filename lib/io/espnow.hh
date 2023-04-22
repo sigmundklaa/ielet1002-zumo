@@ -22,7 +22,7 @@ static class esp_init__
     esp_init__() { ::esp_now_init(); }
 } esp_init_;
 
-class esp_now_sink : public pushable_sink
+class esp_now_gateway : public pushable_gateway
 {
   protected:
     esp_now_peer_info_t peer_info_;
@@ -40,7 +40,7 @@ class esp_now_sink : public pushable_sink
     }
 
   public:
-    esp_now_sink(uint8_t peer_addr[6])
+    esp_now_gateway(uint8_t peer_addr[6])
     {
         ::memcpy(peer_info_.peer_addr, peer_addr, ESP_NOW_ETH_ALEN);
 

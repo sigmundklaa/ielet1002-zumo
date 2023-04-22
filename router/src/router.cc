@@ -13,13 +13,13 @@
 #define RX_PIN_ (26)
 #define TX_PIN_ (22)
 
-static io::serial_sink<HardwareSerial>
-    serial_sink_(Serial2, 115200, RX_PIN_, TX_PIN_);
+static io::serial_gateway<HardwareSerial>
+    serial_gateway_(Serial2, 115200, RX_PIN_, TX_PIN_);
 
-static io::serial_sink<HardwareSerial> log_sink_(Serial, 9600);
+static io::serial_gateway<HardwareSerial> log_gateway_(Serial, 9600);
 
 #define LOG_MODULE router
-LOG_REGISTER(log_sink_);
+LOG_REGISTER(log_gateway_);
 
 #define BUF_SIZE_ (512)
 #define MAX_PACKET_SIZE_ (256 - sizeof(serial_header_))
@@ -98,7 +98,7 @@ redirect_serial_(
     ::memcpy(buf + size, data, data_size);
 
     size += data_size;
-    if (serial_sink_.write(buf, size) != size) {
+    if (serial_gateway_.write(buf, size) != size) {
         LOG_ERR(<< "serial write blocked");
     }
 
@@ -252,12 +252,13 @@ loop()
 
     size_t bread =
         sizeof(serial_header_) + 5 +
-        sizeof(test_data); // serial_sink_.read(buf, sizeof(serial_header_));
+        sizeof(test_data); // serial_gateway_.read(buf, sizeof(serial_header_));
 
     if (bread != 0) {
         serial_header_* header = reinterpret_cast<serial_header_*>(buf);
         // bread +=
-        //     serial_sink_.read(buf + bread, header->dst_size + header->size);
+        //     serial_gateway_.read(buf + bread, header->dst_size +
+        //     header->size);
 
         redirect_network_(header, buf + sizeof(*header), bread);
     }
