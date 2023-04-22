@@ -14,10 +14,10 @@
 #define LOG_MODULE main
 LOG_REGISTER(common::log_gateway);
 
-struct __attribute__((packed)) mystruct {
-    int x;
-    int y;
-};
+void
+yield_tick()
+{
+}
 
 void
 setup()
@@ -32,4 +32,5 @@ setup()
 void
 loop()
 {
+    yield_tick();
 }

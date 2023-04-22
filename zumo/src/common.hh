@@ -8,6 +8,7 @@
 #include <io/serial.hh>
 #endif
 
+#include <io/redirect.hh>
 #include <string.h>
 #include <utils/init.hh>
 
@@ -33,8 +34,8 @@ static io::serial_gateway<Serial_>& log_gateway =
 #endif
 
 /**
- * @brief Manages storage. Saves and retrieves data from the connected gateway
- * when necessary
+ * @brief Manages storage. Saves and retrieves data from the connected
+ * gateway when necessary
  *
  * @tparam T Struct for store data
  */

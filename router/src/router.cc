@@ -3,6 +3,7 @@
 #include <WiFi.h>
 #include <io/espnow.hh>
 #include <io/mqtt.hh>
+#include <io/redirect.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
 #include <string.h>
@@ -22,50 +23,8 @@ static io::serial_gateway<HardwareSerial> log_gateway_(Serial, 9600);
 LOG_REGISTER(log_gateway_);
 
 #define BUF_SIZE_ (512)
-#define MAX_PACKET_SIZE_ (256 - sizeof(serial_header_))
-
-enum header_type_ {
-    PACKET_MQTT,
-    PACKET_ESPNOW,
-    PACKET_HOST,
-} __attribute__((packed));
-
-static_assert(sizeof(header_type_) == 1, "size of header type is 1");
-
-struct __attribute__((packed)) serial_header_ {
-    header_type_ type;
-    uint8_t dst_size;
-    uint8_t size;
-};
 
 static uint8_t buf_[256];
-
-static size_t
-prepare_header_(
-    header_type_ type, uint8_t* buf, const void* dst_data, size_t dst_size,
-    size_t data_size
-)
-{
-    size_t size = dst_size + data_size;
-    assert(size <= UINT8_MAX);
-
-    serial_header_* header = reinterpret_cast<serial_header_*>(buf);
-    header->type = type;
-    header->dst_size = static_cast<uint8_t>(dst_size);
-    header->size = data_size;
-
-    if (size > MAX_PACKET_SIZE_) {
-        LOG_ERR(<< "packet too big");
-
-        return 0;
-    }
-
-    if (dst_size > 0) {
-        ::memcpy(buf + sizeof(*header), dst_data, dst_size);
-    }
-
-    return sizeof(*header) + dst_size;
-}
 
 /**
  * @brief Insert a CRC-32 checksum at the front of the buffer @p buf
@@ -86,14 +45,15 @@ insert_crc_(uint8_t* buf, size_t size)
 
 static void
 redirect_serial_(
-    header_type_ type, uint8_t* buf, const void* header_data,
+    io::redirect::header_type type, uint8_t* buf, const void* header_data,
     size_t header_size, const void* data, size_t data_size
 )
 {
     TRACE_ENTER(__func__);
 
-    size_t size =
-        prepare_header_(type, buf, header_data, header_size, data_size);
+    size_t size = io::redirect::prepare_header(
+        type, buf, header_data, header_size, data_size
+    );
 
     ::memcpy(buf + size, data, data_size);
 
@@ -106,7 +66,7 @@ redirect_serial_(
 }
 
 static void
-redirect_mqtt_(serial_header_* header, uint8_t* buf, size_t size)
+redirect_mqtt_(io::redirect::header* header, uint8_t* buf, size_t size)
 {
     TRACE_ENTER(__func__);
 
@@ -139,7 +99,7 @@ static ::esp_now_peer_info_t esp_peers_[] = {
 };
 
 static void
-redirect_espnow_(serial_header_* header, uint8_t* buf, size_t size)
+redirect_espnow_(io::redirect::header* header, uint8_t* buf, size_t size)
 {
     TRACE_ENTER(__func__);
 
@@ -147,16 +107,16 @@ redirect_espnow_(serial_header_* header, uint8_t* buf, size_t size)
 }
 
 static void
-redirect_network_(serial_header_* header, uint8_t* buf, size_t size)
+redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
 {
     switch (header->type) {
-    case PACKET_MQTT:
+    case io::redirect::PACKET_MQTT:
         redirect_mqtt_(header, buf, size);
         break;
-    case PACKET_ESPNOW:
+    case io::redirect::PACKET_ESPNOW:
         redirect_espnow_(header, buf, size);
         break;
-    case PACKET_HOST:
+    case io::redirect::PACKET_HOST:
         /* Not meant to be redirected anywhere */
         break;
     }
@@ -166,7 +126,8 @@ static void
 esp_callback_(const uint8_t* mac_addr, const uint8_t* data, int recv_sz)
 {
     redirect_serial_(
-        PACKET_ESPNOW, buf_, mac_addr, ESP_NOW_ETH_ALEN, data, recv_sz
+        io::redirect::PACKET_ESPNOW, buf_, mac_addr, ESP_NOW_ETH_ALEN, data,
+        recv_sz
     );
 }
 
@@ -174,7 +135,9 @@ static void
 mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
 {
     TRACE_ENTER(__func__);
-    redirect_serial_(PACKET_MQTT, buf_, topic, ::strlen(topic), data, sz);
+    redirect_serial_(
+        io::redirect::PACKET_MQTT, buf_, topic, ::strlen(topic), data, sz
+    );
     TRACE_EXIT(__func__);
 }
 
@@ -246,16 +209,19 @@ loop()
         .w = 3.14,
     };
 
-    size_t header_sz =
-        prepare_header_(PACKET_MQTT, buf, "/test", 5, sizeof(test_data));
+    size_t header_sz = io::redirect::prepare_header(
+        io::redirect::PACKET_MQTT, buf, "/test", 5, sizeof(test_data)
+    );
     memcpy(buf + header_sz, &test_data, sizeof(test_data));
 
     size_t bread =
-        sizeof(serial_header_) + 5 +
-        sizeof(test_data); // serial_gateway_.read(buf, sizeof(serial_header_));
+        sizeof(io::redirect::header) + 5 +
+        sizeof(test_data
+        ); // serial_gateway_.read(buf, sizeof(io::redirect::header));
 
     if (bread != 0) {
-        serial_header_* header = reinterpret_cast<serial_header_*>(buf);
+        io::redirect::header* header =
+            reinterpret_cast<io::redirect::header*>(buf);
         // bread +=
         //     serial_gateway_.read(buf + bread, header->dst_size +
         //     header->size);
