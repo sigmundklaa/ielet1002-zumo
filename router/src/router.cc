@@ -52,6 +52,7 @@ prepare_header_(
     serial_header_* header = reinterpret_cast<serial_header_*>(buf);
     header->type = type;
     header->dst_size = static_cast<uint8_t>(dst_size);
+    header->size = data_size;
 
     if (size > MAX_PACKET_SIZE_) {
         LOG_ERR(<< "packet too big");
@@ -59,7 +60,7 @@ prepare_header_(
         return 0;
     }
 
-    if (size > 0) {
+    if (dst_size > 0) {
         ::memcpy(buf + sizeof(*header), dst_data, dst_size);
     }
 
@@ -240,13 +241,9 @@ loop()
         .w = 3.14,
     };
 
-    *(serial_header_*)buf = (serial_header_){
-        .type = PACKET_MQTT,
-        .dst_size = 5,
-        .size = sizeof(test_data),
-    };
-    memcpy(buf + sizeof(serial_header_), "/test", 5);
-    memcpy(buf + sizeof(serial_header_) + 5, &test_data, sizeof(test_data));
+    size_t header_sz =
+        prepare_header_(PACKET_MQTT, buf, "/test", 5, sizeof(test_data));
+    memcpy(buf + header_sz, &test_data, sizeof(test_data));
 
     size_t bread =
         sizeof(serial_header_) + 5 +
