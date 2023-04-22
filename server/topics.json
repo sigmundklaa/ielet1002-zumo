@@ -1,9 +1,31 @@
 {
     "red": {
-        "/report/1": [
+        "report/1": [
             {
                 "name": "velocity",
                 "kind": "u32"
+            }
+        ],
+        "test": [
+            {
+                "name": "x",
+                "kind": "u8"
+            },
+            {
+                "name": "y",
+                "kind": "u16"
+            },
+            {
+                "name": "z",
+                "kind": "i16"
+            },
+            {
+                "name": "u",
+                "kind": "i32"
+            },
+            {
+                "name": "w",
+                "kind": "f32"
             }
         ]
     },

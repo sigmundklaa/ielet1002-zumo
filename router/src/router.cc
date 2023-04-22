@@ -6,6 +6,7 @@
 #include <io/serial.hh>
 #include <logging/log.hh>
 #include <string.h>
+#include <utils/crc32.hh>
 #include <utils/trace.hh>
 #include <wifi.hh>
 
@@ -65,6 +66,23 @@ prepare_header_(
     return sizeof(*header) + dst_size;
 }
 
+/**
+ * @brief Insert a CRC-32 checksum at the front of the buffer @p buf
+ *
+ * @param buf
+ * @param size
+ * @return size_t Size of checksum
+ */
+static size_t
+insert_crc_(uint8_t* buf, size_t size)
+{
+    uint32_t crc = utils::crc32(buf, size);
+    ::memmove(buf + sizeof(crc), buf, size);
+    ::memcpy(buf, &crc, sizeof(crc));
+
+    return sizeof(crc);
+}
+
 static void
 redirect_serial_(
     header_type_ type, uint8_t* buf, const void* header_data,
@@ -74,12 +92,12 @@ redirect_serial_(
     TRACE_ENTER(__func__);
 
     size_t size =
-        prepare_header_(type, buf_, header_data, header_size, data_size);
+        prepare_header_(type, buf, header_data, header_size, data_size);
 
-    ::memcpy(buf_ + size, data, data_size);
+    ::memcpy(buf + size, data, data_size);
 
     size += data_size;
-    if (serial_sink_.write(buf_, size) != size) {
+    if (serial_sink_.write(buf, size) != size) {
         LOG_ERR(<< "serial write blocked");
     }
 
@@ -95,10 +113,10 @@ redirect_mqtt_(serial_header_* header, uint8_t* buf, size_t size)
 
     /* Topic recieved in packet is not null-terminated */
     ::memcpy(topic_buf, buf, header->dst_size);
+    size_t crc_size = insert_crc_(buf + header->dst_size, header->size);
+    size_t tot_size = crc_size + header->size;
 
-    if (!io::mqtt_client.publish(
-            topic_buf, buf + header->dst_size, header->size
-        )) {
+    if (!io::mqtt_client.publish(topic_buf, buf + header->dst_size, tot_size)) {
         LOG_ERR(<< "unable to publish");
     }
 
@@ -162,7 +180,10 @@ reconnect(PubSubClient& client)
 {
     while (!client.connected()) {
         if (!client.connect("router")) {
-            LOG_INFO(<< "connecting to mqtt");
+            LOG_INFO(
+                << "connecting to mqtt (" << MQTT_HOST << ":"
+                << String(MQTT_PORT) << ")"
+            );
             delay(500);
         }
     }
@@ -180,8 +201,6 @@ setup()
         delay(500);
     }
 
-    reconnect(io::mqtt_client);
-
     for (size_t i = 0; i < sizeof(esp_peers_) / sizeof(esp_peers_[0]); i++) {
         ::esp_err_t status = ::esp_now_add_peer(&esp_peers_[i]);
 
@@ -196,6 +215,7 @@ setup()
 
     io::mqtt_client.setServer(MQTT_HOST, MQTT_PORT);
     io::mqtt_client.setCallback(mqtt_callback_);
+    reconnect(io::mqtt_client);
 
     TRACE_EXIT(__func__);
 }
@@ -206,15 +226,31 @@ loop()
     static uint8_t buf[256];
     memset(buf, 1, 255);
 
+    struct __attribute__((packed)) {
+        uint8_t x;
+        uint16_t y;
+        int16_t z;
+        int32_t u;
+        float w;
+    } test_data = {
+        .x = 1,
+        .y = 2,
+        .z = -3,
+        .u = -4,
+        .w = 3.14,
+    };
+
     *(serial_header_*)buf = (serial_header_){
         .type = PACKET_MQTT,
         .dst_size = 5,
-        .size = 4,
+        .size = sizeof(test_data),
     };
     memcpy(buf + sizeof(serial_header_), "/test", 5);
+    memcpy(buf + sizeof(serial_header_) + 5, &test_data, sizeof(test_data));
 
-    size_t bread = sizeof(serial_header_) +
-                   9; // serial_sink_.read(buf, sizeof(serial_header_));
+    size_t bread =
+        sizeof(serial_header_) + 5 +
+        sizeof(test_data); // serial_sink_.read(buf, sizeof(serial_header_));
 
     if (bread != 0) {
         serial_header_* header = reinterpret_cast<serial_header_*>(buf);
@@ -223,4 +259,6 @@ loop()
 
         redirect_network_(header, buf + sizeof(*header), bread);
     }
+
+    delay(3000);
 }
