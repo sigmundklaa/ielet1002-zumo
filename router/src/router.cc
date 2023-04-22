@@ -173,7 +173,9 @@ esp_callback_(const uint8_t* mac_addr, const uint8_t* data, int recv_sz)
 static void
 mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
 {
+    TRACE_ENTER(__func__);
     redirect_serial_(PACKET_MQTT, buf_, topic, ::strlen(topic), data, sz);
+    TRACE_EXIT(__func__);
 }
 
 static void
@@ -186,8 +188,11 @@ reconnect(PubSubClient& client)
                 << String(MQTT_PORT) << ")"
             );
             delay(500);
+            continue;
         }
     }
+
+    client.subscribe("/device/test");
 }
 
 void
@@ -257,5 +262,6 @@ loop()
         redirect_network_(header, buf + sizeof(*header), bread);
     }
 
+    io::mqtt_client.loop();
     delay(3000);
 }

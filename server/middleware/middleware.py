@@ -163,22 +163,22 @@ class _handler:
         logging.info('Redirecting to device')
 
         data = json.loads(msg.payload)
-        config = self.config['device'][msg.topic]
+        topic = msg.topic.lstrip('/devicemw').lstrip('/')
+        config = self.config['devicemw'][topic]
 
-        data_struct = [data[field.name] for field in config]
-        packed_tmp = struct.pack(
-            _build_pack_fmt(_build_pack_fmt(*config)), data_struct)
+        data_struct = [data[field['name']] for field in config]
+        packed_tmp = struct.pack(_build_pack_fmt(*config), *data_struct)
 
         checksum = binascii.crc32(packed_tmp)
         data_struct = [checksum] + data_struct
 
-        self.client.publish(_build_topic('/device', msg.topic),
-                            struct.pack(_build_fmt(*config), data_struct))
+        self.client.publish(_build_topic('/device', topic),
+                            struct.pack(_build_fmt(*config), *data_struct))
 
     def _on_message(self, client: mqtt.Client, usrdata: Any, msg: mqtt.MQTTMessage) -> None:
         logging.info(f'Message recieved: {msg}')
 
-        if msg.topic.startswith('/device'):
+        if msg.topic.startswith('/devicemw'):
             self._redirect_device(msg)
         elif msg.topic.startswith('/red'):
             logging.info(f'Red recieved: {msg.payload.decode("utf-8")}')
@@ -189,8 +189,8 @@ class _handler:
         logging.info(f'Connected to {self.host}:{self.port}')
 
         # Subscribe to topics for Node-RED -> Device direction
-        for dtopic in self.config['device'].keys():
-            self.client.subscribe(_build_topic('/device', dtopic))
+        for dtopic in self.config['devicemw'].keys():
+            self.client.subscribe(_build_topic('/devicemw', dtopic))
 
         # Subscribe to topic for Device -> Node-RED direction. This is not
         # prepended by a particular endpoint like /device.
