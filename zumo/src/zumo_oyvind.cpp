@@ -3,19 +3,54 @@
 #include <Wire.h>
 #include <Zumo32U4.h>
 
-enum DriveState {
+enum DriveState 
+{
   followLine,         // 0
   intersection,       // 1
-  leftIntersection,   // 2
-  rightIntersection,  // 3
-  turnLeft,           // 4
-  turnRight,          // 5
-  deadEnd,            // 6
+  turnLeft,           // 2
+  turnRight,          // 3
+  deadEnd,            // 4
+  chargeBattery,      // 5
+  emptyTrash,         // 6
   reverse,            // 7
-  missingLine         // 8
+  missingLine,        // 8
+  address,            // 9
+  stop                // 10
 };
 
-Zumo32U4OLED display;
+struct TurnCheck
+{
+  uint16_t left;
+  uint16_t deadEnd;
+  uint16_t right;
+
+  void update(uint16_t leftSensor, uint16_t rightSensor)
+  {
+    if (leftSensor > 200 && rightSensor > 200)
+    {
+      deadEnd += 1;
+    }
+    else if (leftSensor > 200 && rightSensor < 200)
+    {
+      left += 1;
+    }
+    else if (leftSensor < 200 && rightSensor > 200)
+    {
+      right += 1;
+    }
+  }
+
+  void reset()
+  {
+    left = 0;
+    deadEnd = 0;
+    right = 0;
+  }
+};
+
+TurnCheck turnCheck;
+DriveState driveState = followLine;
+
 Zumo32U4LineSensors lineSensors;
 Zumo32U4Motors motors;
 Zumo32U4ButtonC buttonC;
@@ -23,9 +58,6 @@ Zumo32U4ButtonC buttonC;
 uint16_t lineSensorValues[5];
 uint16_t position = 2000;
 uint16_t maxSpeed = 100;  
-uint16_t deadEndCheck;
-uint16_t leftTurnCheck;
-uint16_t rightTurnCheck;
 
 int16_t positionError = 0;
 int16_t lastError = 0;
@@ -33,14 +65,16 @@ int16_t speedDifference = 0;
 int16_t leftSpeed;
 int16_t rightSpeed;
 int16_t lineSensorError;
+int16_t bankBalance = 100;
 
+uint8_t currentAddress = 0;
+uint8_t stopAddress = 2;
+uint8_t batteryCharge = 100;
 
-DriveState driveState = followLine;
+bool emptyTrashAddress[3] = {1, 0, 1};
+bool holdingTrash = false;
 
 void calibrateLineSensors();
-void loadCustomCharacters();
-void printBar(uint8_t height);
-void printReadingsToDisplay();
 void printReadingsToSerial();
 void readSensorValues();
 
@@ -57,14 +91,13 @@ void setup()
 
   lineSensors.initFiveSensors();
 
-  display.clear();
-  display.print(F("Press C"));
-  display.gotoXY(0, 1);
-  display.print(F("to calib"));
+  Serial.println("Press C on Zumo to calibrate line sensors.");
   buttonC.waitForButton();
 
+  Serial.println("Calibrating line sensors.");
   calibrateLineSensors();
-  loadCustomCharacters();
+  
+  Serial.println("Line sensors calibrated!");
 }
 
 
@@ -82,65 +115,32 @@ void loop()
   speedDifference = positionError / 4 + 3 * (positionError - lastError);
   lineSensorError = lineSensorValues[1] - lineSensorValues[3];
   lastError = positionError;
-  leftSpeed = (int16_t)maxSpeed + speedDifference - lineSensorError;
+  leftSpeed = (int16_t)maxSpeed + speedDifference - lineSensorError/7;
   leftSpeed = constrain(leftSpeed, 0, (int16_t)maxSpeed);
-  rightSpeed = (int16_t)maxSpeed - speedDifference + lineSensorError;
+  rightSpeed = (int16_t)maxSpeed - speedDifference + lineSensorError/7;
   rightSpeed = constrain(rightSpeed, 0, (int16_t)maxSpeed);
 
-  if ((lineSensorValues[0] > 500 || lineSensorValues[4] > 500) 
-  && (driveState == followLine || driveState == intersection || driveState == reverse))
+  if ((lineSensorValues[0] > 200 || lineSensorValues[4] > 200))
   {
-    driveState = intersection;
+    turnCheck.update(lineSensorValues[0], lineSensorValues[4]);
 
-    if (lineSensorValues[0] > 500 && lineSensorValues[4] > 500)
+    if (driveState == followLine)
     {
-      deadEndCheck += 1;
-      leftTurnCheck = 0;
-      rightTurnCheck = 0;
-    }
-    else if (lineSensorValues[0] > 500 && lineSensorValues[4] < 500)
-    {
-      deadEndCheck = 0;
-      leftTurnCheck += 1;
-      rightTurnCheck = 0;
-    }
-    else if (lineSensorValues[0] < 500 && lineSensorValues[4] > 500)
-    {
-      deadEndCheck = 0;
-      leftTurnCheck = 0;
-      rightTurnCheck += 1;
+      driveState = intersection;
     }
   }
 
   switch (driveState) 
   {
     case followLine:
-      /*
-      if (deadEndCheck > 2)
-      {
-        driveState = deadEnd;
-        motors.setSpeeds(0, 0);
-        sampleTime = millis();
-      }
-      else if (leftTurnCheck > 2)
-      {
-        driveState = leftIntersection;
-      }
-      else if (rightTurnCheck > 2)
-      {
-        driveState = rightIntersection;
-      }
-      else if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 500)
+      if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 400)
       {
         driveState = missingLine;
       }
-      else if (lineSensorValues[0] + lineSensorValues[4] < 500)
+      else
       {
         motors.setSpeeds(leftSpeed, rightSpeed);
       }
-      */      
-
-      motors.setSpeeds(leftSpeed, rightSpeed);
 
       break;
     case intersection:
@@ -148,14 +148,13 @@ void loop()
 
       if (lineSensorValues[0] + lineSensorValues[4] < 100)
       {
-        if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 300)
+        if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 1000)
         {
-          if (deadEndCheck > leftTurnCheck)
+          if (turnCheck.deadEnd > turnCheck.left)
           {
-            if (deadEndCheck > rightTurnCheck)
+            if (turnCheck.deadEnd > turnCheck.right)
             {
               driveState = deadEnd;
-              motors.setSpeeds(0, 0);
               sampleTime = millis();
             }
             else
@@ -164,7 +163,7 @@ void loop()
               sampleTime = millis();
             }
           }
-          else if (leftTurnCheck > rightTurnCheck)
+          else if (turnCheck.left > turnCheck.right)
           {
             driveState = turnLeft;
             sampleTime = millis();
@@ -178,108 +177,117 @@ void loop()
         else
         {
           driveState = followLine;
-          deadEndCheck = 0;
-          leftTurnCheck = 0;
-          rightTurnCheck = 0;
-        }
-      }
-
-      break;
-    case leftIntersection:
-      motors.setSpeeds(maxSpeed * 0.8, maxSpeed * 0.8);
-
-      if (lineSensorValues[0] < 100 && lineSensorValues[4] < 100)
-      {
-        if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 1000)
-        {
-          driveState = turnLeft;
-          sampleTime = millis();
-        }
-        else
-        {
-          driveState = followLine;
-          deadEndCheck = 0;
-          leftTurnCheck = 0;
-          rightTurnCheck = 0;
-        }
-      }
-
-      break;
-    case rightIntersection:
-      motors.setSpeeds(maxSpeed * 0.8, maxSpeed * 0.8);
-
-      if (lineSensorValues[0] < 100 && lineSensorValues[4] < 100)
-      {
-        if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 1000)
-        {
-          driveState = turnRight;
-          sampleTime = millis();
-        }
-        else
-        {
-          driveState = followLine;
-          deadEndCheck = 0;
-          leftTurnCheck = 0;
-          rightTurnCheck = 0;
+          turnCheck.reset();
         }
       }
 
       break;
     case turnLeft:
-      motors.setSpeeds(-(maxSpeed * 0.9), maxSpeed);
+      motors.setSpeeds(-(maxSpeed*0.7), maxSpeed);
 
-      if (millis() - sampleTime > (850 / maxSpeed * 100))
+      if (millis() - sampleTime > 1300)
       {
         motors.setSpeeds(0, 0);
 
-        if (millis() - sampleTime > (850 / maxSpeed * 100 + 50))
+        if (millis() - sampleTime > 1350)
         {
           driveState = followLine;
+          turnCheck.reset();
         }
       }
 
       break;
     case turnRight:
-      motors.setSpeeds(maxSpeed, -(maxSpeed * 0.9));
+      motors.setSpeeds(maxSpeed, -(maxSpeed*0.7));
 
-      if (millis() - sampleTime > (850 / maxSpeed * 100))
+      if (millis() - sampleTime > 1300)
       {
         motors.setSpeeds(0, 0);
         
-        if (millis() - sampleTime > (850 / maxSpeed * 100 + 50))
+        if (millis() - sampleTime > 1350)
         {
           driveState = followLine;
+          turnCheck.reset();
         }
       }
 
       break;
     case deadEnd:
+      if (millis() - sampleTime < 100)
+      {
+        motors.setSpeeds(0, 0);
+
+        if (batteryCharge < 20)
+        {
+          driveState = chargeBattery;
+          sampleTime = millis();
+        }
+        else if (holdingTrash)
+        {
+          driveState = emptyTrash;
+          sampleTime = millis();
+        }
+      }
       if (millis() - sampleTime >= 100)
       {
         motors.setSpeeds(-(maxSpeed / 2), -(maxSpeed / 2));
-        if (lineSensorValues[0] < 100 && lineSensorValues[4] < 100)
+
+        if (millis() - sampleTime >= 1000)
         {
-          //leftTurnCheck = 0;
-          //rightTurnCheck = 0;
-          driveState = reverse;
+          if (lineSensorValues[0] < 100 && lineSensorValues[4] < 100)
+          {
+            turnCheck.reset();
+            driveState = reverse;
+          }
         }
       }
 
       break;
-    case reverse:
-      if (leftTurnCheck > 1)
+    case chargeBattery:
+      motors.setSpeeds(0, 0);
+      
+      if (batteryCharge >= 100)
       {
-        driveState = turnLeft;
+        driveState = deadEnd;
         sampleTime = millis();
       }
-      if (rightTurnCheck > 1)
+      else if (millis() - sampleTime >= 50)
+      {
+        batteryCharge += 1;
+        bankBalance -= 1;
+        sampleTime = millis();
+      }
+
+      break;
+    case emptyTrash:
+      if (millis() -  sampleTime > 2000)
+      {
+        holdingTrash = false;
+        driveState = deadEnd;
+        sampleTime = millis();
+      }
+      break;
+    case reverse:
+      if (turnCheck.left)
+      {
+        driveState = turnLeft;
+        turnCheck.reset();
+        sampleTime = millis();
+      }
+      if (turnCheck.right)
       {
         driveState = turnRight;
+        turnCheck.reset();
         sampleTime = millis();
       }
 
       break;
     case missingLine:
+      if (lineSensorValues[0] + lineSensorValues[4] > 500)
+      {
+        driveState = address;
+      }
+
       motors.setSpeeds(maxSpeed * 0.8, maxSpeed * 0.8);
 
       if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) > 500)
@@ -288,25 +296,44 @@ void loop()
       }
 
       break;
+    case address:
+      if (currentAddress > 2)
+      {
+        currentAddress = 0;
+      }
+
+      if (emptyTrashAddress[currentAddress])
+      {
+        emptyTrashAddress[currentAddress] = false;
+        holdingTrash = true;
+        driveState = stop;
+        currentAddress += 1;
+        sampleTime = millis();
+      }
+      else if ((lineSensorValues[0] + lineSensorValues[4]) < lineSensorValues[2])
+      {
+        currentAddress += 1;
+        turnCheck.reset();
+        driveState = followLine;
+      }
+
+      break;
+    case stop:
+      motors.setSpeeds(0, 0);
+
+      if (millis() - sampleTime > 2000)
+      {
+        motors.setSpeeds(maxSpeed*0.5, maxSpeed*0.5);
+      }
+
+      if (millis() - sampleTime > 2500)
+      {
+        driveState = followLine;
+        turnCheck.reset();
+      }
+
+      break;
   }
-
-  //readSensorValues();
-
-  /*
-  */
-  Serial.print("ST: ");
-  Serial.print(driveState);
-  Serial.print(" | PO: ");
-  Serial.print(position);
-  Serial.print(" | ER: ");
-  Serial.print(positionError);
-  Serial.print(" | DE: ");
-  Serial.print(deadEndCheck);
-  Serial.print(" | LE: ");
-  Serial.print(leftTurnCheck);
-  Serial.print(" | RI: ");
-  Serial.println(rightTurnCheck);
-  
 }
 
 
@@ -319,24 +346,18 @@ void calibrateLineSensors()
   {
   delay(1000);
 
-  display.clear();
-  display.gotoXY(0, 0);
-  display.print(F("Line cal"));
-
-  for (uint16_t i = 0; i < 162; i++)
+  for (uint16_t i = 0; i < 115; i++)
   {
-    display.gotoXY(0, 1);
-    display.print(i);
     lineSensors.calibrate();
 
-    if (i > 40 && i < 115)
+    if (i > 30 && i < 85)
     {
       motors.setSpeeds(-100, 100);
     }
-    else if (i == 40 || i == 115)
+    else if (i == 30 || i == 85)
     {
       motors.setSpeeds(0, 0);
-      delay(100);
+      delay(50);
     }
     else
     {
@@ -345,45 +366,6 @@ void calibrateLineSensors()
   }
 
   motors.setSpeeds(0, 0);
-
-  display.clear();
-}
-
-
-void loadCustomCharacters()
-  {
-  static const char levels[] PROGMEM = {
-    0, 0, 0, 0, 0, 0, 0, 63, 63, 63, 63, 63, 63, 63
-  };
-  display.loadCustomCharacter(levels + 0, 0);  // 1 bar
-  display.loadCustomCharacter(levels + 1, 1);  // 2 bars
-  display.loadCustomCharacter(levels + 2, 2);  // 3 bars
-  display.loadCustomCharacter(levels + 3, 3);  // 4 bars
-  display.loadCustomCharacter(levels + 4, 4);  // 5 bars
-  display.loadCustomCharacter(levels + 5, 5);  // 6 bars
-  display.loadCustomCharacter(levels + 6, 6);  // 7 bars
-}
-
-
-void printBar(uint8_t height)
-{
-  if (height > 8) 
-  { 
-    height = 8; 
-  }
-  const char barChars[] = {' ', 0, 1, 2, 3, 4, 5, 6, (char)255};
-  display.print(barChars[height]);
-}
-
-
-void printReadingsToDisplay()
-{
-  display.gotoXY(0, 0);
-  for (uint8_t i = 0; i < 5; i++)
-  {
-    uint8_t barHeight = map(lineSensorValues[i], 0, 1000, 0, 8);
-    printBar(barHeight);
-  }
 }
 
 
@@ -408,6 +390,5 @@ void readSensorValues()
 {
   lineSensors.readCalibrated(lineSensorValues);
 
-  printReadingsToDisplay();
   printReadingsToSerial();
 }
