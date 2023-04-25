@@ -149,7 +149,7 @@ class _handler:
         """
         logging.info('Redirecting to red')
 
-        topic = msg.topic.lstrip('/redmw').lstrip('/')
+        topic = msg.topic.removeprefix('/redmw').removeprefix('/')
 
         fields = [_config_entry(x) for x in self.config['red'][topic]]
         data = _unpack_payload(msg.payload, _build_fmt(*fields))
@@ -171,7 +171,7 @@ class _handler:
         logging.info('Redirecting to device')
 
         data = json.loads(msg.payload)
-        topic = msg.topic.lstrip('/devicemw').lstrip('/')
+        topic = msg.topic.removeprefix('/devicemw').removeprefix('/')
         config = self.config['devicemw'][topic]
 
         data_struct = [data[field['name']] for field in config]
