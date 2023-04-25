@@ -7,13 +7,14 @@
 #include <io/mqtt.hh>
 #include <WiFi.h>
 
+//mqtt tilkobling
 void io::mqtt_client_init(PubSubClient& client)
 {
   static WiFiClient wific;
   new (&client) PubSubClient(wific);
 }
 
-static io::mqtt_sink mqtt(&io::mqtt_client, "/myendpoint", nullptr);
+static io::mqtt_sink mqtt(&io::mqtt_client, "/redmw/sensor/1", nullptr);
 
 //Definerer en struct som skal sendes over NodeRED
 struct __attribute__ ((packed)) SensorData {
@@ -37,6 +38,8 @@ float temperature;
 float humidity;
 float pressure;
 float gasResistance;
+int period = 10000;
+unsigned long time_now = 0;
 
 //Sier til bme688 hva pin-navnene den skal bruke heter
 Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
@@ -56,9 +59,41 @@ void getBME688Readings(){
   temperature = bme.temperature;
   pressure = bme.pressure / 100.0;
   humidity = bme.humidity;
-  gasResistance = bme.gas_resistance / 1000.0;
 }
 
+//Callback funksjon som sjekker om knappen på NodeRED dashbordet blir trykket, og hvis den blir det vil den sende sensordataen.
+void callback(char* topic, uint8_t* message, unsigned int length) {
+  Serial.print("Message arrived on topic: ");
+  Serial.print(topic);
+  Serial.print(". Message: ");
+  String messageTemp;
+
+   for (int i = 0; i < length; i++) {
+    Serial.print((char)message[i]);
+    messageTemp += (char)message[i];
+  }
+  Serial.println();
+
+   if(String(topic) == "/SensorButton"){
+    if(messageTemp == "data"){
+      Serial.print("Sending sensordata...");
+      mqtt.write(&sensorData, sizeof(sensorData));
+      Serial.println("SensorData sent");
+    }
+  }
+  Serial.println();
+}
+
+//Reconnect funksjon for mqtt
+static void reconnect(PubSubClient& client) {
+    while (!client.connected()) {
+        if (!client.connect("esp32")) {
+            delay(500);
+        }
+    }
+
+    client.subscribe("/SensorButton");
+}
 
 void setup() {
   //Serial og pindefinisjon
@@ -92,11 +127,12 @@ void setup() {
   }
 //definerer hvilken mqtt server som dataen skal sendes til
   io::mqtt_client.setServer("192.168.137.194", 1883);
+  io::mqtt_client.setCallback(callback);
 
 }
 
 void loop() {
-
+  reconnect(io::mqtt_client);
   getBME688Readings();
 
 //lagrer sensordataene til structen
@@ -105,28 +141,29 @@ void loop() {
   sensorData.humidity = humidity;
   sensorData.pressure = pressure;
 
-  delay(2000);
+//Sender oppdaterte sensordataer hvert tiende sekund
+ if(millis() >= time_now + period){
+        time_now += period;
+          //Printer dataene til Serial for enkel dataovervåking
+          Serial.print("Temperature = ");
+          Serial.print(sensorData.temperature);
+          Serial.println(" *C");
 
-  //Printer dataene til Serial for enkel dataovervåking
-  Serial.print("Temperature = ");
-  Serial.print(bme.temperature);
-  Serial.println(" *C");
+          Serial.print("Pressure = ");
+          Serial.print(sensorData.pressure);
+          Serial.println(" hPa");
 
-  Serial.print("Pressure = ");
-  Serial.print(bme.pressure / 100.0);
-  Serial.println(" hPa");
+          Serial.print("Humidity = ");
+          Serial.print(sensorData.humidity);
+          Serial.println(" %");
 
-  Serial.print("Humidity = ");
-  Serial.print(bme.humidity);
-  Serial.println(" %");
+          Serial.print("Lightdata = ");
+          Serial.println(sensorData.lightData);
 
-  Serial.print("Lightdata = ");
-  Serial.println(sensorData.lightData);
-
-  Serial.println();
-
-  //sender structen
-  mqtt.write(&sensorData, sizeof(sensorData));
-
+          Serial.println();
+          //sender structen
+          mqtt.write(&sensorData, sizeof(sensorData));
+    }
+  io::mqtt_client.loop();
 
 }
