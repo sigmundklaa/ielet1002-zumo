@@ -7,8 +7,7 @@
 #include <io/mqtt.hh>
 #include <WiFi.h>
 
-static void
-io::mqtt_client_init(PubSubClient& client)
+void io::mqtt_client_init(PubSubClient& client)
 {
   static WiFiClient wific;
   new (&client) PubSubClient(wific);
@@ -84,13 +83,13 @@ void setup() {
   bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
   bme.setGasHeater(320, 150);
 
-  WiFi.begin("nettverk", "passord");
+  WiFi.begin("WodanSurface", "53728431");
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
 
-  io::mqtt_client.setServer("mqtt host", 1883);
+  io::mqtt_client.setServer("192.168.137.194", 1883);
 
 }
 
