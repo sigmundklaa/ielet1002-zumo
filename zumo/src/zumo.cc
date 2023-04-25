@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <Wire.h>
 // #include <io/espnow.hh>
-#include <io/mqtt.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
 #include <stdio.h>
@@ -19,6 +18,7 @@ yield_tick()
 {
 }
 
+#if 0
 void
 setup()
 {
@@ -34,3 +34,5 @@ loop()
 {
     yield_tick();
 }
+
+#endif

@@ -11,6 +11,7 @@
 #include <utils/compile.hh>
 #include <utils/init.hh>
 #include <utils/macros.hh>
+#include <wifi.hh>
 
 namespace io
 {

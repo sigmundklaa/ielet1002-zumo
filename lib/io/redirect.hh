@@ -77,10 +77,10 @@ class redirect_gateway : public pushable_gateway
             .size = static_cast<uint8_t>(size),
         };
 
-        ::memcpy(buf_, &h, sizeof(h));
-        ::memcpy(buf_ + sizeof(h), dst_, dst_size_);
+        ::memcpy(redirect_gateway::buf_, &h, sizeof(h));
+        ::memcpy(redirect_gateway::buf_ + sizeof(h), dst_, dst_size_);
 
-        return buf_ + sizeof(h) + dst_size_;
+        return redirect_gateway::buf_ + sizeof(h) + dst_size_;
     }
 
     size_t
@@ -101,6 +101,7 @@ class redirect_gateway : public pushable_gateway
     {
     }
 };
+inline uint8_t redirect_gateway::buf_[MAX_PACKET_SIZE_];
 }; // namespace redirect
 
 }; // namespace io

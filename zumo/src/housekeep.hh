@@ -27,7 +27,9 @@ struct data_ {
      * velocity_sum / velocity_sum_n */
     int16_t velocity_sum_n;
     int16_t velocity_max;
-    uint64_t velocity_s_above_max;
+    uint64_t velocity_us_above_max;
+
+    int16_t distance;
 
     vector<int16_t> accel_meas;
 };

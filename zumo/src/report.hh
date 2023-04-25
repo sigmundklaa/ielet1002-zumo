@@ -2,7 +2,7 @@
 #ifndef ZUMO_REPORT_HH__
 #define ZUMO_REPORT_HH__
 
-#include <io/mqtt.hh>
+#include "common.hh"
 #include <report/report.hh>
 
 namespace report

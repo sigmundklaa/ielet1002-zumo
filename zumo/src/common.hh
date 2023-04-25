@@ -33,6 +33,15 @@ static io::serial_gateway<Serial_>& log_gateway =
     init_guarded(io::serial_gateway<Serial_>, init_log_gateway_);
 #endif
 
+static inline void
+init_serial_gateway_(io::serial_gateway<HardwareSerial>& mem)
+{
+    new (&mem) io::serial_gateway<HardwareSerial>(Serial1, 115200);
+}
+
+static io::serial_gateway<HardwareSerial>& serial_gateway_ =
+    init_guarded(io::serial_gateway<HardwareSerial>, init_serial_gateway_);
+
 /**
  * @brief Manages storage. Saves and retrieves data from the connected
  * gateway when necessary
@@ -104,7 +113,10 @@ struct __attribute__((packed)) remote_data {
  *
  */
 struct __attribute__((packed)) local_data {
+    uint8_t batt_status;
     uint8_t batt_health;
+    uint8_t batt_n_charges;
+    uint8_t batt_n_drained;
 };
 
 extern store<remote_data> remote_store;

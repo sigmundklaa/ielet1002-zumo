@@ -1,6 +1,6 @@
 
 #include "report.hh"
-#include <io/mqtt.hh>
+#include <io/redirect.hh>
 #include <utils/compile.hh>
 #include <utils/init.hh>
 #include <utils/macros.hh>
@@ -14,9 +14,12 @@ namespace report
 void
 init_reporter_(zumo_reporter_& mem)
 {
-    static io::mqtt_gateway gateway(
-        &io::mqtt_client, IO_MQTT_PATH("/report/", IO_MQTT_NODE_ZUMO), nullptr
+#define REPORT_PATH_ "/report/1"
+    static io::redirect::redirect_gateway gateway(
+        common::serial_gateway_, io::redirect::PACKET_MQTT,
+        (const uint8_t*)REPORT_PATH_, sizeof(REPORT_PATH_)
     );
+#undef REPORT_PATH_
 
     new (&mem) zumo_reporter_(gateway, REPORT_INTERVAL_US_);
 }

@@ -44,7 +44,23 @@ update(uint64_t delta_us)
     /* TODO: figure out what axis is correct for acceleration */
     int16_t* accel = hal::controller.accel_data();
 
+    LOG_DEBUG(
+        << "<acceleration> x: " << String(accel[0])
+        << ", y: " << String(accel[1]) << ", z: " << String(accel[2])
+    );
+
     data.velocity_calc = calc_vel(data.velocity_calc, accel[0], delta_us);
+    data.distance = data.distance + data.velocity_calc * delta_us;
+
+    if (data.velocity_calc > data.velocity_max) {
+        data.velocity_max = data.velocity_calc;
+    }
+
+    if (data.velocity_calc > data.velocity_max * 0.7) {
+        data.velocity_us_above_max += delta_us;
+    }
+
+    int16_t* encoder_data = hal::controller.encoder_data();
 
     ::memcpy(&data.accel_meas, accel, sizeof(*accel) * 3);
 }
