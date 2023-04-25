@@ -5,16 +5,30 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <esp_now.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
 // Variables:
     // BASICS
 inline unsigned long previousMillis = 0;
+inline int debounce_delay = 50;
+inline unsigned long select_button_timer = 0;
+inline unsigned long confirm_button_timer = 0;
+
+    // OLED
+#define SCREEN_WIDTH_ 128
+#define SCREEN_HEIGHT_ 64
+#define OLED_RESET_ -1
+#define SCREEN_ADDRESS_ 0x3C
+static Adafruit_SSD1306 display(SCREEN_WIDTH_, SCREEN_HEIGHT_, &Wire, OLED_RESET_);
+
 
     // PINS
-inline const int button_pin_1 = -1;
-inline const int LED_pin_running = -1;
-inline const int LED_pin_input = -1;
-inline const int LED_pin_error = -1;
+inline const int confirm_button_pin = 25;
+inline const int select_button_pin = 26;
+//OLED PINS 22 -> SCK, 21 -> SDA;
 
     // Status
 inline bool customer_waiting = false;
@@ -31,6 +45,16 @@ inline struct __attribute__((packed)) Customer {
     float credit;
 } c;
 
+    //WiFi
+#define WIFI_SSID "WodanSurface"
+#define WIFI_PASSWORD "Password"
+
+    //MQTT
+#define MQTT_HOST IPAdress(192,168,137,XXX)
+#define MQTT_PORT 1883
+
+#define MQTT_SUB_powerPrice "esp32/powerPrice/#"
+
     // ESP-NOW
       // Router:
 inline esp_now_peer_info_t routerDeviceInfo = {
@@ -42,6 +66,8 @@ inline esp_now_peer_info_t routerDeviceInfo = {
 
 
 // Functions:
-
+void setupPins();
+void setupOled();
+void test_customer();
 
 #endif
