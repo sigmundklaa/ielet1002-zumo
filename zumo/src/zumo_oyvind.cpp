@@ -57,7 +57,7 @@ Zumo32U4ButtonC buttonC;
 
 uint16_t lineSensorValues[5];
 uint16_t position = 2000;
-uint16_t maxSpeed = 100;  
+uint16_t maxSpeed = 150;  
 
 int16_t positionError = 0;
 int16_t lastError = 0;
@@ -133,13 +133,16 @@ void loop()
   switch (driveState) 
   {
     case followLine:
-      if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 400)
+      if (millis() - sampleTime > 100)
       {
-        driveState = missingLine;
-      }
-      else
-      {
-        motors.setSpeeds(leftSpeed, rightSpeed);
+        if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 400)
+        {
+          driveState = missingLine;
+        }
+        else
+        {
+          motors.setSpeeds(leftSpeed, rightSpeed);
+        }
       }
 
       break;
@@ -150,18 +153,10 @@ void loop()
       {
         if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) < 1000)
         {
-          if (turnCheck.deadEnd > turnCheck.left)
+          if (turnCheck.deadEnd > turnCheck.left && turnCheck.deadEnd > turnCheck.right)
           {
-            if (turnCheck.deadEnd > turnCheck.right)
-            {
-              driveState = deadEnd;
-              sampleTime = millis();
-            }
-            else
-            {
-              driveState = turnRight;
-              sampleTime = millis();
-            }
+            driveState = deadEnd;
+            sampleTime = millis();
           }
           else if (turnCheck.left > turnCheck.right)
           {
@@ -183,31 +178,45 @@ void loop()
 
       break;
     case turnLeft:
-      motors.setSpeeds(-(maxSpeed*0.7), maxSpeed);
-
-      if (millis() - sampleTime > 1300)
+      if (millis() - sampleTime <= 100)
       {
         motors.setSpeeds(0, 0);
+      }
+      if (millis() - sampleTime > 100)
+      {
+        motors.setSpeeds(-(maxSpeed*0.6), maxSpeed);
 
-        if (millis() - sampleTime > 1350)
+        if (position > 1900 && position < 2100)
         {
-          driveState = followLine;
-          turnCheck.reset();
+          if (lineSensorValues[2] > 900)
+          {
+            driveState = followLine;
+            motors.setSpeeds(0, 0);
+            sampleTime = millis();
+            turnCheck.reset();
+          }
         }
       }
 
       break;
     case turnRight:
-      motors.setSpeeds(maxSpeed, -(maxSpeed*0.7));
-
-      if (millis() - sampleTime > 1300)
+      if (millis() - sampleTime <= 100)
       {
         motors.setSpeeds(0, 0);
-        
-        if (millis() - sampleTime > 1350)
+      }
+      if (millis() - sampleTime > 100)
+      {
+        motors.setSpeeds(maxSpeed, -(maxSpeed*0.6));
+
+        if (position > 1900 && position < 2100)
         {
-          driveState = followLine;
-          turnCheck.reset();
+          if (lineSensorValues[2] > 900)
+          {
+            driveState = followLine;
+            motors.setSpeeds(0, 0);
+            sampleTime = millis();
+            turnCheck.reset();
+          }
         }
       }
 
@@ -372,7 +381,9 @@ void calibrateLineSensors()
 void printReadingsToSerial()
 {
   static char buffer[80];
-  Serial.print("Position: ");
+  Serial.print("DriveState: ");
+  Serial.print(driveState);
+  Serial.print(" | Position: ");
   Serial.print(lineSensors.readLine(lineSensorValues));
   Serial.print(" | Line values: ");
   sprintf(buffer, "%4d %4d %4d %4d %4d\n",
