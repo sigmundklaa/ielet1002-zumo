@@ -44,6 +44,8 @@ _PACK_TYPES = {
     'f32': _pack_type('f'),
 }
 
+_USE_CRC = False
+
 
 def _fmt(type_name: str) -> str:
     return _PACK_TYPES[type_name].fmt
@@ -72,6 +74,9 @@ def _build_header_fmt() -> str:
     This function also prepends the necessary specifiers for byte order, size,
     alignment etc.
     """
+    if not _USE_CRC:
+        return '<'
+
     return f'<{_fmt("u32")}'
 
 
@@ -95,6 +100,9 @@ def _unpack_payload(payload: Union[bytes, bytearray],
         logging.error(
             f'Unable to decode struct: {str(e)} (fmt: {fmt}, payload: {payload})')
         return None
+    
+    if not _USE_CRC:
+        return unpacked
 
     checksum = unpacked[0]
 
@@ -169,8 +177,9 @@ class _handler:
         data_struct = [data[field['name']] for field in config]
         packed_tmp = struct.pack(_build_pack_fmt(*config), *data_struct)
 
-        checksum = binascii.crc32(packed_tmp)
-        data_struct = [checksum] + data_struct
+        if _USE_CRC:
+            checksum = binascii.crc32(packed_tmp)
+            data_struct = [checksum] + data_struct
 
         self.client.publish(_build_topic('/device', topic),
                             struct.pack(_build_fmt(*config), *data_struct))
