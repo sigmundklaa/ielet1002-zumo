@@ -8,7 +8,7 @@
 #include <utils/trace.hh>
 
 #define LOG_MODULE controller
-LOG_REGISTER(common::log_sink);
+LOG_REGISTER(common::log_gateway);
 
 #define DIR_CHANGE_DELAY_US_ (100e3)
 #define READ_INTERVAL_US_ (50e3)

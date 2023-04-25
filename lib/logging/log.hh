@@ -15,7 +15,7 @@ namespace logging
 #define LOG_USE_BUF 0
 #endif
 
-/* While we would ideally not want to send directly to the sink each time,
+/* While we would ideally not want to send directly to the gateway each time,
  * devices with RAM constraints may need to do that as using a buffer would
  * consume too much RAM. */
 #if LOG_USE_BUF
@@ -30,7 +30,7 @@ class logger_
 {
   protected:
     const char* m_name;
-    io::sink& m_sink;
+    io::gateway& m_gateway;
 
     uint8_t m_buf[LOG_BUF_SIZE_];
     size_t m_written;
@@ -38,7 +38,7 @@ class logger_
     size_t
     send_buf_()
     {
-        size_t sent = m_sink.write(m_buf, m_written);
+        size_t sent = m_gateway.write(m_buf, m_written);
         m_written -= sent;
 
         return sent;
@@ -55,7 +55,7 @@ class logger_
     write_(const char* data, size_t size)
     {
         if (!LOG_USE_BUF) {
-            return m_sink.write(data, size);
+            return m_gateway.write(data, size);
         }
 
         if (size >= sizeof(m_buf)) {
@@ -84,8 +84,8 @@ class logger_
     }
 
   public:
-    logger_(const char* name, io::sink& sink)
-        : m_name(name), m_sink(sink), m_written(0)
+    logger_(const char* name, io::gateway& gateway)
+        : m_name(name), m_gateway(gateway), m_written(0)
     {
         memset(m_buf, 0, sizeof(m_buf));
     }
@@ -149,14 +149,14 @@ level_to_str_(unsigned int level)
 /**
  * @brief Register a logging instance
  *
- * @param sink Sink to send logged messages to
+ * @param gateway gateway to send logged messages to
  */
 #if LOG_LEVEL < LOG_LEVEL_DISABLED
-#define LOG_REGISTER(sink)                                                     \
+#define LOG_REGISTER(gateway)                                                  \
     static logging::logger_ /*arch_section__("log_instances")*/                \
-        __attribute__((used)) LOG_INSTANCE_(LOG_STR_(LOG_MODULE), sink)
+        __attribute__((used)) LOG_INSTANCE_(LOG_STR_(LOG_MODULE), gateway)
 #else
-#define LOG_REGISTER(sink)
+#define LOG_REGISTER(gateway)
 #endif
 
 #ifndef LOG_SAVE_ON_WRITE

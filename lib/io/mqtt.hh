@@ -15,11 +15,13 @@
 namespace io
 {
 
-/**
- * @brief Defined by the user.
- *
- */
-extern void mqtt_client_init(PubSubClient&);
+static inline void
+mqtt_client_init(PubSubClient& psc)
+{
+    static WiFiClient wific;
+
+    new (&psc) PubSubClient(wific);
+}
 
 /*
 Ensure initialization of the PubSubClient. If we didn't do this the client could
@@ -30,11 +32,11 @@ fault when trying to e.g. subscribe to a topic from within a constructor.
 static PubSubClient& mqtt_client = init_guarded(PubSubClient, mqtt_client_init);
 
 /**
- * @brief MQTT sink that communicates with the MQTT broker. Each instance only
- * communicates with one topic
+ * @brief MQTT gateway that communicates with the MQTT broker. Each instance
+ * only communicates with one topic
  *
  */
-class mqtt_sink : public pushable_sink
+class mqtt_gateway : public pushable_gateway
 {
   protected:
     PubSubClient* m_client;
@@ -47,7 +49,7 @@ class mqtt_sink : public pushable_sink
     }
 
   public:
-    mqtt_sink(
+    mqtt_gateway(
         PubSubClient* client, const char* pub_topic, const char* sub_topic
     );
 
@@ -64,7 +66,7 @@ class mqtt_sink : public pushable_sink
     }
 };
 
-#define IO_MQTT_NUM_SINKS_MAX_ (10)
+#define IO_MQTT_NUM_gatewayS_MAX_ (10)
 
 class mqtt_handler__
 {
@@ -73,24 +75,24 @@ class mqtt_handler__
 
     struct entry_ {
         const char* topic;
-        mqtt_sink* sink;
+        mqtt_gateway* gateway;
     };
 
-    entry_ entries_[IO_MQTT_NUM_SINKS_MAX_];
+    entry_ entries_[IO_MQTT_NUM_gatewayS_MAX_];
     size_t n_entries_;
 
   public:
     void
-    register_sink(const char* topic, mqtt_sink* sink)
+    register_gateway(const char* topic, mqtt_gateway* gateway)
     {
-        if (n_entries_ >= IO_MQTT_NUM_SINKS_MAX_) {
+        if (n_entries_ >= IO_MQTT_NUM_gatewayS_MAX_) {
             /* TODO: error handle */
             return;
         }
 
         entries_[n_entries_++] = (entry_){
             .topic = topic,
-            .sink = sink,
+            .gateway = gateway,
         };
 
         mqtt_client.subscribe(topic);
@@ -103,7 +105,7 @@ class mqtt_handler__
             entry_* e = &entries_[i];
 
             if (strcmp(e->topic, topic) == 0) {
-                e->sink->push(payload, size);
+                e->gateway->push(payload, size);
                 return;
             }
         }
@@ -115,13 +117,13 @@ class mqtt_handler__
 static mqtt_handler__& mqtt_handler =
     init_guarded(mqtt_handler__, utils::init_empty);
 
-inline mqtt_sink::mqtt_sink(
+inline mqtt_gateway::mqtt_gateway(
     PubSubClient* client, const char* pub_topic, const char* sub_topic
 )
     : m_client(client), m_pub_topic(pub_topic)
 {
     if (sub_topic != nullptr) {
-        mqtt_handler.register_sink(sub_topic, this);
+        mqtt_handler.register_gateway(sub_topic, this);
     }
 }
 

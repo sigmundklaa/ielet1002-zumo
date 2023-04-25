@@ -8,14 +8,14 @@
 #include <utils/new.hh>
 
 #define LOG_MODULE common
-LOG_REGISTER(common::log_sink);
+LOG_REGISTER(common::log_gateway);
 
 #define SYNC_TIMEOUT_US_ (5e6)
 
 namespace common
 {
 
-static io::mqtt_sink mqtt_sink_(
+static io::mqtt_gateway mqtt_gateway_(
     &io::mqtt_client, IO_MQTT_PATH("/store/", IO_MQTT_NODE_ZUMO),
     IO_MQTT_PATH("/sync/", IO_MQTT_NODE_ZUMO)
 );
@@ -31,16 +31,16 @@ static class mqtt_initer__
         LOG_INFO(<< "requesting sync from remote");
 
         /* Send no data to indicate we are requesting sync data */
-        mqtt_sink_.write("", 0);
+        mqtt_gateway_.write("", 0);
 
         /* Wait to recieve data before we can continue. Only try for X amount of
          * microseconds to prevent hang */
         for (uint64_t start = micros(); micros() - start < SYNC_TIMEOUT_US_;) {
-            if (mqtt_sink_.avail()) {
+            if (mqtt_gateway_.avail()) {
                 return;
             }
 
-            mqtt_sink_.ps_client()->loop();
+            mqtt_gateway_.ps_client()->loop();
         }
 
         LOG_ERR(<< "error syncing data");
@@ -48,13 +48,13 @@ static class mqtt_initer__
 } mqtt_initer_instance__;
 
 store<remote_data> remote_store(
-    &mqtt_sink_,
+    &mqtt_gateway_,
     (remote_data){
         0,
     }
 );
 
-static io::eeprom_sink eeprom_;
+static io::eeprom_gateway eeprom_;
 
 store<local_data> local_store(
     &eeprom_,

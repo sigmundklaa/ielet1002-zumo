@@ -23,12 +23,12 @@ namespace io
 {
 
 /**
- * @brief Implements the sink interface for the eeprom. Should only have one
+ * @brief Implements the gateway interface for the eeprom. Should only have one
  * user, as write and read always uses index 0 + sizeof(checksum). The checksum
  * is a 32bit CRC32 checksum.
  *
  */
-class eeprom_sink : public sink
+class eeprom_gateway : public gateway
 {
   protected:
     uint32_t checksum_buf_;

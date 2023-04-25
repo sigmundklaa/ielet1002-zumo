@@ -17,8 +17,8 @@ class zumo_reporter_ : public reporter_<zumo_report_>
     size_t generate_() override__;
 
   public:
-    zumo_reporter_(io::sink& sink, uint32_t interval)
-        : reporter_(sink, interval)
+    zumo_reporter_(io::gateway& gateway, uint32_t interval)
+        : reporter_(gateway, interval)
     {
     }
 };

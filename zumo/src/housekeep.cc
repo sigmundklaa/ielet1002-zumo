@@ -5,7 +5,7 @@
 #include <logging/log.hh>
 
 #define LOG_MODULE housekeeping
-LOG_REGISTER(common::log_sink);
+LOG_REGISTER(common::log_gateway);
 
 /* https://github.com/pololu/zumo-32u4-arduino-library/blob/master/examples/InertialSensors/InertialSensors.ino
  */

@@ -19,9 +19,9 @@ namespace io
  * @brief Redirects to stdout. This is only for testing, and should not be
  * compiled in for Arduino code.
  * When compiled for the host machine this can be used as a replacement for
- * the Serial sink.
+ * the Serial gateway.
  */
-class std_sink : public sink
+class std_gateway : public gateway
 {
   protected:
     size_t
