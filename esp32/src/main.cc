@@ -41,6 +41,7 @@ float gasResistance;
 //Sier til bme688 hva pin-navnene den skal bruke heter
 Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
 
+//Funksjon som henter sensordata
 void getBME688Readings(){
   //Forteller BME688 at den skal begynne å lese av data
   unsigned long endTime = bme.beginReading();
@@ -83,12 +84,13 @@ void setup() {
   bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
   bme.setGasHeater(320, 150);
 
+//Kobler på samme WiFi som nodeRED er på
   WiFi.begin("WodanSurface", "53728431");
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
-
+//definerer hvilken mqtt server som dataen skal sendes til
   io::mqtt_client.setServer("192.168.137.194", 1883);
 
 }
@@ -97,6 +99,7 @@ void loop() {
 
   getBME688Readings();
 
+//lagrer sensordataene til structen
   sensorData.lightData = analogRead(lightsensor);
   sensorData.temperature = temperature;
   sensorData.humidity = humidity;
