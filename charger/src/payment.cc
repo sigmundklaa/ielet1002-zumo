@@ -5,6 +5,7 @@
 PAYMENT: All things related to payment
 */
 
+// Get price of services from server
 void check_price()
 {
     power_price = 0.80; //TODO make it get price from server. 
@@ -14,6 +15,7 @@ void check_price()
     Serial.print(". Battery price: "); Serial.println(battery_price);
 };
 
+// Checks if customer has credit
 bool check_credit()
 {
     Serial.println("Checking for customer credit");
@@ -27,6 +29,7 @@ bool check_credit()
     return has_credit;
 };
 
+// Pay off credit
 void pay_credit()
 {
     for(int i = c.credit; i > 0; i--){

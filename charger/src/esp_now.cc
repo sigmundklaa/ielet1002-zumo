@@ -17,17 +17,20 @@ void setupEspNow()
         ESP.restart();
     }
 
+    // Connects to router
     connectToEspNowPeer(routerDeviceInfo);
 
-    // Give feedback if data was successfully transmitted or not.
+    // Function that runs after sending data.
     esp_now_register_send_cb(onDataTransmitted);
 
+    // Function that runs when getting data.
     esp_now_register_recv_cb(onDataReceived);
 }
 
+// Connects to router esp.
 void connectToEspNowPeer(esp_now_peer_info_t &peerInfo)
 {
-    // Safeguard for setting correct MAC Address
+    // Safeguard for setting correct MAC Address.
     if (peerInfo.peer_addr[0] == 0xFF)
     {
         Serial.println("Please change the peer mac address to the address of the other ESP32 at the top of the code");
@@ -36,7 +39,7 @@ void connectToEspNowPeer(esp_now_peer_info_t &peerInfo)
         ESP.restart();
     }
 
-    // Add peer (other ESP32)
+    // Add peer (other ESP32).
     esp_err_t peerConnectionStatus = esp_now_add_peer(&peerInfo);
     if (peerConnectionStatus != ESP_OK)
     {
@@ -45,6 +48,7 @@ void connectToEspNowPeer(esp_now_peer_info_t &peerInfo)
     }
 }
 
+// Callback if transmission to router succeeded or failed.
 void onDataTransmitted(const uint8_t *receiverMacAddress, esp_now_send_status_t transmissionStatus)
 {
     if (transmissionStatus != ESP_NOW_SEND_SUCCESS)
@@ -56,6 +60,7 @@ void onDataTransmitted(const uint8_t *receiverMacAddress, esp_now_send_status_t 
     Serial.println("Data transmission was successful!");
 } 
 
+// Processes data and adds it to a customer struct containing all needed data.
 void onDataReceived(const uint8_t * mac, const uint8_t *data, int len)
 {
     Customer* c = (Customer*) data;
@@ -64,6 +69,7 @@ void onDataReceived(const uint8_t * mac, const uint8_t *data, int len)
 
 }
 
+// Prints error code when ESP get an error. 
 void printEspErrorCode(String message, esp_err_t errorCode)
 {
     Serial.println(message);
