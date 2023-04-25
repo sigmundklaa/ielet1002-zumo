@@ -17,7 +17,11 @@
 static io::serial_gateway<HardwareSerial>
     serial_gateway_(Serial2, 115200, RX_PIN_, TX_PIN_);
 
+#if 1
+static io::mqtt_gateway log_gateway_(&io::mqtt_client, "/log/router", nullptr);
+#else
 static io::serial_gateway<HardwareSerial> log_gateway_(Serial, 9600);
+#endif
 
 #define LOG_MODULE router
 LOG_REGISTER(log_gateway_);
@@ -34,7 +38,7 @@ static struct mqtt_info {
     const char *pub, *sub;
 } mqtt_topics_[] = {
     {io::redirect::NODE_MQTT_STORE_1, "/redmw/store/1", "/redmw/sync/1"},
-    {io::redirect::NODE_MQTT_REPORT_1, "/redmw/report/1", nullptr},
+    {io::redirect::NODE_MQTT_REPORT_1, "/redmw/test", nullptr},
 };
 
 static struct esp_info {
@@ -209,7 +213,7 @@ mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
 
     for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
         if (strcmp(mqtt_topics_[i].sub, topic) == 0) {
-            redirect_serial_(mqtt_topics_[i].node, buf, data, sz);
+            redirect_serial_(mqtt_topics_[i].node, buf_, data, sz);
             break;
         }
     }
@@ -234,8 +238,11 @@ reconnect(PubSubClient& client)
     for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
         mqtt_info& inf = mqtt_topics_[i];
 
-        LOG_INFO(<< "subscribing to topic " << inf.sub);
-        client.subscribe(inf.sub);
+        if (inf.sub != nullptr) {
+            LOG_INFO(<< "subscribing to topic " << inf.sub);
+
+            client.subscribe(inf.sub);
+        }
     }
 }
 
@@ -252,7 +259,7 @@ setup()
     }
 
     for (size_t i = 0; i < UTILS_ARR_LEN(esp_peers_); i++) {
-        ::esp_err_t status = ::esp_now_add_peer(&esp_peers_[i]);
+        ::esp_err_t status = ::esp_now_add_peer(&esp_peers_[i].peer);
 
         if (status != ESP_OK) {
             LOG_ERR(<< "unable to add peer");
@@ -273,43 +280,22 @@ setup()
 void
 loop()
 {
-    static uint8_t buf[256];
-    memset(buf, 1, 255);
+    static uint8_t buf[256] = {0};
 
-    struct __attribute__((packed)) {
-        uint8_t x;
-        uint16_t y;
-        int16_t z;
-        int32_t u;
-        float w;
-    } test_data = {
-        .x = 1,
-        .y = 2,
-        .z = -3,
-        .u = -4,
-        .w = 3.14,
-    };
+    reconnect(io::mqtt_client);
 
-    size_t header_sz = io::redirect::prepare_header(
-        io::redirect::PACKET_MQTT, buf, "/test", 5, sizeof(test_data)
-    );
-    memcpy(buf + header_sz, &test_data, sizeof(test_data));
-
-    size_t bread =
-        sizeof(io::redirect::header) + 5 +
-        sizeof(test_data
-        ); // serial_gateway_.read(buf, sizeof(io::redirect::header));
+    size_t bread = serial_gateway_.read(buf, sizeof(io::redirect::header));
 
     if (bread != 0) {
+        LOG_DEBUG(<< "reading from serial");
+
         io::redirect::header* header =
             reinterpret_cast<io::redirect::header*>(buf);
-        // bread +=
-        //     serial_gateway_.read(buf + bread, header->dst_size +
-        //     header->size);
+
+        bread += serial_gateway_.read(buf + bread, header->size);
 
         redirect_network_(header, buf + sizeof(*header), bread);
     }
 
     io::mqtt_client.loop();
-    delay(3000);
 }

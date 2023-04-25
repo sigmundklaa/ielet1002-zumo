@@ -143,6 +143,23 @@ class _handler:
     def run(self) -> None:
         self.client.loop_forever()
 
+    def _remote_log(self, msg: mqtt.MQTTMessage) -> None:
+        fmt = _build_header_fmt()
+        size = struct.calcsize(fmt)
+
+        header = msg.payload[:size]
+        logstr = msg.payload[size:]
+
+        if _USE_CRC:
+            crc = struct.unpack(fmt, header)
+            computed_crc = binascii.crc32(logstr)
+
+            if crc != computed_crc:
+                logging.warn(f'Bad remote log crc')
+
+        with open(f'./logs/{msg.topic.removeprefix("/log/")}.txt', 'a') as fp:
+            fp.write(logstr.decode('utf-8'))
+
     def _redirect_red(self, msg: mqtt.MQTTMessage) -> None:
         """
         Redirect a message from a device to the appropriate Node-RED topic
@@ -193,6 +210,8 @@ class _handler:
             self._redirect_red(msg)
         elif msg.topic.startswith('/red'):
             logging.info(f'Red recieved: {msg.payload.decode("utf-8")}')
+        elif msg.topic.startswith('/log'):
+            self._remote_log(msg)
         else:
             logging.error(f'Invalid topic {msg.topic}')
 
@@ -212,6 +231,9 @@ class _handler:
         for rtopic in self.config['red'].keys():
             self._subscribe(_build_topic('redmw', rtopic))
             self._subscribe(_build_topic('red', rtopic))
+
+        for ltopic in self.config['log'].keys():
+            self._subscribe(_build_topic('log', ltopic))
 
 
 def main(**kwargs) -> None:
