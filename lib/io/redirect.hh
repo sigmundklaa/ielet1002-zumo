@@ -10,77 +10,56 @@ namespace io
 namespace redirect
 {
 
-enum header_type {
-    PACKET_MQTT,
-    PACKET_ESPNOW,
-    PACKET_HOST,
+enum node_type {
+    NODE_MQTT_REPORT_1,
+    NODE_MQTT_STORE_1,
+    NODE_ESP_CHARGE,
 } __attribute__((packed));
 
-static_assert(sizeof(header_type) == 1, "size of header type is 1");
+static_assert(sizeof(node_type) == 1, "size of header type is 1");
 
 struct __attribute__((packed)) header {
-    header_type type;
-    uint8_t dst_size;
+    node_type node;
     uint8_t size;
 };
 
 #define MAX_PACKET_SIZE_ (256 - sizeof(header))
 
 inline size_t
-prepare_header(
-    header_type type, uint8_t* buf, const void* dst_data, size_t dst_size,
-    size_t data_size
-)
+prepare_header(node_type type, uint8_t* buf, size_t size)
 {
-    size_t size = dst_size + data_size;
     assert(size <= UINT8_MAX);
 
     header* h = reinterpret_cast<header*>(buf);
-    h->type = type;
-    h->dst_size = static_cast<uint8_t>(dst_size);
-    h->size = data_size;
+    h->node = type;
+    h->size = static_cast<uint8_t>(size);
 
     if (size > MAX_PACKET_SIZE_) {
         return 0;
     }
 
-    if (dst_size > 0) {
-        ::memcpy(buf + sizeof(*h), dst_data, dst_size);
-    }
-
-    return sizeof(*h) + dst_size;
+    return sizeof(*h);
 }
 
 inline size_t
-calc_size(size_t size, size_t dst_size)
+total_size(size_t data_size)
 {
-    return sizeof(header) + dst_size + size;
+    return sizeof(header) + data_size;
 }
 
 class redirect_gateway : public pushable_gateway
 {
   protected:
-    static uint8_t buf_[MAX_PACKET_SIZE_];
-
     gateway& parent_;
-    header_type type_;
-
-    const uint8_t* dst_;
-    size_t dst_size_;
+    node_type type_;
+    uint8_t* buf_;
 
     uint8_t*
     prepare_buf_(size_t size)
     {
-        header h = {
-            .type = type_,
-            .dst_size = static_cast<uint8_t>(dst_size_),
-            .size = static_cast<uint8_t>(size),
-        };
+        size_t header_sz = prepare_header(type_, buf_, sizeof(buf_));
 
-        ::memcpy(redirect_gateway::buf_, &h, sizeof(h));
-        ::memcpy(redirect_gateway::buf_ + sizeof(h), dst_, dst_size_);
-
-        return redirect_gateway::buf_ + sizeof(h) + dst_size_;
+        return redirect_gateway::buf_ + header_sz;
     }
 
     size_t
@@ -89,19 +68,15 @@ class redirect_gateway : public pushable_gateway
         uint8_t* buf = prepare_buf_(size);
         ::memcpy(buf, data, size);
 
-        return parent_.write(buf, calc_size(size, dst_size_));
+        return parent_.write(buf_, total_size(size));
     }
 
   public:
-    redirect_gateway(
-        gateway& parent, header_type redirect_type, const uint8_t* dst,
-        size_t dst_size
-    )
-        : parent_(parent), type_(redirect_type), dst_(dst), dst_size_(dst_size)
+    redirect_gateway(gateway& parent, node_type redirect_type, uint8_t* buf)
+        : parent_(parent), type_(redirect_type), buf_(buf)
     {
     }
 };
-inline uint8_t redirect_gateway::buf_[MAX_PACKET_SIZE_];
 }; // namespace redirect
 
 }; // namespace io

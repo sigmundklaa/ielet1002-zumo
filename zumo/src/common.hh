@@ -42,6 +42,8 @@ init_serial_gateway_(io::serial_gateway<HardwareSerial>& mem)
 static io::serial_gateway<HardwareSerial>& serial_gateway_ =
     init_guarded(io::serial_gateway<HardwareSerial>, init_serial_gateway_);
 
+extern uint8_t redirect_buf[256];
+
 /**
  * @brief Manages storage. Saves and retrieves data from the connected
  * gateway when necessary

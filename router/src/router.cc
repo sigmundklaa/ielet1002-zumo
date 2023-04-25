@@ -22,12 +22,44 @@ static io::serial_gateway<HardwareSerial> log_gateway_(Serial, 9600);
 #define LOG_MODULE router
 LOG_REGISTER(log_gateway_);
 
-#define BUF_SIZE_ (512)
+#define BUF_SIZE_ (256)
+static uint8_t buf_[BUF_SIZE_];
 
-static uint8_t buf_[256];
+#ifndef ROUTER_USE_CRC
+#define ROUTER_USE_CRC (0)
+#endif
+
+static struct mqtt_info {
+    io::redirect::node_type node;
+    const char *pub, *sub;
+} mqtt_topics_[] = {
+    {io::redirect::NODE_MQTT_STORE_1, "/redmw/store/1", "/redmw/sync/1"},
+    {io::redirect::NODE_MQTT_REPORT_1, "/redmw/report/1", nullptr},
+};
+
+static struct esp_info {
+    io::redirect::node_type node;
+    ::esp_now_peer_info_t peer;
+} esp_peers_[] = {
+    {
+        io::redirect::NODE_ESP_CHARGE,
+        {
+            .peer_addr =
+                {
+                    0x00,
+                    0x00,
+                    0x00,
+                    0x00,
+                    0x00,
+                    0x00,
+                },
+        },
+    },
+};
 
 /**
- * @brief Insert a CRC-32 checksum at the front of the buffer @p buf
+ * @brief Insert a CRC-32 checksum at the front of the buffer @p buf. If crc is
+ * disabled then nothing is done, and 0 is returned.
  *
  * @param buf
  * @param size
@@ -36,6 +68,10 @@ static uint8_t buf_[256];
 static size_t
 insert_crc_(uint8_t* buf, size_t size)
 {
+    if (!ROUTER_USE_CRC) {
+        return 0;
+    }
+
     uint32_t crc = utils::crc32(buf, size);
     ::memmove(buf + sizeof(crc), buf, size);
     ::memcpy(buf, &crc, sizeof(crc));
@@ -43,17 +79,23 @@ insert_crc_(uint8_t* buf, size_t size)
     return sizeof(crc);
 }
 
+/**
+ * @brief Redirect data to the device connected to the serial gateway
+ *
+ * @param node
+ * @param buf
+ * @param data
+ * @param data_size
+ */
 static void
 redirect_serial_(
-    io::redirect::header_type type, uint8_t* buf, const void* header_data,
-    size_t header_size, const void* data, size_t data_size
+    io::redirect::node_type node, uint8_t* buf, const void* data,
+    size_t data_size
 )
 {
     TRACE_ENTER(__func__);
 
-    size_t size = io::redirect::prepare_header(
-        type, buf, header_data, header_size, data_size
-    );
+    size_t size = io::redirect::prepare_header(node, buf, data_size);
 
     ::memcpy(buf + size, data, data_size);
 
@@ -65,79 +107,113 @@ redirect_serial_(
     TRACE_EXIT(__func__);
 }
 
+/**
+ * @brief Redirect data to the MQTT topic at @p topic
+ *
+ * @param header
+ * @param topic
+ * @param buf
+ * @param size
+ */
 static void
-redirect_mqtt_(io::redirect::header* header, uint8_t* buf, size_t size)
+redirect_mqtt_(
+    io::redirect::header* header, const char* topic, uint8_t* buf, size_t size
+)
 {
     TRACE_ENTER(__func__);
 
-    static char topic_buf[20] = {0};
-
-    /* Topic recieved in packet is not null-terminated */
-    ::memcpy(topic_buf, buf, header->dst_size);
-    size_t crc_size = insert_crc_(buf + header->dst_size, header->size);
+    size_t crc_size = insert_crc_(buf, header->size);
     size_t tot_size = crc_size + header->size;
 
-    if (!io::mqtt_client.publish(topic_buf, buf + header->dst_size, tot_size)) {
+    if (!io::mqtt_client.publish(topic, buf, tot_size)) {
         LOG_ERR(<< "unable to publish");
     }
 
     TRACE_EXIT(__func__);
 }
 
-static ::esp_now_peer_info_t esp_peers_[] = {
-    {
-        .peer_addr =
-            {
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-            },
-    },
-};
-
+/**
+ * @brief Redirect data to the ESP with mac address @p peer_addr
+ *
+ * @param header
+ * @param peer_addr
+ * @param buf
+ * @param size
+ */
 static void
-redirect_espnow_(io::redirect::header* header, uint8_t* buf, size_t size)
+redirect_espnow_(
+    io::redirect::header* header, uint8_t peer_addr[6], uint8_t* buf,
+    size_t size
+)
 {
     TRACE_ENTER(__func__);
 
     TRACE_EXIT(__func__);
 }
 
+/**
+ * @brief Redirect data to the appropriate network protocol according to the
+ * arguments specified in @p header
+ *
+ * @param header
+ * @param buf
+ * @param size
+ */
 static void
 redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
 {
-    switch (header->type) {
-    case io::redirect::PACKET_MQTT:
-        redirect_mqtt_(header, buf, size);
+    switch (header->node) {
+    case io::redirect::NODE_MQTT_REPORT_1:
+    case io::redirect::NODE_MQTT_STORE_1: {
+        /* Send to appropriate mqtt node */
+        for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
+            mqtt_info& inf = mqtt_topics_[i];
+
+            if (inf.node == header->node) {
+                redirect_mqtt_(header, inf.pub, buf, size);
+                break;
+            }
+        }
         break;
-    case io::redirect::PACKET_ESPNOW:
-        redirect_espnow_(header, buf, size);
+    }
+    case io::redirect::NODE_ESP_CHARGE: {
+        for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
+            if (esp_peers_[i].node == header->node) {
+                redirect_espnow_(
+                    header, esp_peers_[i].peer.peer_addr, buf, size
+                );
+
+                break;
+            }
+        }
         break;
-    case io::redirect::PACKET_HOST:
-        /* Not meant to be redirected anywhere */
-        break;
+    }
     }
 }
 
 static void
 esp_callback_(const uint8_t* mac_addr, const uint8_t* data, int recv_sz)
 {
-    redirect_serial_(
-        io::redirect::PACKET_ESPNOW, buf_, mac_addr, ESP_NOW_ETH_ALEN, data,
-        recv_sz
-    );
+    for (size_t i = 0; i < UTILS_ARR_LEN(esp_peers_); i++) {
+        if (memcmp(mac_addr, esp_peers_[i].peer.peer_addr, 6) == 0) {
+            redirect_serial_(esp_peers_[i].node, buf_, data, recv_sz);
+            break;
+        }
+    }
 }
 
 static void
 mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
 {
     TRACE_ENTER(__func__);
-    redirect_serial_(
-        io::redirect::PACKET_MQTT, buf_, topic, ::strlen(topic), data, sz
-    );
+
+    for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
+        if (strcmp(mqtt_topics_[i].sub, topic) == 0) {
+            redirect_serial_(mqtt_topics_[i].node, buf, data, sz);
+            break;
+        }
+    }
+
     TRACE_EXIT(__func__);
 }
 
@@ -155,7 +231,12 @@ reconnect(PubSubClient& client)
         }
     }
 
-    client.subscribe("/device/test");
+    for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
+        mqtt_info& inf = mqtt_topics_[i];
+
+        LOG_INFO(<< "subscribing to topic " << inf.sub);
+        client.subscribe(inf.sub);
+    }
 }
 
 void
@@ -170,7 +251,7 @@ setup()
         delay(500);
     }
 
-    for (size_t i = 0; i < sizeof(esp_peers_) / sizeof(esp_peers_[0]); i++) {
+    for (size_t i = 0; i < UTILS_ARR_LEN(esp_peers_); i++) {
         ::esp_err_t status = ::esp_now_add_peer(&esp_peers_[i]);
 
         if (status != ESP_OK) {

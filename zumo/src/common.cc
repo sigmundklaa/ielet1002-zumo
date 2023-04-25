@@ -17,10 +17,10 @@ namespace common
 #define SERIAL_RX_ (0)
 #define SERIAL_TX_ (1)
 
-#define STORE_ENDPOINT_ "/store/1"
+uint8_t redirect_buf[256];
+
 static io::redirect::redirect_gateway mqtt_gateway_(
-    common::serial_gateway_, io::redirect::PACKET_MQTT,
-    reinterpret_cast<const uint8_t*>(STORE_ENDPOINT_), sizeof(STORE_ENDPOINT_)
+    serial_gateway_, io::redirect::NODE_MQTT_STORE_1, redirect_buf
 );
 
 /* Initialize the store connected to MQTT. This class is only used for its
