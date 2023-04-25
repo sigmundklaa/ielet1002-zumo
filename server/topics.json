@@ -6,7 +6,7 @@
                 "kind": "u32"
             }
         ],
-        "test": [
+        "sync/1": [
             {
                 "name": "x",
                 "kind": "u8"
@@ -48,7 +48,7 @@
         ]
     },
     "devicemw": {
-        "test": [
+        "sync/1": [
             {
                 "name": "x",
                 "kind": "u8"

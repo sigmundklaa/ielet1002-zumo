@@ -17,7 +17,7 @@
 static io::serial_gateway<HardwareSerial>
     serial_gateway_(Serial2, 115200, RX_PIN_, TX_PIN_);
 
-#if 1
+#if defined(REMOTE_LOG) && REMOTE_LOG
 static io::mqtt_gateway log_gateway_(&io::mqtt_client, "/log/router", nullptr);
 #else
 static io::serial_gateway<HardwareSerial> log_gateway_(Serial, 9600);
@@ -37,8 +37,8 @@ static struct mqtt_info {
     io::redirect::node_type node;
     const char *pub, *sub;
 } mqtt_topics_[] = {
-    {io::redirect::NODE_MQTT_STORE_1, "/redmw/store/1", "/redmw/sync/1"},
-    {io::redirect::NODE_MQTT_REPORT_1, "/redmw/test", nullptr},
+    {io::redirect::NODE_MQTT_STORE_1, "/redmw/sync/1", "/device/sync/1"},
+    {io::redirect::NODE_MQTT_REPORT_1, "/redmw/report/1", nullptr},
 };
 
 static struct esp_info {
@@ -224,6 +224,10 @@ mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
 static void
 reconnect(PubSubClient& client)
 {
+    if (client.connected()) {
+        return;
+    }
+
     while (!client.connected()) {
         if (!client.connect("router")) {
             LOG_INFO(
