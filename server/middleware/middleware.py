@@ -141,7 +141,7 @@ class _handler:
         """
         logging.info('Redirecting to red')
 
-        topic = msg.topic.lstrip('/')
+        topic = msg.topic.lstrip('/redmw').lstrip('/')
 
         fields = [_config_entry(x) for x in self.config['red'][topic]]
         data = _unpack_payload(msg.payload, _build_fmt(*fields))
@@ -176,31 +176,36 @@ class _handler:
                             struct.pack(_build_fmt(*config), *data_struct))
 
     def _on_message(self, client: mqtt.Client, usrdata: Any, msg: mqtt.MQTTMessage) -> None:
-        logging.info(f'Message recieved: {msg}')
+        logging.info(f'Message recieved: {str(msg.payload)}')
 
         if msg.topic.startswith('/devicemw'):
             self._redirect_device(msg)
+        elif msg.topic.startswith('/redmw'):
+            self._redirect_red(msg)
         elif msg.topic.startswith('/red'):
             logging.info(f'Red recieved: {msg.payload.decode("utf-8")}')
         else:
-            self._redirect_red(msg)
+            logging.error(f'Invalid topic {msg.topic}')
+
+    def _subscribe(self, topic: str):
+        self.client.subscribe(topic)
+        logging.info(f'Subscribed to {topic}')
 
     def _on_connect(self, *args: Any) -> None:
         logging.info(f'Connected to {self.host}:{self.port}')
 
         # Subscribe to topics for Node-RED -> Device direction
         for dtopic in self.config['devicemw'].keys():
-            self.client.subscribe(_build_topic('/devicemw', dtopic))
+            self._subscribe(_build_topic('/devicemw', dtopic))
 
         # Subscribe to topic for Device -> Node-RED direction. This is not
         # prepended by a particular endpoint like /device.
         for rtopic in self.config['red'].keys():
-            self.client.subscribe(_build_topic(rtopic))
-            self.client.subscribe(_build_topic('red', rtopic))
+            self._subscribe(_build_topic('redmw', rtopic))
+            self._subscribe(_build_topic('red', rtopic))
 
 
 def main(**kwargs) -> None:
-    print('?')
     logging.info('Initializing middleware')
 
     with open(Path.cwd().joinpath('topics.json')) as fp:

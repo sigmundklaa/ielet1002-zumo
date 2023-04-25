@@ -27,6 +27,24 @@
                 "name": "w",
                 "kind": "f32"
             }
+        ],
+        "sensor/1": [
+            {
+                "name": "temperature",
+                "kind": "f32"
+            },
+            {
+                "name": "humidity",
+                "kind": "f32"
+            },
+            {
+                "name": "pressure",
+                "kind": "f32"
+            },
+            {
+                "name": "lightdata",
+                "kind": "i32"
+            }
         ]
     },
     "devicemw": {
