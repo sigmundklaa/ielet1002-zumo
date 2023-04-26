@@ -18,20 +18,21 @@ yield_tick()
 {
 }
 
-#if 0
+#if 1
 void
 setup()
+{
+}
+
+void
+loop()
 {
     LOG_ERR(<< "test");
     LOG_INFO(<< "setting up");
     LOG_ERR(<< "test");
     LOG_ERR(<< "test");
     LOG_SAVE();
-}
-
-void
-loop()
-{
+    delay(1000);
     yield_tick();
 }
 
