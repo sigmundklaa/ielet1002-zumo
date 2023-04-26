@@ -2,7 +2,7 @@
 #include "controller.hh"
 #include "common.hh"
 #include <Arduino.h>
-#include <Wire.hh>
+#include <Wire.h>
 #include <Zumo32U4.h>
 #include <logging/log.hh>
 #include <utils/trace.hh>
@@ -170,16 +170,30 @@ controller_::read_sensors_()
 controller_::controller_()
     : left(controller_::side_::LEFT), right(controller_::side_::RIGHT)
 {
+}
+
+void
+controller_::init_()
+{
+#if 0
+    Wire.begin();
+
     if (!components_.imu.init()) {
         LOG_ERR(<< "unable to init imu");
     }
 
     components_.imu.enableDefault();
+#endif
 }
 
 void
 controller_::run()
 {
+    if (!inited_) {
+        init_();
+        inited_ = 1;
+    }
+
     uint64_t tmp = micros();
     if (tmp - last_read_us_ >= READ_INTERVAL_US_) {
         read_sensors_();

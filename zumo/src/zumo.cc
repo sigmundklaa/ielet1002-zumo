@@ -1,17 +1,22 @@
 
-#include "common.hh"
 #include <Arduino.h>
+#include <FastGPIO.h>
 #include <Wire.h>
 // #include <io/espnow.hh>
+#include "common.hh"
+#include "comms.hh"
+#include <io/redirect.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
-#include <stdio.h>
-
-#include "housekeep.hh"
-#include <io/serial.hh>
+#include <utils/init.hh>
 
 #define LOG_MODULE main
 LOG_REGISTER(common::log_gateway);
+
+static uint8_t redirect_buf_[256];
+static io::redirect::redirect_gateway redirect(
+    common::serial_gateway_, io::redirect::NODE_MQTT_STORE_1, redirect_buf_
+);
 
 void
 yield_tick()
@@ -22,18 +27,21 @@ yield_tick()
 void
 setup()
 {
+    LOG_INFO(<< "setting up");
 }
+
+struct __attribute__((packed)) t {
+    uint8_t x;
+    uint16_t y;
+    int16_t z;
+    int32_t u;
+    float w;
+} tt;
 
 void
 loop()
 {
-    LOG_ERR(<< "test");
-    LOG_INFO(<< "setting up");
-    LOG_ERR(<< "test");
-    LOG_ERR(<< "test");
-    LOG_SAVE();
-    delay(1000);
-    yield_tick();
+    comms::on_tick();
 }
 
 #endif

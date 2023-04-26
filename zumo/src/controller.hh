@@ -68,6 +68,7 @@ class controller_
   protected:
     uint64_t total_run_time_us_;
     uint64_t last_read_us_;
+    uint8_t inited_;
 
     struct sensor_readings_ {
         int16_t accel[3];   /* Acceleration X,Y,Z */
@@ -82,6 +83,7 @@ class controller_
      *
      */
     void read_sensors_();
+    void init_();
 
   public:
     side_ left, right;
