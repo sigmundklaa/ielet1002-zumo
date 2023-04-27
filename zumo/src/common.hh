@@ -42,8 +42,6 @@ init_serial_gateway_(io::serial_gateway<HardwareSerial>& mem)
 static io::serial_gateway<HardwareSerial>& serial_gateway_ =
     init_guarded(io::serial_gateway<HardwareSerial>, init_serial_gateway_);
 
-extern uint8_t redirect_buf[256];
-
 /**
  * @brief Manages storage. Saves and retrieves data from the connected
  * gateway when necessary
@@ -56,22 +54,19 @@ template <typename T> class store
     io::gateway* gateway_;
 
   public:
+    static T buf;
+
     T data;
 
     /**
      * @brief Construct a new store object
      *
      * @param gateway gateway to save/retreive data from
-     * @param data_init Initial data, will only be used when unable to read from
-     * the gateway
+     * @param data_init Initial data
      */
     inline store(io::gateway* gateway, const T& data_init) : gateway_(gateway)
     {
-        size_t bread = gateway_->read(&this->data, sizeof(T));
-
-        if (bread != sizeof(T)) {
-            ::memcpy(&this->data, &data_init, sizeof(T));
-        }
+        ::memcpy(&this->data, &data_init, sizeof(T));
     }
 
     /**
@@ -82,8 +77,6 @@ template <typename T> class store
     inline int
     save()
     {
-        static T buf = {0};
-
         size_t written = gateway_->write(&this->data, sizeof(T)) != sizeof(T);
 
         if (written != sizeof(T)) {
@@ -92,13 +85,25 @@ template <typename T> class store
 
         /* Read the updated contents into a buffer first, and then if there is
          * no error we can safely update the real data field. */
-        size_t read = gateway_->read(&buf, sizeof(buf));
+        size_t read = gateway_->read(&store<T>::buf, sizeof(store<T>::buf));
 
         if (read == sizeof(T)) {
-            ::memcpy(&this->data, &buf, sizeof(T));
+            ::memcpy(&this->data, &store<T>::buf, sizeof(T));
         }
 
         return read;
+    }
+
+    inline void
+    sync()
+    {
+        size_t bread = gateway_->read(&store<T>::buf, sizeof(store<T>::buf));
+
+        if (bread != sizeof(store<T>::buf)) {
+            return;
+        }
+
+        ::memcpy(&this->data, &store<T>::buf, sizeof(store<T>::buf));
     }
 };
 
@@ -107,7 +112,12 @@ template <typename T> class store
  *
  */
 struct __attribute__((packed)) remote_data {
-    uint8_t bank_currency;
+    // uint8_t bank_currency;
+    uint8_t x;
+    uint16_t y;
+    int16_t z;
+    int32_t u;
+    float w;
 };
 
 /**
@@ -123,6 +133,8 @@ struct __attribute__((packed)) local_data {
 
 extern store<remote_data> remote_store;
 extern store<local_data> local_store;
+
+void on_tick();
 
 }; // namespace common
 

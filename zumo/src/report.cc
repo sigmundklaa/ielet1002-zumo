@@ -1,5 +1,6 @@
 
 #include "report.hh"
+#include "comms.hh"
 #include <io/redirect.hh>
 #include <utils/compile.hh>
 #include <utils/init.hh>
@@ -14,12 +15,7 @@ namespace report
 void
 init_reporter_(zumo_reporter_& mem)
 {
-    static io::redirect::redirect_gateway gateway(
-        common::serial_gateway_, io::redirect::NODE_MQTT_REPORT_1,
-        common::redirect_buf
-    );
-
-    new (&mem) zumo_reporter_(gateway, REPORT_INTERVAL_US_);
+    new (&mem) zumo_reporter_(comms::report_gw, REPORT_INTERVAL_US_);
 }
 
 size_t

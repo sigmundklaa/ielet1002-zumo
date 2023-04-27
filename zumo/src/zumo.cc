@@ -5,6 +5,7 @@
 // #include <io/espnow.hh>
 #include "common.hh"
 #include "comms.hh"
+#include "zumo.hh"
 #include <io/redirect.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
@@ -13,14 +14,10 @@
 #define LOG_MODULE main
 LOG_REGISTER(common::log_gateway);
 
-static uint8_t redirect_buf_[256];
-static io::redirect::redirect_gateway redirect(
-    common::serial_gateway_, io::redirect::NODE_MQTT_STORE_1, redirect_buf_
-);
-
 void
-yield_tick()
+zumo::yield_tick()
 {
+    comms::on_tick();
 }
 
 #if 1
@@ -41,12 +38,14 @@ struct __attribute__((packed)) t {
 void
 loop()
 {
-    comms::on_tick();
+    zumo::yield_tick();
+    common::on_tick();
 
-    t x;
-    if (comms::store_gw.read(&x, sizeof(x)) > 0) {
-        LOG_INFO(<< "recieved x: " << String(x.x) << ", w: " << String(x.w));
-    }
+    LOG_INFO(
+        << "x: " << String(common::remote_store.data.x)
+        << ", w: " << String(common::remote_store.data.w)
+    );
+    delay(500);
 }
 
 #endif

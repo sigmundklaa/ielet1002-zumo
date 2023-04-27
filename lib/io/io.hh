@@ -97,6 +97,12 @@ class pushable_gateway : public gateway
 
         ::memcpy(read_data_, data, read_size_);
     }
+
+    uint8_t
+    avail()
+    {
+        return read_size_ > 0;
+    }
 };
 
 }; // namespace io
