@@ -50,7 +50,7 @@ on_tick()
 
     /* A delay is required to allow for all the bytes to be filled in to the
      * buffer */
-    if (tmp - last_read_us <= 100e3) {
+    if (tmp - last_read_us <= 0) {
         return;
     }
     last_read_us = tmp;
@@ -60,8 +60,11 @@ on_tick()
         return;
     }
 
-    LOG_INFO(<< "recieved over serial: " << String(bread) << "bytes");
     io::redirect::header* header = (io::redirect::header*)buf_;
+    LOG_INFO(
+        << "recieved over serial: " << String(bread) << "bytes; node "
+        << String(header->node) << ", data size " << String(header->size)
+    );
     bread += common::serial_gateway_.read(buf_ + sizeof(*header), header->size);
 
     handle_input_(buf_, bread);

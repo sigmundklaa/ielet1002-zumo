@@ -57,16 +57,16 @@ class redirect_gateway : public pushable_gateway
     uint8_t*
     prepare_buf_(size_t size)
     {
-        size_t header_sz = prepare_header(type_, buf_, sizeof(buf_));
+        size_t header_sz = prepare_header(type_, buf_, size);
 
-        return redirect_gateway::buf_ + header_sz;
+        return buf_ + header_sz;
     }
 
     size_t
     write_(const uint8_t* data, size_t size)
     {
-        uint8_t* buf = prepare_buf_(size);
-        ::memcpy(buf, data, size);
+        uint8_t* data_buf = prepare_buf_(size);
+        ::memcpy(data_buf, data, size);
 
         return parent_.write(buf_, total_size(size));
     }

@@ -2,6 +2,9 @@
 #ifndef UTILS_MACROS_HH__
 #define UTILS_MACROS_HH__
 
+#define UTILS_TRIPLES__(x, y, z) x##y##z
+#define UTILS_TRIPLES(x, y, z) UTILS_TRIPLES__(x, y, z)
+
 #define UTILS_CONCAT__(x, y) x##y
 #define UTILS_CONCAT(x, y) UTILS_CONCAT__(x, y)
 

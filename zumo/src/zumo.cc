@@ -42,6 +42,11 @@ void
 loop()
 {
     comms::on_tick();
+
+    t x;
+    if (comms::store_gw.read(&x, sizeof(x)) > 0) {
+        LOG_INFO(<< "recieved x: " << String(x.x) << ", w: " << String(x.w));
+    }
 }
 
 #endif
