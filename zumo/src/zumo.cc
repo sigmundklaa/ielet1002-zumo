@@ -5,6 +5,8 @@
 // #include <io/espnow.hh>
 #include "common.hh"
 #include "comms.hh"
+#include "controller.hh"
+#include "housekeep.hh"
 #include "zumo.hh"
 #include <io/redirect.hh>
 #include <io/serial.hh>
@@ -40,6 +42,9 @@ loop()
 {
     zumo::yield_tick();
     common::on_tick();
+
+    hal::on_tick();
+    hk::on_tick();
 
     LOG_INFO(
         << "x: " << String(common::remote_store.data.x)

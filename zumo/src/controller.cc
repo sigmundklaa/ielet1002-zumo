@@ -175,7 +175,6 @@ controller_::controller_()
 void
 controller_::init_()
 {
-#if 0
     Wire.begin();
 
     if (!components_.imu.init()) {
@@ -183,7 +182,6 @@ controller_::init_()
     }
 
     components_.imu.enableDefault();
-#endif
 }
 
 void

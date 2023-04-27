@@ -32,15 +32,9 @@ calc_vel(float base, int16_t accel, int16_t d_us)
     return base + ((float)accel * ACCEL_CONV_FACTOR_ * G_) * (d_us / 1e6f);
 }
 
-void
-update(uint64_t delta_us)
+static void
+update_(uint64_t delta_us)
 {
-    static uint64_t last_display = 0;
-    uint64_t tmp = micros();
-
-    if (tmp - last_display >= DISPLAY_INTERVAL_US_) {
-    }
-
     /* TODO: figure out what axis is correct for acceleration */
     int16_t* accel = hal::controller.accel_data();
 
@@ -51,6 +45,8 @@ update(uint64_t delta_us)
 
     data.velocity_calc = calc_vel(data.velocity_calc, accel[0], delta_us);
     data.distance = data.distance + data.velocity_calc * delta_us;
+
+    LOG_DEBUG(<< "velocity: " << String(data.velocity_calc));
 
     if (data.velocity_calc > data.velocity_max) {
         data.velocity_max = data.velocity_calc;
@@ -63,6 +59,17 @@ update(uint64_t delta_us)
     int16_t* encoder_data = hal::controller.encoder_data();
 
     ::memcpy(&data.accel_meas, accel, sizeof(*accel) * 3);
+}
+
+void
+on_tick()
+{
+    static uint64_t last = 0;
+    uint64_t tmp = micros();
+
+    if (tmp - last >= 100e3) {
+        update_(100e3);
+    }
 }
 
 }; // namespace hk

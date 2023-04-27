@@ -35,7 +35,7 @@ struct data_ {
 };
 extern data_ data;
 
-void update();
+void on_tick();
 
 }; // namespace hk
 

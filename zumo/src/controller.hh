@@ -112,6 +112,12 @@ class controller_
 };
 extern controller_ controller;
 
+inline void
+on_tick()
+{
+    controller.run();
+}
+
 }; // namespace hal
 
 #endif // CONTROLLER_HH__
