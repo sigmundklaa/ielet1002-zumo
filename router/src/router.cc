@@ -11,11 +11,11 @@
 #include <utils/trace.hh>
 #include <wifi.hh>
 
-#define RX_PIN_ (26)
-#define TX_PIN_ (22)
+#define RX_PIN_ (16)
+#define TX_PIN_ (17)
 
 static io::serial_gateway<HardwareSerial>
-    serial_gateway_(Serial2, 115200, RX_PIN_, TX_PIN_);
+    serial_gateway_(Serial1, 115200, SERIAL_8N1, RX_PIN_, TX_PIN_);
 
 #if defined(REMOTE_LOG) && REMOTE_LOG
 static io::mqtt_gateway log_gateway_(&io::mqtt_client, "/log/router", nullptr);
@@ -166,11 +166,15 @@ redirect_espnow_(
 static void
 redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
 {
+    TRACE_ENTER(__func__);
+    LOG_DEBUG(<< "node: " << String(header->node));
+
     switch (header->node) {
     case io::redirect::NODE_MQTT_REPORT_1:
     case io::redirect::NODE_MQTT_STORE_1: {
         /* Send to appropriate mqtt node */
         for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
+            LOG_DEBUG(<< "checking mqtt index " << String(i));
             mqtt_info& inf = mqtt_topics_[i];
 
             if (inf.node == header->node) {
@@ -193,6 +197,8 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
         break;
     }
     }
+
+    TRACE_EXIT(__func__);
 }
 
 static void
@@ -291,15 +297,19 @@ loop()
     size_t bread = serial_gateway_.read(buf, sizeof(io::redirect::header));
 
     if (bread != 0) {
-        LOG_DEBUG(<< "reading from serial");
 
         io::redirect::header* header =
             reinterpret_cast<io::redirect::header*>(buf);
 
+        LOG_DEBUG(
+            << "reading from serial (node " << String(header->node) << ", size "
+            << String(header->size) << ", bread " << String(bread) << ")"
+        );
         bread += serial_gateway_.read(buf + bread, header->size);
 
         redirect_network_(header, buf + sizeof(*header), bread);
     }
 
     io::mqtt_client.loop();
+    delay(100);
 }
