@@ -1,4 +1,5 @@
 
+#include "autonomy.hh"
 #include "common.hh"
 #include "comms.hh"
 #include "controller.hh"
@@ -15,11 +16,12 @@
 #define LOG_MODULE main
 LOG_REGISTER(common::log_gateway);
 
-
 void
 setup()
 {
     LOG_INFO(<< "setting up");
+
+    autonomy::on_init();
 }
 
 void
@@ -29,8 +31,8 @@ loop()
     common::on_tick();
 
     hal::on_tick();
+
     hk::on_tick();
     report::on_tick();
-
-    delay(100);
+    autonomy::on_tick();
 }

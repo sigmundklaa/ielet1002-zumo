@@ -19,6 +19,7 @@ namespace hal
 static struct {
     Zumo32U4IMU imu;
     Zumo32U4Encoders encoders;
+    Zumo32U4LineSensors lines;
 } components_;
 
 /* We perform a memcpy from the .a struct to an array so we need to be sure that
@@ -163,6 +164,7 @@ controller_::read_sensors_()
     components_.imu.readAcc();
 
     ::memcpy(readings_.accel, &components_.imu.a, sizeof(readings_.accel));
+    readings_.position = components_.lines.readLine(readings_.lines);
 
     TRACE_EXIT(__func__);
 }
@@ -182,6 +184,7 @@ controller_::init_()
     }
 
     components_.imu.enableDefault();
+    components_.lines.initFiveSensors();
 }
 
 void
@@ -193,8 +196,12 @@ controller_::run()
     }
 
     uint64_t tmp = micros();
-    if (tmp - last_read_us_ >= READ_INTERVAL_US_) {
+    uint64_t delta = tmp - last_read_us_;
+    if (delta >= READ_INTERVAL_US_) {
         read_sensors_();
+
+        button_b.handle(delta);
+        button_c.handle(delta);
 
         last_read_us_ = tmp;
     }
@@ -213,6 +220,12 @@ int16_t*
 controller_::encoder_data()
 {
     return readings_.encoder;
+}
+
+void
+controller_::calibrate()
+{
+    components_.lines.calibrate();
 }
 
 }; // namespace hal

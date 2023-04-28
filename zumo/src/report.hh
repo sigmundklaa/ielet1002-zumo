@@ -10,7 +10,14 @@ namespace report
 {
 
 struct __attribute__((packed)) zumo_report_ {
-    uint32_t vel;
+    struct side_ {
+        int16_t vel;
+        int16_t last;
+        int32_t dist;
+        int32_t vel_sum;
+        int32_t vel_n;
+        uint64_t us_above_70p;
+    } left, right;
 };
 
 class zumo_reporter_ : public reporter_<zumo_report_>

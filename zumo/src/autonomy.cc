@@ -1,6 +1,8 @@
 
 #include "autonomy.hh"
 #include "common.hh"
+#include "controller.hh"
+#include "housekeep.hh"
 #include <Arduino.h>
 #include <Wire.h>
 #include <Zumo32U4.h>
@@ -20,7 +22,9 @@ enum DriveState {
     reverse,       // 7
     missingLine,   // 8
     address,       // 9
-    stop           // 10
+    stop,          // 10
+    waitInit,
+    fullStop,
 };
 
 struct TurnCheck {
@@ -50,13 +54,13 @@ struct TurnCheck {
 };
 
 TurnCheck turnCheck;
-DriveState driveState = followLine;
+DriveState driveState = waitInit;
 
 Zumo32U4LineSensors lineSensors;
 Zumo32U4Motors motors;
 Zumo32U4ButtonC buttonC;
 
-uint16_t lineSensorValues[5];
+uint16_t* lineSensorValues;
 uint16_t position = 2000;
 uint16_t maxSpeed = 150;
 
@@ -83,20 +87,38 @@ void readSensorValues();
 // ----- SETUP -----
 // -----------------
 
+static void
+initButtonPress()
+{
+    switch (driveState) {
+    case waitInit: {
+        LOG_INFO(<< "Calibrating line sensors.");
+        calibrateLineSensors();
+
+        LOG_INFO(<< "Line sensors calibrated!");
+    };
+    case stop: {
+        driveState = followLine;
+        break;
+    };
+    default: {
+        driveState = fullStop;
+        motors.setSpeeds(0, 0);
+        break;
+    };
+    };
+}
+
 void
 autonomy::on_init()
 {
-    lineSensors.initFiveSensors();
-
     LOG_INFO(
         << "Line sensors can be calibrated by pressing the C button on the Zumo"
     );
-    buttonC.waitForButton();
+    hal::controller.button_c.set_0s_callback(initButtonPress);
 
-    LOG_INFO(<< "Calibrating line sensors.");
-    calibrateLineSensors();
-
-    LOG_INFO(<< "Line sensors calibrated!");
+    lineSensorValues =
+        reinterpret_cast<uint16_t*>(hal::controller.lines_data());
 }
 
 // ----------------
@@ -106,9 +128,13 @@ autonomy::on_init()
 void
 autonomy::on_tick()
 {
+    if (driveState == waitInit) {
+        return;
+    }
+
     static uint32_t sampleTime = 0;
 
-    position = lineSensors.readLine(lineSensorValues);
+    position = hal::controller.position();
     positionError = position - 2000;
     speedDifference = positionError / 4 + 3 * (positionError - lastError);
     lineSensorError = lineSensorValues[1] - lineSensorValues[3];
@@ -299,6 +325,8 @@ autonomy::on_tick()
         }
 
         break;
+    case fullStop:
+        break;
     }
 }
 
@@ -312,7 +340,7 @@ calibrateLineSensors()
     delay(1000);
 
     for (uint16_t i = 0; i < 115; i++) {
-        lineSensors.calibrate();
+        hal::controller.calibrate();
 
         if (i > 30 && i < 85) {
             motors.setSpeeds(-100, 100);
@@ -343,6 +371,8 @@ printReadingsToSerial()
     );
 }
 
+/* TODO: unused? */
+/*
 void
 readSensorValues()
 {
@@ -350,3 +380,4 @@ readSensorValues()
 
     printReadingsToSerial();
 }
+*/

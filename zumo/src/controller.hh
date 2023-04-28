@@ -4,6 +4,7 @@
 #ifndef CONTROLLER_HH__
 #define CONTROLLER_HH__
 
+#include <Zumo32U4.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -65,6 +66,78 @@ class controller_
         uint8_t running();
     };
 
+    template <typename T> class button_
+    {
+      public:
+        typedef void (*btn_press_fn)(void);
+
+      protected:
+        T zbutton_;
+        uint8_t pressed_;
+        uint64_t time_hold_us_;
+
+        btn_press_fn press_3s_;
+        btn_press_fn press_1s_;
+        btn_press_fn press_instant_;
+
+        void
+        call_callback_(btn_press_fn fn)
+        {
+            if (fn == nullptr) {
+                return;
+            }
+
+            fn();
+        }
+
+      public:
+        void
+        handle(uint64_t delta_us)
+        {
+            uint8_t current = zbutton_.isPressed();
+
+            if (current) {
+                if (!pressed_) {
+                    pressed_ = 1;
+                }
+
+                time_hold_us_ += delta_us;
+            } else if (pressed_) {
+                /* Was pressed, but no longer pressed */
+                pressed_ = 0;
+
+                if (time_hold_us_ >= 3e6) {
+                    call_callback_(press_3s_);
+                } else if (time_hold_us_ >= 1e6) {
+                    call_callback_(press_1s_);
+                } else if (time_hold_us_ >= 10e3) {
+                    /* 10ms is considered instant */
+                    call_callback_(press_instant_);
+                }
+
+                time_hold_us_ = 0;
+            }
+        }
+
+        void
+        set_3s_callback(btn_press_fn fn)
+        {
+            press_3s_ = fn;
+        }
+
+        void
+        set_1s_callback(btn_press_fn fn)
+        {
+            press_1s_ = fn;
+        }
+
+        void
+        set_0s_callback(btn_press_fn fn)
+        {
+            press_instant_ = fn;
+        }
+    };
+
   protected:
     uint64_t total_run_time_us_;
     uint64_t last_read_us_;
@@ -74,6 +147,8 @@ class controller_
         int16_t accel[3];   /* Acceleration X,Y,Z */
         int16_t encoder[2]; /* Readings from left and right encoders,
                                respectively */
+        unsigned int lines[5];
+        int position;
     } readings_;
 
     /**
@@ -87,6 +162,9 @@ class controller_
 
   public:
     side_ left, right;
+
+    button_<Zumo32U4ButtonC> button_c;
+    button_<Zumo32U4ButtonB> button_b;
 
     controller_();
 
@@ -109,6 +187,20 @@ class controller_
      * @return int16_t* int16_t[2] of left, right encoder values
      */
     int16_t* encoder_data();
+
+    unsigned int*
+    lines_data()
+    {
+        return readings_.lines;
+    }
+
+    int
+    position()
+    {
+        return readings_.position;
+    }
+
+    void calibrate();
 };
 extern controller_ controller;
 

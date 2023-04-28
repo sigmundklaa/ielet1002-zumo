@@ -7,66 +7,59 @@
 #define LOG_MODULE housekeeping
 LOG_REGISTER(common::log_gateway);
 
-/* https://github.com/pololu/zumo-32u4-arduino-library/blob/master/examples/InertialSensors/InertialSensors.ino
- */
-#define ACCEL_CONV_FACTOR_ (0.061e-3f)
-#define G_ (9.81e3f)
-
-#define DISPLAY_INTERVAL_US_ (60e6)
+#define MAX_SPEED_ (80)
 
 namespace hk
 {
 data_ data;
 
-/**
- * @brief Calculate velocity
- *
- * @param base Starting velocity
- * @param x
- * @param y
- * @param d_us Delta T in microseconds
- * @return double
- */
-static inline double
-calc_vel(double base, int32_t x, int32_t y, int16_t d_us)
+static inline int16_t
+calc_vel_(int16_t cur, int16_t last, uint64_t delta_us)
 {
-    double accel = sqrt(x * x + y * y);
+    int32_t cur_c = cur;
 
-    if ((x * y) < 0) {
-        accel = -accel;
+    /* If the current has overflowed */
+    if (cur_c < 0 && last > 0) {
+        cur_c = INT16_MAX + (cur_c - INT16_MIN);
+    } else if (cur_c > 0 && last < 0) {
+        cur_c = INT16_MIN + (INT16_MAX - cur_c);
     }
 
-    return base + (accel * ACCEL_CONV_FACTOR_ * G_) * (d_us / 1e6);
+    return (cur_c - last); // / delta_us;
+}
+
+static void
+update_side_(data_::vel& side, int16_t cur, uint64_t delta_us)
+{
+    side.velocity = calc_vel_(cur, side.last_count, delta_us);
+    side.last_count = cur;
+
+    side.distance += abs(side.velocity); // * delta_us;
+
+    if (side.velocity != 0) {
+        /* Only track average when not stopped */
+        side.vel_sum += side.velocity;
+        side.vel_n++;
+
+        if (side.vel_n >= INT32_MAX) {
+            side.vel_sum = side.velocity;
+            side.vel_n = 1;
+        }
+
+        if (side.velocity >= MAX_SPEED_) {
+            side.us_above_70p += delta_us;
+        }
+    }
 }
 
 static void
 update_(uint64_t delta_us)
 {
-    /* TODO: figure out what axis is correct for acceleration */
-    int16_t* accel = hal::controller.accel_data();
-
-    LOG_DEBUG(
-        << "<acceleration> x: " << String(accel[0])
-        << ", y: " << String(accel[1]) << ", z: " << String(accel[2])
-    );
-
-    data.velocity_calc =
-        calc_vel(data.velocity_calc, accel[0], accel[1], delta_us);
-    data.distance = data.distance + data.velocity_calc * delta_us;
-
-    LOG_DEBUG(<< "velocity: " << String(data.velocity_calc));
-
-    if (data.velocity_calc > data.velocity_max) {
-        data.velocity_max = data.velocity_calc;
-    }
-
-    if (data.velocity_calc > data.velocity_max * 0.7) {
-        data.velocity_us_above_max += delta_us;
-    }
 
     int16_t* encoder_data = hal::controller.encoder_data();
 
-    ::memcpy(&data.accel_meas, accel, sizeof(*accel) * 3);
+    update_side_(data.vel_l, encoder_data[0], delta_us);
+    update_side_(data.vel_r, encoder_data[1], delta_us);
 }
 
 void

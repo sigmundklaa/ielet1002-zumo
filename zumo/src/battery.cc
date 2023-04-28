@@ -19,7 +19,9 @@ battery__ battery;
 static int32_t
 calc_vel_avg_()
 {
-    return hk::data.velocity_sum / hk::data.velocity_sum_n;
+    return ((hk::data.vel_l.vel_sum / hk::data.vel_l.vel_n) +
+            (hk::data.vel_r.vel_sum / hk::data.vel_r.vel_n)) /
+           2;
 }
 
 static uint8_t
@@ -64,10 +66,11 @@ battery__::calc_drain_health_()
           common::local_store.data.batt_n_charges) /
          5);
 
-    uint8_t cur_status_factor =
-        (hk::data.velocity_calc + (hk::data.velocity_max * 0.7 *
-                                   (hk::data.velocity_us_above_max / 1000))) /
+    uint8_t cur_status_factor = 0; /*
+    (hk::data.velocity_calc +
+     (hk::data.velocity_max * 0.7 * (hk::data.velocity_us_above_max / 1000))) /
         2;
+    */
 
     uint8_t total = factor * mult + cur_status_factor / 10;
 
@@ -83,7 +86,9 @@ uint8_t
 battery__::calc_drain_batt_()
 {
     uint8_t factor = 10;
-    uint8_t mult = (hk::data.distance * calc_vel_avg_()) / 50;
+    uint8_t mult = (((hk::data.vel_l.distance + hk::data.vel_r.distance) / 2) *
+                    calc_vel_avg_()) /
+                   50;
 
     return mult * factor;
 }
