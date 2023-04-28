@@ -26,7 +26,7 @@ template <typename T> class init_guard
     static int nifty_;
 
   public:
-    static uint8_t mem[aligned__(sizeof(T), alignof__(T))];
+    static uint8_t mem[sizeof(T)];
     typedef void (*constructor)(T&);
 
     init_guard(constructor c);
