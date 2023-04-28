@@ -1,11 +1,16 @@
 
 #include "report.hh"
+#include "common.hh"
 #include "comms.hh"
 #include <io/redirect.hh>
+#include <logging/log.hh>
 #include <utils/compile.hh>
 #include <utils/init.hh>
 #include <utils/macros.hh>
 #include <utils/new.hh>
+
+#define LOG_MODULE reporter
+LOG_REGISTER(common::log_gateway);
 
 namespace report
 {
@@ -21,6 +26,7 @@ init_reporter_(zumo_reporter_& mem)
 size_t
 zumo_reporter_::generate_()
 {
+    buf_.vel = 3;
 
     return sizeof(buf_);
 }
