@@ -21,6 +21,8 @@ setup()
 {
     LOG_INFO(<< "setting up");
 
+    comms::init_gw.write("", 0);
+
     autonomy::on_init();
 }
 
