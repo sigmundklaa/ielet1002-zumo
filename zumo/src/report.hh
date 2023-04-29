@@ -13,6 +13,7 @@ struct __attribute__((packed)) zumo_report_ {
     struct side_ {
         int16_t vel;
         int16_t last;
+        int16_t max;
         int32_t dist;
         int32_t vel_sum;
         int32_t vel_n;

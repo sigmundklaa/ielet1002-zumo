@@ -7,7 +7,7 @@
 #define LOG_MODULE housekeeping
 LOG_REGISTER(common::log_gateway);
 
-#define MAX_SPEED_ (80)
+#define MAX_SPEED_ (100)
 
 namespace hk
 {
@@ -48,6 +48,10 @@ update_side_(data_::vel& side, int16_t cur, uint64_t delta_us)
 
         if (side.velocity >= MAX_SPEED_) {
             side.us_above_70p += delta_us;
+        }
+
+        if (side.velocity > side.vel_max) {
+            side.vel_max = side.velocity;
         }
     }
 }

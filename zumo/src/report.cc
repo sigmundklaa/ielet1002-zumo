@@ -30,6 +30,7 @@ gen_side_(zumo_report_::side_& side, hk::data_::vel& hk_side)
     side = (zumo_report_::side_){
         .vel = hk_side.velocity,
         .last = hk_side.last_count,
+        .max = hk_side.vel_max,
         .dist = hk_side.distance,
         .vel_sum = hk_side.vel_sum,
         .vel_n = hk_side.vel_n,
