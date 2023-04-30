@@ -96,14 +96,18 @@ initButtonPress()
         calibrateLineSensors();
 
         LOG_INFO(<< "Line sensors calibrated!");
+
+        driveState = fullStop;
+        break;
     };
     case stop: {
         driveState = followLine;
+        hal::controller.start();
         break;
     };
     default: {
         driveState = fullStop;
-        motors.setSpeeds(0, 0);
+        hal::controller.stop();
         break;
     };
     };
@@ -128,6 +132,7 @@ autonomy::on_init()
 void
 autonomy::on_tick()
 {
+    return;
     if (driveState == waitInit) {
         return;
     }
@@ -338,21 +343,21 @@ void
 calibrateLineSensors()
 {
     delay(1000);
+    hal::controller.start();
 
     for (uint16_t i = 0; i < 115; i++) {
         hal::controller.calibrate();
 
         if (i > 30 && i < 85) {
-            motors.setSpeeds(-100, 100);
-        } else if (i == 30 || i == 85) {
-            motors.setSpeeds(0, 0);
-            delay(50);
+            hal::controller.set_speeds(-60, 60);
         } else {
-            motors.setSpeeds(100, -100);
+            hal::controller.set_speeds(60, -60);
         }
+
+        hal::controller.run();
     }
 
-    motors.setSpeeds(0, 0);
+    hal::controller.stop();
 }
 
 void

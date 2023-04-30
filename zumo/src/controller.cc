@@ -10,7 +10,7 @@
 #define LOG_MODULE controller
 LOG_REGISTER(common::log_gateway);
 
-#define DIR_CHANGE_DELAY_US_ (100e4)
+#define DIR_CHANGE_DELAY_US_ (100e3)
 #define READ_INTERVAL_US_ (50e3)
 
 namespace hal
@@ -98,6 +98,12 @@ controller_::side_::stop_()
 void
 controller_::side_::transition_(side_::state_ st)
 {
+    LOG_DEBUG(
+        << "<transition> side: " << String(static_cast<int>(side_num_))
+        << ", state: " << String(static_cast<int>(cur_state_))
+        << ", new state: " << String(static_cast<int>(st))
+    );
+
     /* We are changing direction so we need to wait until we are done with that
      * before we can transition to any other state. TODO: either error return or
      * queue transition */
