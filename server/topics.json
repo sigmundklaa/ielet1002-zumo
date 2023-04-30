@@ -2,8 +2,60 @@
     "red": {
         "report/1": [
             {
-                "name": "velocity",
-                "kind": "u32"
+                "name": "l_velocity",
+                "kind": "i16"
+            },
+            {
+                "name": "l_last",
+                "kind": "i16"
+            },
+            {
+                "name": "l_max",
+                "kind": "i16"
+            },
+            {
+                "name": "l_dist",
+                "kind": "i32"
+            },
+            {
+                "name": "l_vel_sum",
+                "kind": "i32"
+            },
+            {
+                "name": "l_vel_n",
+                "kind": "i32"
+            },
+            {
+                "name": "l_above70",
+                "kind": "u64"
+            },
+            {
+                "name": "r_velocity",
+                "kind": "i16"
+            },
+            {
+                "name": "r_last",
+                "kind": "i16"
+            },
+            {
+                "name": "r_max",
+                "kind": "i16"
+            },
+            {
+                "name": "r_dist",
+                "kind": "i32"
+            },
+            {
+                "name": "r_vel_sum",
+                "kind": "i32"
+            },
+            {
+                "name": "r_vel_n",
+                "kind": "i32"
+            },
+            {
+                "name": "r_above70",
+                "kind": "u64"
             }
         ],
         "sync/1": [

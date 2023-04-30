@@ -100,7 +100,7 @@ def _unpack_payload(payload: Union[bytes, bytearray],
         logging.error(
             f'Unable to decode struct: {str(e)} (fmt: {fmt}, payload: {payload})')
         return None
-    
+
     if not _USE_CRC:
         return unpacked
 
@@ -209,7 +209,8 @@ class _handler:
         elif msg.topic.startswith('/redmw'):
             self._redirect_red(msg)
         elif msg.topic.startswith('/red'):
-            logging.info(f'Red recieved: {msg.payload.decode("utf-8")}')
+            logging.info(
+                f'Red recieved: {json.dumps(json.loads(msg.payload.decode("utf-8")), indent=4)}')
         elif msg.topic.startswith('/log'):
             self._remote_log(msg)
         else:
