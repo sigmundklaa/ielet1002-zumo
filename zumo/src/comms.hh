@@ -16,8 +16,9 @@ extern uint8_t buf_[256];
 #define COMMS_NODES__                                                          \
     X(report_gw, io::redirect::NODE_MQTT_REPORT_1)                             \
     X(store_gw, io::redirect::NODE_MQTT_STORE_1)                               \
-    X(charge_gw, io::redirect::NODE_ESP_CHARGE) \
-    X(init_gw, io::redirect::NODE_MQTT_INIT_1)
+    X(charge_gw, io::redirect::NODE_ESP_CHARGE)                                \
+    X(init_gw, io::redirect::NODE_MQTT_INIT_1)                                 \
+    X(control_gw, io::redirect::NODE_MQTT_CONTROL_1)
 
 template <io::redirect::node_type node> class dummy__
 {

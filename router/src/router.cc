@@ -40,6 +40,7 @@ static struct mqtt_info {
     {io::redirect::NODE_MQTT_STORE_1, "/redmw/sync/1", "/device/sync/1"},
     {io::redirect::NODE_MQTT_REPORT_1, "/redmw/report/1", nullptr},
     {io::redirect::NODE_MQTT_INIT_1, "/redmw/init/1", nullptr},
+    {io::redirect::NODE_MQTT_CONTROL_1, nullptr, "/device/control/1"},
 };
 
 static struct esp_info {

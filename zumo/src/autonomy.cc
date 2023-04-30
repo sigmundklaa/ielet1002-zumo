@@ -53,6 +53,8 @@ struct TurnCheck {
     }
 };
 
+static uint8_t enabled = 1;
+
 TurnCheck turnCheck;
 DriveState driveState = waitInit;
 
@@ -90,6 +92,10 @@ void readSensorValues();
 static void
 initButtonPress()
 {
+    if (!enabled) {
+        return;
+    }
+
     switch (driveState) {
     case waitInit: {
         LOG_INFO(<< "Calibrating line sensors.");
@@ -125,6 +131,16 @@ autonomy::on_init()
         reinterpret_cast<uint16_t*>(hal::controller.lines_data());
 }
 
+void
+toggle(uint8_t mode)
+{
+    if (mode && !enabled) {
+        driveState = waitInit;
+    }
+
+    enabled = mode;
+}
+
 // ----------------
 // ----- LOOP -----
 // ----------------
@@ -132,8 +148,7 @@ autonomy::on_init()
 void
 autonomy::on_tick()
 {
-    return;
-    if (driveState == waitInit) {
+    if (driveState == waitInit || !enabled) {
         return;
     }
 

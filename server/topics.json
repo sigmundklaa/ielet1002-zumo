@@ -69,6 +69,20 @@
                 "name": "w",
                 "kind": "f32"
             }
+        ],
+        "control/1": [
+            {
+                "name": "cmd",
+                "kind": "u8"
+            },
+            {
+                "name": "arg1",
+                "kind": "i16"
+            },
+            {
+                "name": "arg2",
+                "kind": "i16"
+            }
         ]
     },
     "log": {

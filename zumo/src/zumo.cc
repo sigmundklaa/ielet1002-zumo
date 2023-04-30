@@ -2,6 +2,7 @@
 #include "autonomy.hh"
 #include "common.hh"
 #include "comms.hh"
+#include "control.hh"
 #include "controller.hh"
 #include "housekeep.hh"
 #include "report.hh"
@@ -37,4 +38,5 @@ loop()
     hk::on_tick();
     report::on_tick();
     autonomy::on_tick();
+    control::on_tick();
 }
