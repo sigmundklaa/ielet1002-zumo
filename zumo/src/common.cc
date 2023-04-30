@@ -1,5 +1,6 @@
 
 #include "common.hh"
+#include "comms.hh"
 #include <Arduino.h>
 #include <io/eeprom.hh>
 #include <logging/log.hh>
@@ -14,46 +15,10 @@ LOG_REGISTER(common::log_gateway);
 namespace common
 {
 
-#define SERIAL_RX_ (0)
-#define SERIAL_TX_ (1)
-
-uint8_t redirect_buf[256];
-
-static io::redirect::redirect_gateway mqtt_gateway_(
-    serial_gateway_, io::redirect::NODE_MQTT_STORE_1, redirect_buf
-);
-
-/* Initialize the store connected to MQTT. This class is only used for its
- * constructor, as the store expects the connection to initialized before it is
- * created */
-static class mqtt_initer__
-{
-  public:
-    mqtt_initer__()
-    {
-        LOG_INFO(<< "requesting sync from remote");
-
-        /* Send no data to indicate we are requesting sync data */
-        mqtt_gateway_.write("", 0);
-
-/* Wait to recieve data before we can continue. Only try for X amount of
- * microseconds to prevent hang */
-#if 0
-        for (uint64_t start = micros(); micros() - start < SYNC_TIMEOUT_US_;) {
-            if (mqtt_gateway_.avail()) {
-                return;
-            }
-
-            mqtt_gateway_.ps_client()->loop();
-        }
-#endif
-
-        LOG_ERR(<< "error syncing data");
-    }
-} mqtt_initer_instance__;
+template <typename T> T store<T>::buf;
 
 store<remote_data> remote_store(
-    &mqtt_gateway_,
+    &comms::store_gw,
     (remote_data){
         0,
     }
@@ -70,5 +35,18 @@ store<local_data> local_store(
         .batt_n_drained = 0,
     }
 );
+
+void
+on_tick()
+{
+    static uint8_t local_inited = 0;
+
+    if (!local_inited) {
+        local_store.sync();
+        local_inited = 1;
+    }
+
+    remote_store.sync();
+}
 
 }; // namespace common

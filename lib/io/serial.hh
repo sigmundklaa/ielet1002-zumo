@@ -28,6 +28,9 @@ template <typename T> class serial_gateway : public gateway
 
         for (; hw_serial_.available() && i < buf_size; i++) {
             buf[i] = hw_serial_.read();
+
+            /* If there is no delay, we might get an incomplete read. */
+            delayMicroseconds(100);
         }
 
         return i;

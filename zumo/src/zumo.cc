@@ -1,10 +1,13 @@
 
+#include "autonomy.hh"
+#include "common.hh"
+#include "comms.hh"
+#include "controller.hh"
+#include "housekeep.hh"
+#include "report.hh"
 #include <Arduino.h>
 #include <FastGPIO.h>
 #include <Wire.h>
-// #include <io/espnow.hh>
-#include "common.hh"
-#include "comms.hh"
 #include <io/redirect.hh>
 #include <io/serial.hh>
 #include <logging/log.hh>
@@ -13,35 +16,25 @@
 #define LOG_MODULE main
 LOG_REGISTER(common::log_gateway);
 
-static uint8_t redirect_buf_[256];
-static io::redirect::redirect_gateway redirect(
-    common::serial_gateway_, io::redirect::NODE_MQTT_STORE_1, redirect_buf_
-);
-
-void
-yield_tick()
-{
-}
-
-#if 1
 void
 setup()
 {
     LOG_INFO(<< "setting up");
-}
 
-struct __attribute__((packed)) t {
-    uint8_t x;
-    uint16_t y;
-    int16_t z;
-    int32_t u;
-    float w;
-} tt;
+    comms::init_gw.write("", 0);
+
+    autonomy::on_init();
+}
 
 void
 loop()
 {
     comms::on_tick();
-}
+    common::on_tick();
 
-#endif
+    hal::on_tick();
+
+    hk::on_tick();
+    report::on_tick();
+    autonomy::on_tick();
+}

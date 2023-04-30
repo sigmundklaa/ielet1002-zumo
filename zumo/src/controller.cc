@@ -10,7 +10,7 @@
 #define LOG_MODULE controller
 LOG_REGISTER(common::log_gateway);
 
-#define DIR_CHANGE_DELAY_US_ (100e3)
+#define DIR_CHANGE_DELAY_US_ (100e4)
 #define READ_INTERVAL_US_ (50e3)
 
 namespace hal
@@ -19,6 +19,7 @@ namespace hal
 static struct {
     Zumo32U4IMU imu;
     Zumo32U4Encoders encoders;
+    Zumo32U4LineSensors lines;
 } components_;
 
 /* We perform a memcpy from the .a struct to an array so we need to be sure that
@@ -44,14 +45,18 @@ controller_::side_::run()
         /* A delay is required before we can change direction, otherwise the
          * motors can be destroyed */
         if (tmp - stop_time_us_ >= DIR_CHANGE_DELAY_US_) {
+            cur_state_ = STATE_IDLE_;
             start();
             return;
         }
-
-        break;
     }
-    case STATE_RUNNING_:
     case STATE_STOPPED_:
+        set_motor_speed_(0);
+        break;
+    case STATE_RUNNING_:
+        set_motor_speed_(speed_);
+        break;
+    case STATE_IDLE_:
         break;
     }
 }
@@ -82,16 +87,12 @@ void
 controller_::side_::start_()
 {
     start_time_us_ = micros();
-
-    set_motor_speed_(speed_);
 }
 
 void
 controller_::side_::stop_()
 {
     stop_time_us_ = micros();
-
-    set_motor_speed_(0);
 }
 
 void
@@ -111,6 +112,8 @@ controller_::side_::transition_(side_::state_ st)
     case STATE_CHANGE_DIR_:
     case STATE_STOPPED_:
         stop_();
+        break;
+    case STATE_IDLE_:
         break;
     };
 
@@ -132,6 +135,15 @@ void
 controller_::side_::set_speed(uint8_t speed)
 {
     speed_ = speed;
+}
+
+void
+controller_::side_::set_speed_noabs(int16_t speed)
+{
+    side_::direction dir = speed < 0 ? DIR_BWARD : DIR_FWARD;
+
+    this->set_dir(dir);
+    this->set_speed(static_cast<uint8_t>(abs(speed)));
 }
 
 void
@@ -163,6 +175,7 @@ controller_::read_sensors_()
     components_.imu.readAcc();
 
     ::memcpy(readings_.accel, &components_.imu.a, sizeof(readings_.accel));
+    readings_.position = components_.lines.readLine(readings_.lines);
 
     TRACE_EXIT(__func__);
 }
@@ -173,9 +186,29 @@ controller_::controller_()
 }
 
 void
+controller_::set_speeds(int16_t l, int16_t r)
+{
+    left.set_speed_noabs(l);
+    right.set_speed_noabs(r);
+}
+
+void
+controller_::stop()
+{
+    left.stop();
+    right.stop();
+}
+
+void
+controller_::start()
+{
+    left.start();
+    right.start();
+}
+
+void
 controller_::init_()
 {
-#if 0
     Wire.begin();
 
     if (!components_.imu.init()) {
@@ -183,7 +216,7 @@ controller_::init_()
     }
 
     components_.imu.enableDefault();
-#endif
+    components_.lines.initFiveSensors();
 }
 
 void
@@ -195,8 +228,12 @@ controller_::run()
     }
 
     uint64_t tmp = micros();
-    if (tmp - last_read_us_ >= READ_INTERVAL_US_) {
+    uint64_t delta = tmp - last_read_us_;
+    if (delta >= READ_INTERVAL_US_) {
         read_sensors_();
+
+        button_b.handle(delta);
+        button_c.handle(delta);
 
         last_read_us_ = tmp;
     }
@@ -205,16 +242,10 @@ controller_::run()
     right.run();
 }
 
-int16_t*
-controller_::accel_data()
+void
+controller_::calibrate()
 {
-    return readings_.accel;
-}
-
-int16_t*
-controller_::encoder_data()
-{
-    return readings_.encoder;
+    components_.lines.calibrate();
 }
 
 }; // namespace hal

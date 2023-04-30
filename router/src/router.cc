@@ -39,6 +39,7 @@ static struct mqtt_info {
 } mqtt_topics_[] = {
     {io::redirect::NODE_MQTT_STORE_1, "/redmw/sync/1", "/device/sync/1"},
     {io::redirect::NODE_MQTT_REPORT_1, "/redmw/report/1", nullptr},
+    {io::redirect::NODE_MQTT_INIT_1, "/redmw/init/1", nullptr},
 };
 
 static struct esp_info {
@@ -178,7 +179,9 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
             mqtt_info& inf = mqtt_topics_[i];
 
             if (inf.node == header->node) {
-                redirect_mqtt_(header, inf.pub, buf, size);
+                if (inf.pub != nullptr) {
+                    redirect_mqtt_(header, inf.pub, buf, size);
+                }
                 break;
             }
         }
