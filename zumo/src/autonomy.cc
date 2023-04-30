@@ -62,7 +62,7 @@ Zumo32U4ButtonC buttonC;
 
 uint16_t* lineSensorValues;
 uint16_t position = 2000;
-uint16_t maxSpeed = 150;
+uint16_t maxSpeed = 100;
 
 int16_t positionError = 0;
 int16_t lastError = 0;
@@ -164,13 +164,13 @@ autonomy::on_tick()
                 ) < 400) {
                 driveState = missingLine;
             } else {
-                motors.setSpeeds(leftSpeed, rightSpeed);
+                hal::controller.set_speeds(leftSpeed, rightSpeed);
             }
         }
 
         break;
     case intersection:
-        motors.setSpeeds(maxSpeed * 0.8, maxSpeed * 0.8);
+        hal::controller.set_speeds(maxSpeed * 0.8, maxSpeed * 0.8);
 
         if (lineSensorValues[0] + lineSensorValues[4] < 100) {
             if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]
@@ -195,15 +195,15 @@ autonomy::on_tick()
         break;
     case turnLeft:
         if (millis() - sampleTime <= 100) {
-            motors.setSpeeds(0, 0);
+            hal::controller.set_speeds(0, 0);
         }
         if (millis() - sampleTime > 100) {
-            motors.setSpeeds(-(maxSpeed * 0.6), maxSpeed);
+            hal::controller.set_speeds(-(maxSpeed * 0.6), maxSpeed);
 
             if (position > 1900 && position < 2100) {
                 if (lineSensorValues[2] > 900) {
                     driveState = followLine;
-                    motors.setSpeeds(0, 0);
+                    hal::controller.set_speeds(0, 0);
                     sampleTime = millis();
                     turnCheck.reset();
                 }
@@ -213,15 +213,15 @@ autonomy::on_tick()
         break;
     case turnRight:
         if (millis() - sampleTime <= 100) {
-            motors.setSpeeds(0, 0);
+            hal::controller.set_speeds(0, 0);
         }
         if (millis() - sampleTime > 100) {
-            motors.setSpeeds(maxSpeed, -(maxSpeed * 0.6));
+            hal::controller.set_speeds(maxSpeed, -(maxSpeed * 0.6));
 
             if (position > 1900 && position < 2100) {
                 if (lineSensorValues[2] > 900) {
                     driveState = followLine;
-                    motors.setSpeeds(0, 0);
+                    hal::controller.set_speeds(0, 0);
                     sampleTime = millis();
                     turnCheck.reset();
                 }
@@ -231,7 +231,7 @@ autonomy::on_tick()
         break;
     case deadEnd:
         if (millis() - sampleTime < 100) {
-            motors.setSpeeds(0, 0);
+            hal::controller.set_speeds(0, 0);
 
             if (batteryCharge < 20) {
                 driveState = chargeBattery;
@@ -242,7 +242,7 @@ autonomy::on_tick()
             }
         }
         if (millis() - sampleTime >= 100) {
-            motors.setSpeeds(-(maxSpeed / 2), -(maxSpeed / 2));
+            hal::controller.set_speeds(-(maxSpeed / 2), -(maxSpeed / 2));
 
             if (millis() - sampleTime >= 1000) {
                 if (lineSensorValues[0] < 100 && lineSensorValues[4] < 100) {
@@ -254,7 +254,7 @@ autonomy::on_tick()
 
         break;
     case chargeBattery:
-        motors.setSpeeds(0, 0);
+        hal::controller.set_speeds(0, 0);
 
         if (batteryCharge >= 100) {
             driveState = deadEnd;
@@ -291,7 +291,7 @@ autonomy::on_tick()
             driveState = address;
         }
 
-        motors.setSpeeds(maxSpeed * 0.8, maxSpeed * 0.8);
+        hal::controller.set_speeds(maxSpeed * 0.8, maxSpeed * 0.8);
 
         if ((lineSensorValues[1] + lineSensorValues[2] + lineSensorValues[3]) >
             500) {
@@ -318,10 +318,10 @@ autonomy::on_tick()
 
         break;
     case stop:
-        motors.setSpeeds(0, 0);
+        hal::controller.set_speeds(0, 0);
 
         if (millis() - sampleTime > 2000) {
-            motors.setSpeeds(maxSpeed * 0.5, maxSpeed * 0.5);
+            hal::controller.set_speeds(maxSpeed * 0.5, maxSpeed * 0.5);
         }
 
         if (millis() - sampleTime > 2500) {

@@ -116,6 +116,10 @@ controller_::side_::transition_(side_::state_ st)
         start_();
         break;
     case STATE_CHANGE_DIR_:
+        if (stop_time_us_ >= start_time_us_ ||
+            (speed_ == 0 && micros() - stop_time_us_ >= DIR_CHANGE_DELAY_US_)) {
+            break;
+        }
     case STATE_STOPPED_:
         stop_();
         break;
