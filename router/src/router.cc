@@ -222,6 +222,10 @@ mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
     TRACE_ENTER(__func__);
 
     for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
+        if (mqtt_topics_[i].sub == nullptr) {
+            continue;
+        }
+
         if (strcmp(mqtt_topics_[i].sub, topic) == 0) {
             redirect_serial_(mqtt_topics_[i].node, buf_, data, sz);
             break;
