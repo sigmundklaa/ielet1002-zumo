@@ -16,7 +16,7 @@ LOG_REGISTER(common::log_gateway);
 namespace report
 {
 
-#define REPORT_INTERVAL_US_ (1e6)
+#define REPORT_INTERVAL_US_ (10e6)
 
 void
 init_reporter_(zumo_reporter_& mem)

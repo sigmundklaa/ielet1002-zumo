@@ -13,7 +13,7 @@ class remote_
         enum command_ {
             CMD_SET_SPEED,
             CMD_AUTONOMY,
-        } cmd;
+        } __attribute__((packed)) cmd;
 
         int16_t arg1, arg2;
     };

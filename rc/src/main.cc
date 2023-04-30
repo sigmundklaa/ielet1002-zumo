@@ -7,11 +7,12 @@
 #include <io/serial.hh>
 #include <logging/log.hh>
 
-#define PIN_A_X_ (26)
-#define PIN_A_Y_ (27)
+#define PIN_A_X_ (34)
+#define PIN_A_Y_ (35)
 
-static PubSubClient client_;
-static io::mqtt_gateway mqtt_gw(&client_, "/device/control/1", nullptr);
+#define ANALOG_RANGE_ (4095)
+
+static io::mqtt_gateway mqtt_gw(&io::mqtt_client, "/device/control/1", nullptr);
 static io::serial_gateway<HardwareSerial> serial_gw(Serial, 9600);
 
 struct __attribute__((packed)) cmd_packet {
@@ -28,16 +29,18 @@ LOG_REGISTER(serial_gw);
 static void
 reconnect()
 {
-    if (client_.connected()) {
+    if (io::mqtt_client.connected()) {
         return;
     }
 
-    while (!client_.connected()) {
-        if (!client_.connect("rc")) {
-            LOG_INFO(
-                << "connecting to mqtt (" << MQTT_HOST << ":"
-                << String(MQTT_PORT) << ")"
-            );
+    LOG_INFO(
+        << "connecting to mqtt (" << MQTT_HOST << ":" << String(MQTT_PORT)
+        << ")"
+    );
+
+    while (!io::mqtt_client.connected()) {
+        if (!io::mqtt_client.connect("rc")) {
+            LOG_INFO(<< "waiting for mqtt");
             delay(500);
         }
     }
@@ -46,9 +49,9 @@ reconnect()
 static int16_t
 calc_axis_(int16_t in)
 {
-    in = in - 512;
+    in = in - (ANALOG_RANGE_ / 2);
 
-    return abs(in) > 10 ? in : 0;
+    return abs(in) > 200 ? in : 0;
 }
 
 static int16_t
@@ -78,7 +81,7 @@ send_(uint8_t cmd, int16_t arg1, int16_t arg2)
 static int16_t
 map_speed_(int16_t n)
 {
-    int16_t calc = map(abs(n), 0, 512, 0, 255);
+    int16_t calc = map(abs(n), 0, ANALOG_RANGE_ / 2, 0, 255);
 
     if (n < 0) {
         calc = -calc;
@@ -100,33 +103,48 @@ setup()
         delay(500);
     }
 
+    io::mqtt_client.setServer(MQTT_HOST, MQTT_PORT);
     reconnect();
     send_(1, 0, 0);
 }
 
+#define N_SAMPLES_ (10)
+
 void
 loop()
 {
+    static int16_t l, r;
+    static uint64_t last;
     reconnect();
 
-    int16_t readx = calc_axis_(analogRead(PIN_A_X_)),
-            ready = calc_axis_(analogRead(PIN_A_Y_));
+    int16_t suml, sumr;
 
-    int16_t offset = map_speed_(ready);
-    int16_t base_speed = map_speed_(readx);
-    int16_t speed_l = base_speed, speed_r = base_speed;
+    for (int i = 0; i < N_SAMPLES_; i++) {
+        int16_t readx = calc_axis_(analogRead(PIN_A_X_)),
+                ready = calc_axis_(analogRead(PIN_A_Y_));
 
-    speed_l = clamp_speed_(speed_l + offset);
-    speed_r = clamp_speed_(speed_r - offset);
+        int16_t offset = map_speed_(ready) / 2;
+        int16_t base_speed = map_speed_(readx);
 
-    send_(0, speed_l, speed_r);
+        suml += clamp_speed_(base_speed + offset);
+        sumr += clamp_speed_(base_speed - offset);
 
-    LOG_INFO(<< "x: " << String(speed_l) << ", y: " << String(speed_r));
+        delay(10);
+    }
 
-    static uint8_t led;
-    // digitalWrite(LED_BUILTIN, led = !led);
+    uint64_t tmp = micros();
 
-    // offset = 0-512. subtract left, added right
+    int16_t speed_l = suml / N_SAMPLES_, speed_r = sumr / N_SAMPLES_;
+    if (tmp - last >= 10e3 &&
+        (abs(l - speed_l) > 10 || abs(r - speed_r) > 10)) {
+        l = speed_l;
+        r = speed_r;
+        last = tmp;
+        send_(0, speed_l, speed_r);
 
-    delay(300);
+        LOG_INFO(
+            << "x: " << String(speed_l) << ", y: " << String(speed_r) << ", "
+            //<< String(readx) << ", " << String(ready)
+        );
+    }
 }

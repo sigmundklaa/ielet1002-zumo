@@ -132,7 +132,7 @@ autonomy::on_init()
 }
 
 void
-toggle(uint8_t mode)
+autonomy::toggle(uint8_t mode)
 {
     if (mode && !enabled) {
         driveState = waitInit;
