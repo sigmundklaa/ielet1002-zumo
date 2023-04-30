@@ -33,6 +33,7 @@ class controller_
 
       protected:
         enum state_ {
+            STATE_IDLE_,
             STATE_CHANGE_DIR_,
             STATE_RUNNING_,
             STATE_STOPPED_,
@@ -60,6 +61,7 @@ class controller_
 
         void set_dir(direction dir);
         void set_speed(uint8_t speed);
+        void set_speed_noabs(int16_t speed);
         void stop();
         void start();
 
@@ -161,7 +163,8 @@ class controller_
     void init_();
 
   public:
-    side_ left, right;
+    side_ left;
+    side_ right;
 
     button_<Zumo32U4ButtonC> button_c;
     button_<Zumo32U4ButtonB> button_b;
@@ -174,19 +177,21 @@ class controller_
      */
     void run();
 
-    /**
-     * @brief Get the latest measurements from the accelerometer
-     *
-     * @return int16_t* int16_t[3] of X,Y,Z accelerations
-     */
-    int16_t* accel_data();
+    void set_speeds(int16_t l, int16_t r);
+
+    void stop();
+    void start();
 
     /**
      * @brief Get the latest measurements from the encoder
      *
      * @return int16_t* int16_t[2] of left, right encoder values
      */
-    int16_t* encoder_data();
+    int16_t*
+    encoder_data()
+    {
+        return readings_.encoder;
+    }
 
     unsigned int*
     lines_data()
