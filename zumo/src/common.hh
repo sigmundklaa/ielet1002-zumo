@@ -10,6 +10,7 @@
 
 #include <io/redirect.hh>
 #include <string.h>
+#include <utils/crc32.hh>
 #include <utils/init.hh>
 
 namespace common
@@ -52,6 +53,7 @@ template <typename T> class store
 {
   protected:
     io::gateway* gateway_;
+    uint32_t crc_last_;
 
   public:
     static T buf;
@@ -69,41 +71,46 @@ template <typename T> class store
         ::memcpy(&this->data, &data_init, sizeof(T));
     }
 
+    inline size_t
+    sync()
+    {
+        size_t bread = gateway_->read(&store<T>::buf, sizeof(store<T>::buf));
+
+        if (bread != sizeof(store<T>::buf)) {
+            return 0;
+        }
+
+        ::memcpy(&this->data, &store<T>::buf, bread);
+
+        return bread;
+    }
+
     /**
-     * @brief Write the store to a gateway. Returns 1 on success, 0 otherwise
+     * @brief Write the store to a gateway. Returns size written on success, 0
+     * otherwise
      *
      * @return int
      */
     inline int
     save()
     {
+        uint32_t checksum =
+            utils::crc32((const uint8_t*)&this->data, sizeof(T));
+        if (crc_last_ && checksum == crc_last_) {
+            return 0;
+        }
+
         size_t written = gateway_->write(&this->data, sizeof(T)) != sizeof(T);
 
         if (written != sizeof(T)) {
             return written;
         }
 
+        crc_last_ = checksum;
+
         /* Read the updated contents into a buffer first, and then if there is
          * no error we can safely update the real data field. */
-        size_t read = gateway_->read(&store<T>::buf, sizeof(store<T>::buf));
-
-        if (read == sizeof(T)) {
-            ::memcpy(&this->data, &store<T>::buf, sizeof(T));
-        }
-
-        return read;
-    }
-
-    inline void
-    sync()
-    {
-        size_t bread = gateway_->read(&store<T>::buf, sizeof(store<T>::buf));
-
-        if (bread != sizeof(store<T>::buf)) {
-            return;
-        }
-
-        ::memcpy(&this->data, &store<T>::buf, sizeof(store<T>::buf));
+        return this->sync();
     }
 };
 
@@ -112,12 +119,7 @@ template <typename T> class store
  *
  */
 struct __attribute__((packed)) remote_data {
-    // uint8_t bank_currency;
-    uint8_t x;
-    uint16_t y;
-    int16_t z;
-    int32_t u;
-    float w;
+    uint32_t bank_currency;
 };
 
 /**

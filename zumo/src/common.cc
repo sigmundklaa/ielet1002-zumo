@@ -46,6 +46,8 @@ on_tick()
         local_inited = 1;
     }
 
+    local_store.save();
+    remote_store.save();
     remote_store.sync();
 }
 

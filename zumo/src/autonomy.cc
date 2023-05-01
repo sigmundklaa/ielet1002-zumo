@@ -1,5 +1,6 @@
 
 #include "autonomy.hh"
+#include "battery.hh"
 #include "common.hh"
 #include "controller.hh"
 #include "housekeep.hh"
@@ -72,11 +73,9 @@ int16_t speedDifference = 0;
 int16_t leftSpeed;
 int16_t rightSpeed;
 int16_t lineSensorError;
-int16_t bankBalance = 100;
 
 uint8_t currentAddress = 0;
 uint8_t stopAddress = 2;
-uint8_t batteryCharge = 100;
 
 bool emptyTrashAddress[3] = {1, 0, 1};
 bool holdingTrash = false;
@@ -248,7 +247,8 @@ autonomy::on_tick()
         if (millis() - sampleTime < 100) {
             hal::controller.set_speeds(0, 0);
 
-            if (batteryCharge < 20) {
+            if (swbat::battery.need_charge()) {
+                swbat::battery.charge();
                 driveState = chargeBattery;
                 sampleTime = millis();
             } else if (holdingTrash) {
@@ -271,12 +271,10 @@ autonomy::on_tick()
     case chargeBattery:
         hal::controller.set_speeds(0, 0);
 
-        if (batteryCharge >= 100) {
+        if (!swbat::battery.charging()) {
             driveState = deadEnd;
             sampleTime = millis();
         } else if (millis() - sampleTime >= 50) {
-            batteryCharge += 1;
-            bankBalance -= 1;
             sampleTime = millis();
         }
 

@@ -1,5 +1,6 @@
 
 #include "controller.hh"
+#include "battery.hh"
 #include "common.hh"
 #include <Arduino.h>
 #include <Wire.h>
@@ -87,12 +88,14 @@ void
 controller_::side_::start_()
 {
     start_time_us_ = micros();
+    swbat::battery.toggle_drain(1);
 }
 
 void
 controller_::side_::stop_()
 {
     stop_time_us_ = micros();
+    swbat::battery.toggle_drain(0);
 }
 
 void

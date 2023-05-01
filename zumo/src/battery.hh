@@ -62,6 +62,8 @@ class battery__
         return health_state_ == HEALTH_CRIT_;
     }
 
+    uint8_t need_charge();
+
     void service();
     void replace();
 
@@ -71,7 +73,13 @@ class battery__
         return state_ == STATE_INACTIVE_;
     }
 
-    void drain();
+    uint8_t
+    charging()
+    {
+        return state_ == STATE_CHARGING_;
+    }
+
+    void toggle_drain(uint8_t draining);
 
     uint64_t
     time_active_us()

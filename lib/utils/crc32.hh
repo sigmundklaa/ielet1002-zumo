@@ -17,7 +17,7 @@ namespace utils
  * @param size
  * @return uint32_t
  */
-uint32_t
+inline uint32_t
 crc32(const uint8_t* buf, size_t size)
 {
     uint32_t crc = 0xFFFFFFFF;
