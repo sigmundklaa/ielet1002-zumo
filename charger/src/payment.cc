@@ -2,46 +2,21 @@
 #include <payment.hh>
 
 /*
-PAYMENT: All things related to payment
+    payment.cc: File containing code relevant to handeling of payment and processing.
 */
 
-// Get price of services from server
-void check_price()
-{
-    power_price = 0.80; //TODO make it get price from server. 
-    battery_price = 120.60; //TODO ^^
-    
-    Serial.print("Power price: "); Serial.print(power_price);
-    Serial.print(". Battery price: "); Serial.println(battery_price);
-};
+void get_power_price(){ // Get power price from node red on startup
+    client.publish("/maintenance/price/in", "Get");
+}
 
-// Checks if customer has credit
-bool check_credit()
-{
-    Serial.println("Checking for customer credit");
+void send_order_details(float order_cost, float credit){
+    char costString[8];
+    dtostrf(order_cost, 1, 2, costString);
 
-    bool has_credit = false;
-    if(c.credit > 0){
-        has_credit = true;
-    } else{
-        has_credit = false;
-    }
-    return has_credit;
-};
+    client.publish("/bank/cost/in", costString);
 
-// Pay off credit
-void pay_credit()
-{
-    for(int i = c.credit; i > 0; i--){
-        if(c.account_balance == 0){
-            Serial.println("Customer ran out of money while paying off credit.");
-            ran_out = true;
-            break;
-        }
-        c.credit--;
-        c.account_balance--;
+    char creditString[8];
+    dtostrf(credit, 1, 2, creditString);
 
-        Serial.print("Customer credit: ");
-        Serial.println(c.credit);
-    }
-};
+    client.publish("/bank/credit/in", creditString);
+}

@@ -2,12 +2,38 @@
 #ifndef CHARGER
 #define CHARGER
 
+/*
+    charger.hh: Header file that declares variables and functions used mostly in charger.cc
+*/
+
 #include <common.hh>
 
 // Variables:
-inline bool charged = true;
-inline int desired_charge = 100;
+    // BASICS
+inline int desired_charge;
+inline float order_cost;
 
+    // FLAGS
+inline bool auto_mode;
+inline bool begin_maintenance;
+
+inline bool customer_waiting;
+inline int customer_order;
+
+inline bool charged = true;
+inline bool changed = true;
+    
+
+    // TIMERS
+inline int debounce_delay = 50;
+inline int change_delay = 10000;
+inline unsigned long wait_millis = 0;
+
+inline unsigned long select_button_timer = 0;
+inline unsigned long confirm_button_timer = 0;
+inline unsigned long battery_change_timer = 0;
+
+    // BUTTON STATES
 inline int select_button_value = 1;
 inline int confirm_order_button_pressed = false;
 
@@ -34,10 +60,9 @@ void updateConfirmButtonPressed();
     // SERVICE
 void charge_battery();
 void change_battery();
-void print_to_display(String battery_level);
+
     // POST-SERVICE
-void send_zumo();
-void sendData(Customer s_c, esp_now_peer_info_t &peerInfo);
+void send_zumo(float order_cost, float credit);
 void resetVariables();
 
-#endif
+#endif // CHARGER
