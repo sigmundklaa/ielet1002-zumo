@@ -1,13 +1,18 @@
 #include <Arduino.h>
 
 #include <common.hh>
-#include <esp_now.hh>
+#include <connection.hh>
 #include <charger.hh>
+#include <breaker.hh>
+#include <payment.hh>
 
 void setupPins()
 {
     pinMode(confirm_button_pin, INPUT);
     pinMode(select_button_pin, INPUT);
+
+    pinMode(ired_pin, INPUT);
+    pinMode(ired_diode, OUTPUT);
 }
 
 void setupOled()
@@ -17,20 +22,19 @@ void setupOled()
     delay(2000);
 }
 
-void setupConnection(){
-    Serial.println("Connecting to WiFi.");
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
+void setupReset(){ // Resets variabels and set startup values
+    resetVariables();
+    battery_price = 300;
+    desired_charge = 100;
+    auto_mode = true;
 }
 
-// Creates a test customer for testing
-void test_customer(){
+void test_customer(){ // Create a test customer
     c.customer_id = 1;
     c.battery_level = 10;
     c.battery_health = 1;
     c.charging_cycles = 0;
-    c.account_balance = 200;
-    c.credit = 0;
+    c.account_amount = 50;
 
     customer_waiting = true;
 
@@ -41,17 +45,33 @@ void test_customer(){
 void setup()
 {
     Serial.begin(9600);
-    
-    setupEspNow();
+
+    setupReset();
+
     setupPins();
     setupOled();
-    resetVariables();
 
-    // test_customer();
+    setupConnection();
+
+    test_customer();
 }
 
 // LOOP
 void loop()
 {
-    loopStationCode();
+    loopStationCode(); // charger.cc
+    //loopBreakerCode(); // breaker.cc
+    loopConnectionCode(); // connection.cc
 }
+
+// OLED
+
+void print_to_display(String str)
+{
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(3);
+    display.println(str);
+    display.display();
+};
