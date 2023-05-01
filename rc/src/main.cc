@@ -9,6 +9,7 @@
 
 #define PIN_A_X_ (34)
 #define PIN_A_Y_ (35)
+#define PIN_BTN_ (26)
 
 #define ANALOG_RANGE_ (4095)
 
@@ -90,6 +91,21 @@ map_speed_(int16_t n)
     return calc;
 }
 
+static uint8_t
+button_handle_(uint8_t pin)
+{
+    static uint8_t last = 0;
+    uint8_t res = 0;
+    uint8_t dread = !digitalRead(pin);
+
+    if (last && !dread) {
+        res = 1;
+    }
+
+    last = dread;
+    return res;
+}
+
 void
 setup()
 {
@@ -97,6 +113,7 @@ setup()
     Serial.begin(9600);
 
     WiFi.begin(SSID_NAME, SSID_PASS);
+    pinMode(PIN_BTN_, INPUT);
 
     while (WiFi.status() != WL_CONNECTED) {
         LOG_INFO(<< "waiting for wifi");
@@ -105,7 +122,6 @@ setup()
 
     io::mqtt_client.setServer(MQTT_HOST, MQTT_PORT);
     reconnect();
-    send_(1, 0, 0);
 }
 
 #define N_SAMPLES_ (10)
@@ -115,7 +131,20 @@ loop()
 {
     static int16_t l, r;
     static uint64_t last;
+    static uint8_t autonomy = 1;
+
     reconnect();
+
+    if (button_handle_(PIN_BTN_)) {
+        LOG_INFO(<< "button pressed");
+        autonomy = !autonomy;
+
+        send_(1, autonomy, 0);
+    }
+
+    if (autonomy) {
+        return;
+    }
 
     int16_t suml, sumr;
 
