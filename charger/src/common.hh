@@ -36,7 +36,6 @@ inline struct __attribute__((packed)) Customer {
     int customer_id;
     int battery_level;
     int battery_health;
-    int charging_cycles;
     float account_amount;
 } c;
 

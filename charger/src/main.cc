@@ -25,20 +25,8 @@ void setupOled()
 void setupReset(){ // Resets variabels and set startup values
     resetVariables();
     battery_price = 300;
-    desired_charge = 100;
+    desired_charge = 255;
     auto_mode = true;
-}
-
-void test_customer(){ // Create a test customer
-    c.customer_id = 1;
-    c.battery_level = 10;
-    c.battery_health = 1;
-    c.charging_cycles = 0;
-    c.account_amount = 50;
-
-    customer_waiting = true;
-
-    Serial.println("Test customer has arrived.");
 }
 
 // SETUP
@@ -52,8 +40,6 @@ void setup()
     setupOled();
 
     setupConnection();
-
-    test_customer();
 }
 
 // LOOP

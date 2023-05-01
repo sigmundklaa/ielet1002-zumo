@@ -11,10 +11,10 @@
 // Variables:
     //WiFi
 #define WIFI_SSID "WodanSurface"
-#define WIFI_PASSWORD "53728431"
+#define WIFI_PASSWORD "password"
 
     //MQTT
-#define MQTT_HOST IPAddress(192,168,137,194)
+#define MQTT_HOST IPAddress(192,168,137,xxx)
 #define MQTT_PORT 1883
 
 inline WiFiClient charging_station;

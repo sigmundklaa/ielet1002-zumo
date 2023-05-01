@@ -9,7 +9,7 @@
 // PRE-SERVICE:
 void loopStationCode()
 {
-    switch(customer_waiting){
+    switch(begin_maintenance){
         case true:
             begin_service();
             break;
@@ -79,8 +79,6 @@ void updateConfirmButtonPressed() // Checks if button has been pressed and proce
             customer_order == select_button_value;
             confirm_order_button_pressed = true;
             Serial.println("Confirm button pressed.");
-
-            //get_account_details(); // payment.cc
         }       
     }
     previous_confirm_button_state = confirm_button_state;
@@ -156,17 +154,16 @@ void charge_battery()
 
     if((c.battery_level == desired_charge) || (c.battery_level >= 100)){ // Confirms order is completed.
         charged = true;
-        c.charging_cycles++;
 
         Serial.println("Battery charged.");
     }
 
 
     if(charged = true){
-        send_zumo(order_cost, credit);
+        send_zumo(order_cost, credit, customer_order);
     } else {
         Serial.print("Error, battery was not charged.");
-        send_zumo(order_cost, credit);
+        send_zumo(order_cost, credit, customer_order);
     }
 }; 
 
@@ -180,19 +177,19 @@ void change_battery()
 
     } else if (!changed && ((millis()-battery_change_timer) > change_delay)){ // Completes change order. 
         Serial.println(" Completed!");
-        c.charging_cycles = 0;
+        changed = true;
         c.battery_health = 100;
 
         order_cost = battery_price;
 
         if((c.account_amount - order_cost) < 0){ // Checks if customer can afford, adds unpaid amount to account credit. 
             Serial.println("Not enough money, adding rest to credit.");
-            float leftover = order_cost - c.account_amount;
+            float leftover = order_cost - c.account_amount + 1; //+1 to prevent overflow, that 1 is also added to credit
             order_cost = order_cost - leftover;
             credit = leftover;
         }
 
-        send_zumo(order_cost, credit);
+        send_zumo(order_cost, credit, customer_order);
     } else if (!changed && ((millis()-battery_change_timer) < change_delay)){ // Delay to simulate time to change
         if((millis()-wait_millis)>500){
             wait_millis = millis();
@@ -202,10 +199,10 @@ void change_battery()
 }
 
 // POST-SERVICE
-void send_zumo(float order_cost, float credit)
+void send_zumo(float order_cost, float credit, int order_type)
 {
     Serial.println("Sending customer away.");
-    send_order_details(order_cost, credit); //payment.cc
+    send_order_details(order_cost, credit, order_type); //payment.cc
     resetVariables();
 };
 
@@ -215,6 +212,7 @@ void resetVariables() // Resets all temporary variables to prepare for next cust
 
     confirm_button_state = false;
     select_button_state = false;
+    confirm_order_button_pressed = false;
 
     customer_order = 0;
     select_button_value = 0;

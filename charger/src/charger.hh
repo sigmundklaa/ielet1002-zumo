@@ -62,7 +62,7 @@ void charge_battery();
 void change_battery();
 
     // POST-SERVICE
-void send_zumo(float order_cost, float credit);
+void send_zumo(float order_cost, float credit, int order_type);
 void resetVariables();
 
 #endif // CHARGER
