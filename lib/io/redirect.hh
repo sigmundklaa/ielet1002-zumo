@@ -13,7 +13,7 @@ namespace redirect
 enum node_type {
     NODE_MQTT_REPORT_1,
     NODE_MQTT_STORE_1,
-    NODE_ESP_CHARGE,
+    NODE_MQTT_CHARGE_1,
     NODE_MQTT_INIT_1,
     NODE_MQTT_CONTROL_1,
 } __attribute__((packed));

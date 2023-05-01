@@ -41,26 +41,13 @@ static struct mqtt_info {
     {io::redirect::NODE_MQTT_REPORT_1, "/redmw/report/1", nullptr},
     {io::redirect::NODE_MQTT_INIT_1, "/redmw/init/1", nullptr},
     {io::redirect::NODE_MQTT_CONTROL_1, nullptr, "/device/control/1"},
+    {io::redirect::NODE_MQTT_CHARGE_1, "/redmw/charge/1", "/device/charge/1"},
 };
 
 static struct esp_info {
     io::redirect::node_type node;
     ::esp_now_peer_info_t peer;
 } esp_peers_[] = {
-    {
-        io::redirect::NODE_ESP_CHARGE,
-        {
-            .peer_addr =
-                {
-                    0x00,
-                    0x00,
-                    0x00,
-                    0x00,
-                    0x00,
-                    0x00,
-                },
-        },
-    },
 };
 
 /**
