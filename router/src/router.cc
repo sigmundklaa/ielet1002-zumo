@@ -47,8 +47,7 @@ static struct mqtt_info {
 static struct esp_info {
     io::redirect::node_type node;
     ::esp_now_peer_info_t peer;
-} esp_peers_[] = {
-};
+} esp_peers_[] = {};
 
 /**
  * @brief Insert a CRC-32 checksum at the front of the buffer @p buf. If crc is
@@ -160,6 +159,9 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
 
     switch (header->node) {
     case io::redirect::NODE_MQTT_REPORT_1:
+    case io::redirect::NODE_MQTT_CHARGE_1:
+    case io::redirect::NODE_MQTT_CONTROL_1:
+    case io::redirect::NODE_MQTT_INIT_1:
     case io::redirect::NODE_MQTT_STORE_1: {
         /* Send to appropriate mqtt node */
         for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
@@ -175,6 +177,7 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
         }
         break;
     }
+#if 0
     case io::redirect::NODE_ESP_CHARGE: {
         for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
             if (esp_peers_[i].node == header->node) {
@@ -187,6 +190,7 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
         }
         break;
     }
+#endif
     }
 
     TRACE_EXIT(__func__);

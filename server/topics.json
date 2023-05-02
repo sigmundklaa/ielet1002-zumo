@@ -56,28 +56,20 @@
             {
                 "name": "r_above70",
                 "kind": "u64"
+            },
+            {
+                "name": "batt_status",
+                "kind": "u8"
+            },
+            {
+                "name": "batt_health",
+                "kind": "u8"
             }
         ],
         "sync/1": [
             {
                 "name": "x",
-                "kind": "u8"
-            },
-            {
-                "name": "y",
-                "kind": "u16"
-            },
-            {
-                "name": "z",
-                "kind": "i16"
-            },
-            {
-                "name": "u",
-                "kind": "i32"
-            },
-            {
-                "name": "w",
-                "kind": "f32"
+                "kind": "u32"
             }
         ],
         "sensor/1": [
