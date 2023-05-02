@@ -14,7 +14,7 @@
 #define WIFI_PASSWORD "password"
 
     //MQTT
-#define MQTT_HOST IPAddress(192,168,137,xxx)
+#define MQTT_HOST IPAddress(192,168,137,000)
 #define MQTT_PORT 1883
 
 inline WiFiClient charging_station;

@@ -103,7 +103,7 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
     }
 }
 
-void mqtt_reconnect() {
+void mqtt_reconnect() { // Initiates MQTT when connected and subscribes to relevant topics
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
 
@@ -116,7 +116,7 @@ void mqtt_reconnect() {
         client.subscribe("/charger/order/#");
         client.subscribe("/red/charge/#");
 
-        get_power_price();
+        get_power_price(); // payment.cc
     } else {
         Serial.print("failed, rc=");
         Serial.print(client.state());

@@ -28,7 +28,7 @@ static Adafruit_SSD1306 display(SCREEN_WIDTH_, SCREEN_HEIGHT_, &Wire, OLED_RESET
     // PINS
 inline const int confirm_button_pin = 25;
 inline const int select_button_pin = 26;
-//OLED PINS 22 -> SCK, 21 -> SDA;
+//OLED PINS 22 -> SCK, 21 -> SDA; // Set by library
 
     // Structs
     // Struct for customer data
@@ -44,7 +44,6 @@ void setupPins();
 void setupOled();
 void setupReset();
 
-void test_customer();
     // OLed
 void print_to_display(String battery_level);
 

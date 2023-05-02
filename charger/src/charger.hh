@@ -12,14 +12,17 @@
     // BASICS
 inline int desired_charge;
 inline float order_cost;
+inline int set_orders = 2;
 
     // FLAGS
 inline bool auto_mode;
 inline bool begin_maintenance;
+inline bool allow_credit_message;
 
 inline bool customer_waiting;
 inline int customer_order;
 
+inline int allow_credit = -1;
 inline bool charged = true;
 inline bool changed = true;
     

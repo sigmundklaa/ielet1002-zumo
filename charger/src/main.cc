@@ -12,7 +12,7 @@ void setupPins()
     pinMode(select_button_pin, INPUT);
 
     pinMode(ired_pin, INPUT);
-    pinMode(ired_diode, OUTPUT);
+    pinMode(ired_diode, OUTPUT); // Only used if diode is connected to charge station
 }
 
 void setupOled()
