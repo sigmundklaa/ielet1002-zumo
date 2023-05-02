@@ -16,7 +16,7 @@ LOG_REGISTER(common::log_gateway);
 namespace report
 {
 
-#define REPORT_INTERVAL_US_ (10e6)
+#define REPORT_INTERVAL_US_ (2e6)
 
 void
 init_reporter_(zumo_reporter_& mem)
@@ -43,6 +43,8 @@ zumo_reporter_::generate_()
 {
     gen_side_(buf_.left, hk::data.vel_l);
     gen_side_(buf_.right, hk::data.vel_r);
+    buf_.batt_health = common::local_store.data.batt_health;
+    buf_.batt_status = common::local_store.data.batt_status;
 
     return sizeof(buf_);
 }

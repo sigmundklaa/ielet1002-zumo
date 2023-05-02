@@ -89,6 +89,8 @@ class battery__
 };
 extern battery__ battery;
 
+void on_init();
+
 }; // namespace swbat
 
 #endif // BATTERY_H__

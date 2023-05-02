@@ -124,7 +124,7 @@ setup()
     reconnect();
 }
 
-#define N_SAMPLES_ (10)
+#define N_SAMPLES_ (50)
 
 void
 loop()
@@ -158,14 +158,13 @@ loop()
         suml += clamp_speed_(base_speed + offset);
         sumr += clamp_speed_(base_speed - offset);
 
-        delay(10);
+        delay(4);
     }
 
     uint64_t tmp = micros();
 
     int16_t speed_l = suml / N_SAMPLES_, speed_r = sumr / N_SAMPLES_;
-    if (tmp - last >= 10e3 &&
-        (abs(l - speed_l) > 10 || abs(r - speed_r) > 10)) {
+    if (abs(l - speed_l) > 10 || abs(r - speed_r) > 10) {
         l = speed_l;
         r = speed_r;
         last = tmp;

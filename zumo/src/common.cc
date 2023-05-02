@@ -2,13 +2,13 @@
 #include "common.hh"
 #include "comms.hh"
 #include <Arduino.h>
-#include <io/eeprom.hh>
 #include <logging/log.hh>
 #include <utils/init.hh>
 #include <utils/new.hh>
 
 #define LOG_MODULE common
 LOG_REGISTER(common::log_gateway);
+#include <io/eeprom.hh>
 
 #define SYNC_TIMEOUT_US_ (5e6)
 
@@ -47,8 +47,11 @@ on_tick()
     }
 
     local_store.save();
+
+#if 0
     remote_store.save();
     remote_store.sync();
+#endif
 }
 
 }; // namespace common

@@ -2,6 +2,7 @@
 #include "battery.hh"
 #include "common.hh"
 #include "comms.hh"
+#include "controller.hh"
 #include "housekeep.hh"
 #include <Arduino.h>
 #include <io/serial.hh>
@@ -18,14 +19,50 @@ LOG_REGISTER(common::log_gateway);
 namespace swbat
 {
 
-template <typename T, typename U, typename W>
+template <typename T, typename U, typename W, typename X>
 static constexpr T
-clamp_(T x, U min, W max)
+clamp_(U x, W min, X max)
 {
-    return (x < static_cast<T>(min) ? static_cast<T>(min) : x) >
-                   static_cast<T>(max)
-               ? static_cast<T>(max)
-               : x;
+    return static_cast<T>(x > max ? max : (x < min ? min : x));
+}
+
+typedef void (*button_hold_fn_)();
+
+static void
+start_service_()
+{
+    battery.service();
+}
+
+static void
+start_change_()
+{
+    battery.replace();
+}
+
+/**
+ * @brief
+ *
+ * @tparam uint8_t
+ */
+template <button_hold_fn_ callback>
+static void
+hold_buttons_()
+{
+    static uint64_t last_press = 0;
+    uint64_t tmp = micros();
+
+    /*  */
+    if (tmp - last_press < 100e3) {
+#if 0
+        common::local_store.data.batt_health = 255;
+        common::local_store.data.batt_status = 255;
+#else
+        callback();
+#endif
+    } else {
+        last_press = tmp;
+    }
 }
 
 struct __attribute__((packed)) charge_request_ {
@@ -56,6 +93,16 @@ static uint8_t
 u8_clamp_(int x)
 {
     return clamp_<uint8_t>(x, 0, UINT8_MAX);
+}
+
+void
+on_init()
+{
+    hal::controller.button_b.set_3s_callback(hold_buttons_<start_change_>);
+    hal::controller.button_c.set_3s_callback(hold_buttons_<start_change_>);
+
+    hal::controller.button_b.set_1s_callback(hold_buttons_<start_service_>);
+    hal::controller.button_c.set_1s_callback(hold_buttons_<start_service_>);
 }
 
 void
@@ -91,19 +138,17 @@ battery__::transition_(enum state new_state)
 uint8_t
 battery__::calc_drain_health_()
 {
-    uint8_t factor = 10;
-    uint8_t mult =
+    uint8_t battdmg =
         ((common::local_store.data.batt_n_drained +
           common::local_store.data.batt_n_charges) /
          5);
 
-    uint8_t cur_status_factor = 0; /*
-    (hk::data.velocity_calc +
-     (hk::data.velocity_max * 0.7 * (hk::data.velocity_us_above_max / 1000))) /
-        2;
-    */
-
-    uint8_t total = factor * mult + cur_status_factor / 10;
+    uint8_t total = battdmg +
+                    (hk::data.vel_l.velocity / 200 +
+                     (400 * 0.7 * (hk::data.vel_l.us_above_70p / 1e6)) / 4000 +
+                     hk::data.vel_r.velocity / 200 +
+                     (400 * 0.7 * (hk::data.vel_r.us_above_70p / 1e6)) / 4000) /
+                        2;
 
     /* Battery production error */
     if (random(0, 100) == 0) {
@@ -116,12 +161,9 @@ battery__::calc_drain_health_()
 uint8_t
 battery__::calc_drain_batt_()
 {
-    uint8_t factor = 10;
-    uint8_t mult = (((hk::data.vel_l.distance + hk::data.vel_r.distance) / 2) *
-                    calc_vel_avg_()) /
-                   50;
-
-    return mult * factor;
+    return (((hk::data.vel_l.distance + hk::data.vel_r.distance) / 20000) *
+            calc_vel_avg_()) /
+           100;
 }
 
 void
@@ -165,9 +207,6 @@ battery__::need_charge()
 void
 battery__::on_tick()
 {
-    common::local_store.data.batt_health =
-        u8_clamp_(common::local_store.data.batt_health - calc_drain_health_());
-
     uint8_t health = common::local_store.data.batt_health;
 
     switch (health_state_) {
@@ -178,6 +217,7 @@ battery__::on_tick()
     case HEALTH_LOW_:
         if (health < HEALTH_LEVEL_CRIT_) {
             health_state_ = HEALTH_CRIT_;
+            common::local_store.data.batt_n_drained++;
         }
     case HEALTH_CRIT_:
         break;
@@ -194,13 +234,14 @@ battery__::on_tick()
         }
 
         common::local_store.data.batt_status = clamp_<uint8_t>(
-            common::local_store.data.batt_status + charge_buf_.response.charge,
+            static_cast<int64_t>(common::local_store.data.batt_status) +
+                charge_buf_.response.charge,
             0, UINT8_MAX
         );
         common::remote_store.data.bank_currency = clamp_<uint32_t>(
-            common::remote_store.data.bank_currency -
+            static_cast<int64_t>(common::remote_store.data.bank_currency) -
                 charge_buf_.response.price,
-            0, UINT32_MAX
+            0U, UINT32_MAX
         );
 
         transition_(STATE_INACTIVE_);
@@ -213,12 +254,16 @@ battery__::on_tick()
             break;
         }
 
-        common::local_store.data.batt_status = u8_clamp_(
-            common::local_store.data.batt_status - calc_drain_batt_()
+        common::local_store.data.batt_status = clamp_<uint8_t>(
+            static_cast<int16_t>(common::local_store.data.batt_status) -
+                calc_drain_batt_(),
+            0, UINT8_MAX
         );
 
-        common::local_store.data.batt_health = u8_clamp_(
-            common::local_store.data.batt_health - calc_drain_health_()
+        common::local_store.data.batt_health = clamp_<uint8_t>(
+            static_cast<int16_t>(common::local_store.data.batt_health) -
+                calc_drain_health_(),
+            0, UINT8_MAX
         );
 
         time_active_us_ += tmp - time_last_us_;

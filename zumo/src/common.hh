@@ -100,7 +100,7 @@ template <typename T> class store
             return 0;
         }
 
-        size_t written = gateway_->write(&this->data, sizeof(T)) != sizeof(T);
+        size_t written = gateway_->write(&this->data, sizeof(T));
 
         if (written != sizeof(T)) {
             return written;

@@ -59,10 +59,6 @@ static uint8_t enabled = 1;
 TurnCheck turnCheck;
 DriveState driveState = waitInit;
 
-Zumo32U4LineSensors lineSensors;
-Zumo32U4Motors motors;
-Zumo32U4ButtonC buttonC;
-
 uint16_t* lineSensorValues;
 uint16_t position = 2000;
 uint16_t maxSpeed = 100;
@@ -105,6 +101,7 @@ initButtonPress()
         driveState = fullStop;
         break;
     };
+    case fullStop:
     case stop: {
         driveState = followLine;
         hal::controller.start();
@@ -383,9 +380,8 @@ printReadingsToSerial()
     );
 
     LOG_INFO(
-        << "Drive state: " << String(driveState)
-        << " | Position: " << String(lineSensors.readLine(lineSensorValues))
-        << " | Line values: " << buffer
+        << "Drive state: " << String(driveState) << " | Position: "
+        << String(hal::controller.position()) << " | Line values: " << buffer
     );
 }
 

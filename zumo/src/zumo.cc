@@ -1,5 +1,6 @@
 
 #include "autonomy.hh"
+#include "battery.hh"
 #include "common.hh"
 #include "comms.hh"
 #include "control.hh"
@@ -23,6 +24,7 @@ setup()
     LOG_INFO(<< "setting up");
 
     comms::init_gw.write("", 0);
+    swbat::on_init();
 
     autonomy::on_init();
 }
@@ -39,4 +41,5 @@ loop()
     report::on_tick();
     autonomy::on_tick();
     control::on_tick();
+    swbat::battery.on_tick();
 }
