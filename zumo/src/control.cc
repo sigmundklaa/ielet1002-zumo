@@ -38,6 +38,7 @@ remote_::on_tick()
         } else {
             hal::controller.stop();
         }
+        hal::controller.set_speeds(0, 0);
 
         break;
     }

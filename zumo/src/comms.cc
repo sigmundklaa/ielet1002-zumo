@@ -50,7 +50,7 @@ on_tick()
 
     /* A delay is required to allow for all the bytes to be filled in to the
      * buffer */
-    if (tmp - last_read_us <= 0) {
+    if (tmp - last_read_us <= 100e3) {
         return;
     }
     last_read_us = tmp;

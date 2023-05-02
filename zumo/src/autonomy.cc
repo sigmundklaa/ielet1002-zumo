@@ -149,16 +149,17 @@ autonomy::on_tick()
     }
 
     static uint32_t sampleTime = 0;
+    const uint8_t base = 150;
 
     position = hal::controller.position();
     positionError = position - 2000;
     speedDifference = positionError / 4 + 3 * (positionError - lastError);
     lineSensorError = lineSensorValues[1] - lineSensorValues[3];
     lastError = positionError;
-    leftSpeed = (int16_t)maxSpeed + speedDifference - lineSensorError / 7;
-    leftSpeed = constrain(leftSpeed, 0, (int16_t)maxSpeed);
-    rightSpeed = (int16_t)maxSpeed - speedDifference + lineSensorError / 7;
-    rightSpeed = constrain(rightSpeed, 0, (int16_t)maxSpeed);
+    leftSpeed = (int16_t)base + speedDifference - lineSensorError / 7;
+    leftSpeed = map(constrain(leftSpeed, 0, (int16_t)base), 0, 400, 0, 255);
+    rightSpeed = (int16_t)base - speedDifference + lineSensorError / 7;
+    rightSpeed = map(constrain(rightSpeed, 0, (int16_t)base), 0, 400, 0, 255);
 
     if ((lineSensorValues[0] > 200 || lineSensorValues[4] > 200)) {
         turnCheck.update(lineSensorValues[0], lineSensorValues[4]);
@@ -244,7 +245,10 @@ autonomy::on_tick()
         if (millis() - sampleTime < 100) {
             hal::controller.set_speeds(0, 0);
 
-            if (swbat::battery.need_charge()) {
+            if (swbat::battery.need_charge() ||
+                swbat::battery.need_replacement() ||
+                swbat::battery.need_service()) {
+
                 swbat::battery.charge();
                 driveState = chargeBattery;
                 sampleTime = millis();
@@ -343,6 +347,8 @@ autonomy::on_tick()
     case fullStop:
         break;
     }
+
+    printReadingsToSerial();
 }
 
 // ---------------------
@@ -354,14 +360,15 @@ calibrateLineSensors()
 {
     delay(1000);
     hal::controller.start();
+    uint8_t speed = 75; // 255 / 4;
 
     for (uint16_t i = 0; i < 115; i++) {
         hal::controller.calibrate();
 
         if (i > 30 && i < 85) {
-            hal::controller.set_speeds(-60, 60);
+            hal::controller.set_speeds(-speed, speed);
         } else {
-            hal::controller.set_speeds(60, -60);
+            hal::controller.set_speeds(speed, -speed);
         }
 
         hal::controller.run();

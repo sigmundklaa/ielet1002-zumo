@@ -101,11 +101,11 @@ controller_::side_::stop_()
 void
 controller_::side_::transition_(side_::state_ st)
 {
-    LOG_DEBUG(
+    /*LOG_DEBUG(
         << "<transition> side: " << String(static_cast<int>(side_num_))
         << ", state: " << String(static_cast<int>(cur_state_))
         << ", new state: " << String(static_cast<int>(st))
-    );
+    );*/
 
     /* We are changing direction so we need to wait until we are done with that
      * before we can transition to any other state. TODO: either error return or
@@ -188,7 +188,6 @@ controller_::read_sensors_()
     components_.imu.readAcc();
 
     ::memcpy(readings_.accel, &components_.imu.a, sizeof(readings_.accel));
-    readings_.position = components_.lines.readLine(readings_.lines);
 
     TRACE_EXIT(__func__);
 }
@@ -250,6 +249,8 @@ controller_::run()
 
         last_read_us_ = tmp;
     }
+
+    readings_.position = components_.lines.readLine(readings_.lines);
 
     left.run();
     right.run();
