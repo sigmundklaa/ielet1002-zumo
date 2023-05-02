@@ -36,10 +36,15 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
         messageTemp += (char)message[i];
     }
 
-    if(String(topic) ==  "/maintenance/price/out"){
+    if(String(topic) ==  "/maintenance/price/power"){
         Serial.print("New Power Price: "); Serial.println(messageTemp);
         float message_float = messageTemp.toFloat();
         power_price = message_float;
+    }
+    if(String(topic) == "/maintenance/price/batt"){
+        Serial.print("New Battery Price: "); Serial.println(messageTemp);
+        float message_float = messageTemp.toFloat();
+        battery_price = message_float;
     }
 
     if(String(topic) == "/maintenance/order/desired/out"){
@@ -63,8 +68,12 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
     
     if(String(topic) == "/charger/order/mode"){
         Serial.print("Charger station mode: "); Serial.println(messageTemp);
-        if(messageTemp == "True"){
+        if(messageTemp == "true"){
+            auto_mode = true;
+            Serial.println(auto_mode);
+        } else {
             auto_mode = false;
+            Serial.println(auto_mode);
         }
     }
 
@@ -77,7 +86,7 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
     if(String(topic) == "/charger/order/b_level"){
         Serial.print("Battery Level: "); Serial.println(messageTemp);
         int message_int = messageTemp.toInt();
-        c.battery_level = message_int;  
+        c.batt_status = message_int;  
     }
 
     if(String(topic) == "/charger/order/health"){
@@ -91,7 +100,7 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
         int message_int = messageTemp.toInt();
         if(customer_waiting){
             Serial.println("Initiating maintinence on call from Node-red.");
-            begin_maintenance = true;
+            node_red_call = true;
         } else {
             Serial.println("Error ZUMO not send arrival flag.");
         }
@@ -100,6 +109,7 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
     if(String(topic).startsWith("/red/charge/")){
         Serial.println("Customer waiting");
         customer_waiting = true;
+
     }
 }
 

@@ -14,6 +14,9 @@ void loopStationCode()
             begin_service();
             break;
         case false:
+            if(node_red_call && customer_waiting){
+                begin_maintenance = true;
+            }
             break;
     }
 }
@@ -56,7 +59,9 @@ void updateSelectButtonPressed() // Checks if button has been pressed and change
             }
             Serial.print("Current selected order: "); Serial.println(select_button_value);
         } else if(ran_out){ // Only runs if customer runs out of money
-            allow_credit = 0;
+            Serial.println("Ending charge order");
+            cancel_flag = true;
+            allow_credit = false;
         }
     }
     previous_select_button_state = select_button_state; 
@@ -87,7 +92,7 @@ void updateConfirmButtonPressed() // Checks if button has been pressed and proce
             }
              
         } else if(ran_out){ // Same as select
-            allow_credit = 1;
+            allow_credit = true;
             Serial.println("Allowing to pay with credit");
         }   
     }
@@ -102,8 +107,14 @@ void begin_service()
         case 0: // Wait for order
             switch(confirm_order_button_pressed){
                 case false:
-                    updateButtonsStates();
-                    updateButtonsPressed();
+                    
+                    if(!auto_mode){
+                        updateButtonsStates();
+                        updateButtonsPressed();
+                    } else if (auto_mode) {
+                        select_button_value = 1;
+                        confirm_order_button_pressed = true;
+                    }
                     
                     //print_to_display(String(customer_order));
                     break;
@@ -128,7 +139,10 @@ void begin_service()
 void charge_battery()
 {   
     Serial.print("Desired Charge: "); Serial.println(desired_charge);
-    while(c.battery_level < desired_charge){ // Charges battery to level from node-red (default: 100);
+    while((c.batt_status < desired_charge) && !cancel_flag){ // Charges battery to level from node-red (default: 255);
+
+        loopOledCode(); // Run oled code, otherwise it will be blocked by while-loop
+
         switch(ran_out){ // ran_out == ran out of money in the bank account
             case false: // Charges battery until account runs out of money or battery is charged
                 if((c.account_amount - order_cost) < 0){ // Checks if customer can afford it.
@@ -139,68 +153,62 @@ void charge_battery()
                 if((millis() - wait_millis) > 100){ // Delay to simulate charging time
                     charged = false;
                     wait_millis = millis();
-                    c.battery_level++;
+                    c.batt_status++;
                     order_cost += power_price;
                             
                     //print_to_display(String(c.battery_level));
                     Serial.print("Battery charge: ");
-                    Serial.println(c.battery_level);
-                    
-                    if(desired_charge % 25){
-                        send_charge_update(c.battery_level);
-                        //print_to_display(String(c.battery_level));
-                    }
+                    Serial.println(c.batt_status);
                 }
                 break;
             case true: // Charges rest of battery on credit
-                switch(allow_credit){ // Checks if customer will paying with credit
-                    case 1: 
+                switch(allow_credit){
+                    case true:
                         if((millis() - wait_millis) > 100){    
-                        charged = false;
-                        wait_millis = millis();
-                        c.battery_level++;
-                        credit += power_price;
+                            charged = false;
+                            wait_millis = millis();
+                            c.batt_status++;
+                            credit += power_price;
 
-                        //print_to_display(String(c.battery_level));
-                        Serial.print("Battery charge: ");
-                        Serial.println(c.battery_level);
+                            //print_to_display(String(c.battery_level));
+                            Serial.print("Battery charge: ");
+                            Serial.println(c.batt_status);
                         }
                         break;
-                    case 0:
-                        break;
-                    case -1: // Waits for button input
+                    case false:
+                        if(allow_credit_message){
+                            Serial.println("Press 'Confirm' to pay with credit, 'select' to end charge");
+                            allow_credit_message = false;
+                        }
                         updateButtonsStates();
                         updateButtonsPressed();
-
-                        if(!allow_credit_message){
-                            allow_credit_message = true;
-                            Serial.println("Press confirm to pay with credit, select to end.");
-                            //print_to_display(String("Press confirm to pay with credit, select to end."));
-                        } 
                         break;
                 }
-            break;
+                break;
         }
+    }
 
-        if((c.battery_level == desired_charge) || (c.battery_level >= 100)){ // Confirms order is completed.
-            charged = true;
+    if((c.batt_status == desired_charge) || (c.batt_status >= 255)){ // Confirms order is completed.
+        charged = true;
+        order_completed = true;
 
-            Serial.println("Battery charged.");
-        } else if ((c.battery_level != desired_charge) && (allow_credit = 0)){ // Confirms order if cancelled. 
-            charged = true;
+        Serial.println("Battery charged.");
+    } else if ((c.batt_status != desired_charge) && (allow_credit = 0)){ // Confirms order if cancelled. 
+        charged = true;
+        order_completed = true;
 
-            Serial.println("Battery charged as much as client could afford.");
-        }
+        Serial.println("Battery charged as much as client could afford.");
+    }
 
 
-        if(charged = true){
-            send_zumo(order_cost, credit, customer_order);
-        } else {
-            Serial.print("Error, battery was not charged correctly.");
-            send_zumo(order_cost, credit, customer_order); // Still sends zumo to not interrupt.
-        }
-    }; 
-}
+    if(charged = true){
+        send_zumo(order_cost, credit, c.batt_status, customer_order);
+    } else {
+        Serial.print("Error, battery was not charged correctly.");
+        send_zumo(order_cost, credit, c.batt_status, customer_order); // Still sends zumo to not interrupt.
+    }
+}; 
+
 
     // CHANGE BATTERY
 void change_battery()
@@ -209,12 +217,15 @@ void change_battery()
         changed = false;
         Serial.println("Changing customer battery.");
         battery_change_timer = millis();
+        order_cost = battery_price;
 
     } else if (!changed && ((millis()-battery_change_timer) > change_delay)){ // Completes change order. 
         Serial.println(" Completed!");  
         //print_to_display("Competed!");
+        order_completed = true;
         changed = true;
-        c.battery_health = 100;
+        c.batt_status = 255;
+        c.batt_health = 255;
 
         order_cost = battery_price;
 
@@ -225,7 +236,7 @@ void change_battery()
             credit = leftover;
         }
 
-        send_zumo(order_cost, credit, customer_order);
+        send_zumo(order_cost, credit, c.batt_status, customer_order);
     } else if (!changed && ((millis()-battery_change_timer) < change_delay)){ // Delay to simulate time to change
         if((millis()-wait_millis)>500){
             wait_millis = millis();
@@ -236,10 +247,11 @@ void change_battery()
 }
 
 // POST-SERVICE
-void send_zumo(float order_cost, float credit, int order_type)
+void send_zumo(float order_cost, float credit, int batt_status, int order_type)
 {
+    loopOledCode(); // Run in order to update display one last time (otherwise it won't show complete message)
     Serial.println("Sending customer away.");
-    send_order_details(order_cost, credit, order_type); //payment.cc
+    send_order_details(order_cost, credit, batt_status, order_type); //payment.cc
     resetVariables();
 };
 
@@ -256,11 +268,59 @@ void resetVariables() // Resets all temporary variables to prepare for next cust
 
     order_cost = 0;
     credit = 0;
+    
     ran_out = false;
-    allow_credit = -1;
-    allow_credit_message = false;
+    allow_credit = false;
+    allow_credit_message = true;
 
+    node_red_call = false;
     customer_waiting = false;
     begin_maintenance = false;
+    cancel_flag = false;
+    order_completed = false;
 }
 
+// oled
+void setupOled()
+{
+    display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS_);
+    display.display();
+    delay(2000);
+}
+
+void print_to_display(String str) // Core display code
+{
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(3);
+    display.println(str);
+    display.display();
+};
+
+void loopOledCode(){ // Code that displays messages on Oled based on flags from other functions
+    if((millis() - oled_millis) > 500) {
+        if(customer_waiting){
+            if(customer_order == 0){
+                print_to_display(String(select_button_value));
+            } else if(customer_order == 1){
+                if(!charged){
+                    int batt_percent = map(c.batt_status, 0, 255, 0, 100);
+                    String text = String(batt_percent) + "%,   " + String(order_cost) + " NOK";
+                    print_to_display(text);
+                }
+            } else if(customer_order == 2){
+                if(!changed){
+                    print_to_display("Changing...");
+                    
+                }
+            }
+            if(order_completed){
+                print_to_display("Complete.");
+                oled_delay = millis();
+            }
+        } else if ((millis() - oled_delay) > 3000){
+            print_to_display("");
+        }
+    };
+}

@@ -17,13 +17,7 @@
 // Variables:
     // BASICS
 inline unsigned long previousMillis = 0;
-
-    // OLED
-#define SCREEN_WIDTH_ 128
-#define SCREEN_HEIGHT_ 64
-#define OLED_RESET_ -1
-#define SCREEN_ADDRESS_ 0x3C
-static Adafruit_SSD1306 display(SCREEN_WIDTH_, SCREEN_HEIGHT_, &Wire, OLED_RESET_);
+inline unsigned long oled_millis = 0;
 
     // PINS
 inline const int confirm_button_pin = 25;
@@ -33,9 +27,9 @@ inline const int select_button_pin = 26;
     // Structs
     // Struct for customer data
 inline struct __attribute__((packed)) Customer {
-    int customer_id;
-    int battery_level;
-    int battery_health;
+    int id;
+    int batt_status;
+    int batt_health;
     float account_amount;
 } c;
 
@@ -43,8 +37,5 @@ inline struct __attribute__((packed)) Customer {
 void setupPins();
 void setupOled();
 void setupReset();
-
-    // OLed
-void print_to_display(String battery_level);
 
 #endif // COMMON
