@@ -61,20 +61,32 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
         account_amount = message_float;
     }
     
-    if(String(topic) == "/charger/order/zumo"){
+    if(String(topic) == "/charger/order/mode"){
         Serial.print("Charger station mode: "); Serial.println(messageTemp);
         if(messageTemp == "True"){
             auto_mode = false;
         }
     }
 
-    if(String(topic) == "/charger/order/zumo"){
-        Serial.print("Order from zumo: "); Serial.println(messageTemp);
-        int message_int = messageTemp.toInt();
-        customer_waiting = true;
+    if(String(topic) == "/charger/order/account"){
+        Serial.print("Bank Account: "); Serial.println(messageTemp);
+        float message_float = messageTemp.toFloat();
+        c.account_amount = message_float;
     }
 
-    if(String(topic) == "/charger/order/red"){
+    if(String(topic) == "/charger/order/b_level"){
+        Serial.print("Battery Level: "); Serial.println(messageTemp);
+        int message_int = messageTemp.toInt();
+        c.battery_level = message_int;  
+    }
+
+    if(String(topic) == "/charger/order/health"){
+        Serial.print("Battery Health: "); Serial.println(messageTemp);
+        int message_int = messageTemp.toInt();
+        c.account_amount = message_int;
+    }
+
+    if(String(topic) == "/charger/order/begin"){
         Serial.print("Order from node-red: "); Serial.println(messageTemp);
         int message_int = messageTemp.toInt();
         if(customer_waiting){
@@ -84,24 +96,27 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
             Serial.println("Error ZUMO not send arrival flag.");
         }
     }
+
+    if(String(topic).startsWith("/red/charge/")){
+        Serial.println("Customer waiting");
+        customer_waiting = true;
+    }
 }
 
-void mqtt_reconnect() {
+void mqtt_reconnect() { // Initiates MQTT when connected and subscribes to relevant topics
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
 
     if (client.connect("ESP8266Client")) {
         Serial.println("connected");
 
-        client.subscribe("/maintenance/price/out");
-        client.subscribe("/maintenance/order/desired/out");
+        client.subscribe("/maintenance/#");
         client.subscribe("/breaker/out");
-        client.subscribe("/bank/details/out");
-        client.subscribe("/charger/order/mode");
-        client.subscribe("/charger/order/zumo");
-        client.subscribe("/charger/order/red");
+        client.subscribe("/bank/charger/#");
+        client.subscribe("/charger/order/#");
+        client.subscribe("/red/charge/#");
 
-        get_power_price();
+        get_power_price(); // payment.cc
     } else {
         Serial.print("failed, rc=");
         Serial.print(client.state());

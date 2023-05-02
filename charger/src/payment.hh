@@ -24,7 +24,9 @@ inline char cost_string;
 void get_power_price();
 
 void get_account_details();
-void send_order_details(float order_cost, float credit);
+void send_order_details(float order_cost, float credit, int order_type);
+
+void send_charge_update(float battery_level);
 
 
 #endif // PAYMENT
