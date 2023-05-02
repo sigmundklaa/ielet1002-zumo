@@ -18,16 +18,9 @@ namespace hal
 {
 
 static struct {
-    Zumo32U4IMU imu;
     Zumo32U4Encoders encoders;
     Zumo32U4LineSensors lines;
 } components_;
-
-/* We perform a memcpy from the .a struct to an array so we need to be sure that
- * the sizes are the same. */
-static_assert(
-    sizeof(Zumo32U4IMU::a) == sizeof(int16_t[3]), "sizeof accel is 3*int16_t"
-);
 
 controller_ controller;
 
@@ -185,10 +178,6 @@ controller_::read_sensors_()
     readings_.encoder[0] = components_.encoders.getCountsLeft();
     readings_.encoder[1] = components_.encoders.getCountsRight();
 
-    components_.imu.readAcc();
-
-    ::memcpy(readings_.accel, &components_.imu.a, sizeof(readings_.accel));
-
     TRACE_EXIT(__func__);
 }
 
@@ -223,11 +212,6 @@ controller_::init_()
 {
     Wire.begin();
 
-    if (!components_.imu.init()) {
-        LOG_ERR(<< "unable to init imu");
-    }
-
-    components_.imu.enableDefault();
     components_.lines.initFiveSensors();
 }
 

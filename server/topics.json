@@ -99,6 +99,12 @@
                 "name": "batt_health",
                 "kind": "u8"
             }
+        ],
+        "trash/1": [
+            {
+                "name": "address",
+                "kind": "u8"
+            }
         ]
     },
     "devicemw": {
@@ -150,6 +156,12 @@
             {
                 "name": "charge_cycles",
                 "kind": "u32"
+            }
+        ],
+        "trash/1": [
+            {
+                "name": "address",
+                "kind": "u8"
             }
         ]
     },

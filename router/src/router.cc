@@ -42,6 +42,7 @@ static struct mqtt_info {
     {io::redirect::NODE_MQTT_INIT_1, "/redmw/init/1", nullptr},
     {io::redirect::NODE_MQTT_CONTROL_1, nullptr, "/device/control/1"},
     {io::redirect::NODE_MQTT_CHARGE_1, "/redmw/charge/1", "/device/charge/1"},
+    {io::redirect::NODE_MQTT_TRASH_1, "/redmw/trash/1", "/device/trash/1"},
 };
 
 static struct esp_info {
@@ -162,6 +163,7 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
     case io::redirect::NODE_MQTT_CHARGE_1:
     case io::redirect::NODE_MQTT_CONTROL_1:
     case io::redirect::NODE_MQTT_INIT_1:
+    case io::redirect::NODE_MQTT_TRASH_1:
     case io::redirect::NODE_MQTT_STORE_1: {
         /* Send to appropriate mqtt node */
         for (size_t i = 0; i < UTILS_ARR_LEN(mqtt_topics_); i++) {
