@@ -10,7 +10,7 @@
 namespace io
 {
 
-template <typename T> class serial_sink : public sink
+template <typename T> class serial_gateway : public gateway
 {
   protected:
     T& hw_serial_;
@@ -28,6 +28,9 @@ template <typename T> class serial_sink : public sink
 
         for (; hw_serial_.available() && i < buf_size; i++) {
             buf[i] = hw_serial_.read();
+
+            /* If there is no delay, we might get an incomplete read. */
+            delayMicroseconds(100);
         }
 
         return i;
@@ -35,7 +38,7 @@ template <typename T> class serial_sink : public sink
 
   public:
     template <typename... Args>
-    serial_sink(T& hw_serial, Args... args) : hw_serial_(hw_serial)
+    serial_gateway(T& hw_serial, Args... args) : hw_serial_(hw_serial)
     {
         hw_serial_.begin(args...);
     }

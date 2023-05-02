@@ -17,14 +17,14 @@ namespace utils
  * @param size
  * @return uint32_t
  */
-uint32_t
+inline uint32_t
 crc32(const uint8_t* buf, size_t size)
 {
     uint32_t crc = 0xFFFFFFFF;
 
-    for (uint_fast8_t i = 0; i < size && buf[i]; i++) {
+    for (uint_fast8_t i = 0; i < size; i++) {
         crc ^= buf[i];
-        for (uint_fast8_t j = 7; j >= 0; j--) {
+        for (int_fast8_t j = 7; j >= 0; j--) {
             crc = (crc >> 1) ^ (0xEDB88320 & (-(crc & 1)));
         }
     }

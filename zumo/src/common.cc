@@ -1,72 +1,57 @@
 
 #include "common.hh"
+#include "comms.hh"
 #include <Arduino.h>
-#include <io/eeprom.hh>
-#include <io/mqtt.hh>
 #include <logging/log.hh>
 #include <utils/init.hh>
 #include <utils/new.hh>
 
 #define LOG_MODULE common
-LOG_REGISTER(common::log_sink);
+LOG_REGISTER(common::log_gateway);
+#include <io/eeprom.hh>
 
 #define SYNC_TIMEOUT_US_ (5e6)
 
 namespace common
 {
 
-static io::mqtt_sink mqtt_sink_(
-    &io::mqtt_client, IO_MQTT_PATH("/store/", IO_MQTT_NODE_ZUMO),
-    IO_MQTT_PATH("/sync/", IO_MQTT_NODE_ZUMO)
-);
-
-/* Initialize the store connected to MQTT. This class is only used for its
- * constructor, as the store expects the connection to initialized before it is
- * created */
-static class mqtt_initer__
-{
-  public:
-    mqtt_initer__()
-    {
-        LOG_INFO(<< "requesting sync from remote");
-
-        /* Send no data to indicate we are requesting sync data */
-        mqtt_sink_.write("", 0);
-
-        /* Wait to recieve data before we can continue. Only try for X amount of
-         * microseconds to prevent hang */
-        for (uint64_t start = micros(); micros() - start < SYNC_TIMEOUT_US_;) {
-            if (mqtt_sink_.avail()) {
-                return;
-            }
-
-            mqtt_sink_.ps_client()->loop();
-        }
-
-        LOG_ERR(<< "error syncing data");
-    }
-} mqtt_initer_instance__;
+template <typename T> T store<T>::buf;
 
 store<remote_data> remote_store(
-    &mqtt_sink_,
+    &comms::store_gw,
     (remote_data){
         0,
     }
 );
 
-static io::eeprom_sink eeprom_;
+static io::eeprom_gateway eeprom_;
 
 store<local_data> local_store(
     &eeprom_,
     (local_data){
-
+        .batt_status = UINT8_MAX,
+        .batt_health = UINT8_MAX,
+        .batt_n_charges = 0,
+        .batt_n_drained = 0,
     }
 );
 
-}; // namespace common
-
 void
-io::mqtt_client_init(PubSubClient& client)
+on_tick()
 {
-    new (&client) PubSubClient();
+    static uint8_t local_inited = 0;
+
+    if (!local_inited) {
+        local_store.sync();
+        local_inited = 1;
+    }
+
+    local_store.save();
+
+#if 0
+    remote_store.save();
+    remote_store.sync();
+#endif
 }
+
+}; // namespace common

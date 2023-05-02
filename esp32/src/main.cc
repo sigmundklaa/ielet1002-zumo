@@ -1,39 +1,39 @@
-//Inkluderer nødvendige bibliotek
-#include <Arduino.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <Adafruit_Sensor.h>
+// Inkluderer nødvendige bibliotek
 #include "Adafruit_BME680.h"
-#include <io/mqtt.hh>
+#include <Adafruit_Sensor.h>
+#include <Arduino.h>
+#include <SPI.h>
 #include <WiFi.h>
+#include <Wire.h>
+#include <io/mqtt.hh>
 
 //mqtt tilkobling
 void io::mqtt_client_init(PubSubClient& client)
 {
-  static WiFiClient wific;
-  new (&client) PubSubClient(wific);
+    static WiFiClient wific;
+    new (&client) PubSubClient(wific);
 }
 
 static io::mqtt_sink mqtt(&io::mqtt_client, "/redmw/sensor/1", nullptr);
 
-//Definerer en struct som skal sendes over NodeRED
-struct __attribute__ ((packed)) SensorData {
-  float temperature;
-  float humidity;
-  float pressure;
-  int lightData;
+// Definerer en struct som skal sendes over NodeRED
+struct __attribute__((packed)) SensorData {
+    float temperature;
+    float humidity;
+    float pressure;
+    int lightData;
 };
 
 SensorData sensorData;
 
-//Definerer pin-navn
+// Definerer pin-navn
 #define BME_SCK 25
 #define BME_MISO 33
 #define BME_MOSI 26
 #define BME_CS 27
 #define lightsensor 34
 
-//Definerer variabler som sensorene skal lagre dataene til
+// Definerer variabler som sensorene skal lagre dataene til
 float temperature;
 float humidity;
 float pressure;
@@ -41,8 +41,8 @@ float gasResistance;
 int period = 10000;
 unsigned long time_now = 0;
 
-//Sier til bme688 hva pin-navnene den skal bruke heter
-Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
+// Sier til bme688 hva pin-navnene den skal bruke heter
+Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK);
 
 //Funksjon som henter sensordata
 void getBME688Readings(){
@@ -104,20 +104,22 @@ void setup() {
   pinMode(BME_SCK, INPUT);
   pinMode(BME_MOSI, INPUT);
 
-  //BME680 Oppsett:
-  while (!Serial);
-  Serial.println(F("BME680 test"));
+    // BME680 Oppsett:
+    while (!Serial)
+        ;
+    Serial.println(F("BME680 test"));
 
-  if (!bme.begin()) {
-    Serial.println("Could not find a valid BME680 sensor, check wiring!");
-    while (1);
-  }
+    if (!bme.begin()) {
+        Serial.println("Could not find a valid BME680 sensor, check wiring!");
+        while (1)
+            ;
+    }
 
-  bme.setTemperatureOversampling(BME680_OS_8X);
-  bme.setHumidityOversampling(BME680_OS_2X);
-  bme.setPressureOversampling(BME680_OS_4X);
-  bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-  bme.setGasHeater(320, 150);
+    bme.setTemperatureOversampling(BME680_OS_8X);
+    bme.setHumidityOversampling(BME680_OS_2X);
+    bme.setPressureOversampling(BME680_OS_4X);
+    bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+    bme.setGasHeater(320, 150);
 
 //Kobler på samme WiFi som nodeRED er på
   WiFi.begin("WodanSurface", "53728431");

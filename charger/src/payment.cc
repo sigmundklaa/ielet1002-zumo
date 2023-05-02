@@ -2,43 +2,33 @@
 #include <payment.hh>
 
 /*
-PAYMENT: All things related to payment
+    payment.cc: File containing code relevant to handeling of payment and processing.
 */
 
-void check_price()
-{
-    power_price = 0.80; //TODO make it get price from server. 
-    battery_price = 120.60; //TODO ^^
-    
-    Serial.print("Power price: "); Serial.print(power_price);
-    Serial.print(". Battery price: "); Serial.println(battery_price);
-};
+void get_power_price(){ // Get prices from node red on startup, as well as desired charge.
+    client.publish("/maintenance/price/in", "Get");
+}
 
-bool check_credit()
-{
-    Serial.println("Checking for customer credit");
+void send_order_details(float order_cost, float credit, int order_type){ // Converts variables to sendable variables and sends them to server
+    char costString[8];
+    dtostrf(order_cost, 1, 2, costString);
+    Serial.println("Sending cost.");
+    client.publish("/bank/payment/cost", costString);
 
-    bool has_credit = false;
-    if(c.credit > 0){
-        has_credit = true;
-    } else{
-        has_credit = false;
-    }
-    return has_credit;
-};
+    char creditString[8];
+    dtostrf(credit, 1, 2, creditString);
+    Serial.println("Sending credit.");
+    client.publish("/bank/payment/credit", creditString);
 
-void pay_credit()
-{
-    for(int i = c.credit; i > 0; i--){
-        if(c.account_balance == 0){
-            Serial.println("Customer ran out of money while paying off credit.");
-            ran_out = true;
-            break;
-        }
-        c.credit--;
-        c.account_balance--;
+    char orderString[8];
+    dtostrf(order_type, 1, 2, orderString);
+    Serial.println("Sending order type.");
+    client.publish("/bank/payment/order", orderString);
+}
 
-        Serial.print("Customer credit: ");
-        Serial.println(c.credit);
-    }
-};
+void send_charge_update(float battery_level){ // Sends an update to server of battery status
+    char levelString[8];
+    dtostrf(battery_level, 1, 2, levelString);
+    Serial.println("Sending charge update");
+    client.publish("/maintenance/charge/update", levelString);
+}

@@ -2,23 +2,33 @@
 #ifndef COMMON
 #define COMMON
 
+/*
+    common.hh: Header file that declares variables and functions used by main.cc and most other files. 
+*/
+
 #include <Arduino.h>
 #include <WiFi.h>
-#include <esp_now.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <PubSubClient.h>
 
 // Variables:
     // BASICS
 inline unsigned long previousMillis = 0;
 
-    // PINS
-inline const int button_pin_1 = -1;
-inline const int LED_pin_running = -1;
-inline const int LED_pin_input = -1;
-inline const int LED_pin_error = -1;
+    // OLED
+#define SCREEN_WIDTH_ 128
+#define SCREEN_HEIGHT_ 64
+#define OLED_RESET_ -1
+#define SCREEN_ADDRESS_ 0x3C
+static Adafruit_SSD1306 display(SCREEN_WIDTH_, SCREEN_HEIGHT_, &Wire, OLED_RESET_);
 
-    // Status
-inline bool customer_waiting = false;
-inline int customer_order = 0;
+    // PINS
+inline const int confirm_button_pin = 25;
+inline const int select_button_pin = 26;
+//OLED PINS 22 -> SCK, 21 -> SDA; // Set by library
 
     // Structs
     // Struct for customer data
@@ -26,22 +36,15 @@ inline struct __attribute__((packed)) Customer {
     int customer_id;
     int battery_level;
     int battery_health;
-    int charging_cycles;
-    float account_balance;
-    float credit;
+    float account_amount;
 } c;
 
-    // ESP-NOW
-      // Router:
-inline esp_now_peer_info_t routerDeviceInfo = {
-    // Change this address to the address of the router ESP32
-    .peer_addr = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
-    .channel = 0,
-    .encrypt = false,
-};
-
-
 // Functions:
+void setupPins();
+void setupOled();
+void setupReset();
 
+    // OLed
+void print_to_display(String battery_level);
 
-#endif
+#endif // COMMON

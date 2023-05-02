@@ -8,84 +8,109 @@
 #include <io/serial.hh>
 #endif
 
+#include <io/redirect.hh>
 #include <string.h>
+#include <utils/crc32.hh>
 #include <utils/init.hh>
 
 namespace common
 {
 
 #if !defined(MCU__) || !MCU__
-static io::std_sink& log_sink = init_guarded(io::std_sink, utils::init_empty);
+static io::std_gateway& log_gateway =
+    init_guarded(io::std_gateway, utils::init_empty);
 #else
 static inline void
-init_log_sink_(io::serial_sink<Serial_>& mem)
+init_log_gateway_(io::serial_gateway<Serial_>& mem)
 {
-    new (&mem) io::serial_sink<Serial_>(Serial, 9600);
+    new (&mem) io::serial_gateway<Serial_>(Serial, 9600);
 }
 
 /**
- * @brief Common sink for logging
+ * @brief Common gateway for logging
  *
  */
-static io::serial_sink<Serial_>& log_sink =
-    init_guarded(io::serial_sink<Serial_>, init_log_sink_);
+static io::serial_gateway<Serial_>& log_gateway =
+    init_guarded(io::serial_gateway<Serial_>, init_log_gateway_);
 #endif
 
+static inline void
+init_serial_gateway_(io::serial_gateway<HardwareSerial>& mem)
+{
+    new (&mem) io::serial_gateway<HardwareSerial>(Serial1, 115200);
+}
+
+static io::serial_gateway<HardwareSerial>& serial_gateway_ =
+    init_guarded(io::serial_gateway<HardwareSerial>, init_serial_gateway_);
+
 /**
- * @brief Manages storage. Saves and retrieves data from the connected sink when
- * necessary
+ * @brief Manages storage. Saves and retrieves data from the connected
+ * gateway when necessary
  *
  * @tparam T Struct for store data
  */
 template <typename T> class store
 {
   protected:
-    io::sink* sink_;
+    io::gateway* gateway_;
+    uint32_t crc_last_;
 
   public:
+    static T buf;
+
     T data;
 
     /**
      * @brief Construct a new store object
      *
-     * @param sink Sink to save/retreive data from
-     * @param data_init Initial data, will only be used when unable to read from
-     * the sink
+     * @param gateway gateway to save/retreive data from
+     * @param data_init Initial data
      */
-    inline store(io::sink* sink, const T& data_init) : sink_(sink)
+    inline store(io::gateway* gateway, const T& data_init) : gateway_(gateway)
     {
-        size_t bread = sink_->read(&this->data, sizeof(T));
+        ::memcpy(&this->data, &data_init, sizeof(T));
+    }
 
-        if (bread != sizeof(T)) {
-            ::memcpy(&this->data, &data_init, sizeof(T));
+    inline size_t
+    sync()
+    {
+        size_t bread = gateway_->read(&store<T>::buf, sizeof(store<T>::buf));
+
+        if (bread != sizeof(store<T>::buf)) {
+            return 0;
         }
+
+        ::memcpy(&this->data, &store<T>::buf, bread);
+
+        return bread;
     }
 
     /**
-     * @brief Write the store to a sink. Returns 1 on success, 0 otherwise
+     * @brief Write the store to a gateway. Returns size written on success, 0
+     * otherwise
      *
      * @return int
      */
     inline int
     save()
     {
-        static T buf = {0};
+        uint32_t checksum =
+            utils::crc32((const uint8_t*)&this->data, sizeof(T));
+        if (crc_last_ && checksum == crc_last_) {
+            return 0;
+        }
 
-        size_t written = sink_->write(&this->data, sizeof(T)) != sizeof(T);
+        size_t written = gateway_->write(&this->data, sizeof(T));
 
         if (written != sizeof(T)) {
             return written;
         }
 
+        crc_last_ = checksum;
+
         /* Read the updated contents into a buffer first, and then if there is
          * no error we can safely update the real data field. */
-        size_t read = sink_->read(&buf, sizeof(buf));
-
-        if (read == sizeof(T)) {
-            ::memcpy(&this->data, &buf, sizeof(T));
-        }
-
-        return read;
+        return this->sync();
     }
 };
 
@@ -94,7 +119,7 @@ template <typename T> class store
  *
  */
 struct __attribute__((packed)) remote_data {
-    uint8_t bank_currency;
+    uint32_t bank_currency;
 };
 
 /**
@@ -102,11 +127,16 @@ struct __attribute__((packed)) remote_data {
  *
  */
 struct __attribute__((packed)) local_data {
+    uint8_t batt_status;
     uint8_t batt_health;
+    uint8_t batt_n_charges;
+    uint8_t batt_n_drained;
 };
 
 extern store<remote_data> remote_store;
 extern store<local_data> local_store;
+
+void on_tick();
 
 }; // namespace common
 

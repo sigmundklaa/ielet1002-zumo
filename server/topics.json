@@ -1,11 +1,135 @@
 {
     "red": {
-        "/report/1": [
+        "report/1": [
             {
-                "name": "velocity",
+                "name": "l_velocity",
+                "kind": "i16"
+            },
+            {
+                "name": "l_last",
+                "kind": "i16"
+            },
+            {
+                "name": "l_max",
+                "kind": "i16"
+            },
+            {
+                "name": "l_dist",
+                "kind": "i32"
+            },
+            {
+                "name": "l_vel_sum",
+                "kind": "i32"
+            },
+            {
+                "name": "l_vel_n",
+                "kind": "i32"
+            },
+            {
+                "name": "l_above70",
+                "kind": "u64"
+            },
+            {
+                "name": "r_velocity",
+                "kind": "i16"
+            },
+            {
+                "name": "r_last",
+                "kind": "i16"
+            },
+            {
+                "name": "r_max",
+                "kind": "i16"
+            },
+            {
+                "name": "r_dist",
+                "kind": "i32"
+            },
+            {
+                "name": "r_vel_sum",
+                "kind": "i32"
+            },
+            {
+                "name": "r_vel_n",
+                "kind": "i32"
+            },
+            {
+                "name": "r_above70",
+                "kind": "u64"
+            },
+            {
+                "name": "batt_status",
+                "kind": "u8"
+            },
+            {
+                "name": "batt_health",
+                "kind": "u8"
+            }
+        ],
+        "sync/1": [
+            {
+                "name": "x",
                 "kind": "u32"
+            }
+        ],
+        "sensor/1": [
+            {
+                "name": "temperature",
+                "kind": "f32"
+            },
+            {
+                "name": "humidity",
+                "kind": "f32"
+            },
+            {
+                "name": "pressure",
+                "kind": "f32"
+            },
+            {
+                "name": "lightdata",
+                "kind": "i32"
             }
         ]
     },
-    "device": {}
+    "devicemw": {
+        "sync/1": [
+            {
+                "name": "x",
+                "kind": "u8"
+            },
+            {
+                "name": "y",
+                "kind": "u16"
+            },
+            {
+                "name": "z",
+                "kind": "i16"
+            },
+            {
+                "name": "u",
+                "kind": "i32"
+            },
+            {
+                "name": "w",
+                "kind": "f32"
+            }
+        ],
+        "control/1": [
+            {
+                "name": "cmd",
+                "kind": "u8"
+            },
+            {
+                "name": "arg1",
+                "kind": "i16"
+            },
+            {
+                "name": "arg2",
+                "kind": "i16"
+            }
+        ]
+    },
+    "log": {
+        "router": []
+    }
 }
