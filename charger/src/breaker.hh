@@ -6,11 +6,10 @@
 
 // Variables
     // PINS
-    inline const int ired_pin = 34;
-    inline const int ired_diode = 32; // Might not be wired to this ESP32 due to distance.
+    inline const int sonar_pin = 34;
 
     // STATUS
-    inline unsigned long ired_delay = 5000;
+    inline unsigned long sonar_delay = 5000;
     inline unsigned long round_millis = 0;
     inline unsigned long previous_round_millis = 0;
 
