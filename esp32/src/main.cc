@@ -7,12 +7,6 @@
 #include <io/mqtt.hh>
 #include <WiFi.h>
 
-//mqtt tilkobling
-void io::mqtt_client_init(PubSubClient& client)
-{
-  static WiFiClient wific;
-  new (&client) PubSubClient(wific);
-}
 
 static io::mqtt_gateway mqtt(&io::mqtt_client, "/redmw/sensor/1", nullptr);
 
@@ -126,7 +120,7 @@ void setup() {
     delay(500);
   }
 //definerer hvilken mqtt server som dataen skal sendes til
-  io::mqtt_client.setServer("192.168.137.194", 1883);
+  io::mqtt_client.setServer("192.168.137.226", 1883);
   io::mqtt_client.setCallback(callback);
 
 }
