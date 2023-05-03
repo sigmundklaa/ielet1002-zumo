@@ -42,7 +42,7 @@ static struct mqtt_info {
     {io::redirect::NODE_MQTT_INIT_1, "/redmw/init/1", nullptr},
     {io::redirect::NODE_MQTT_CONTROL_1, nullptr, "/device/control/1"},
     {io::redirect::NODE_MQTT_CHARGE_1, "/redmw/charge/1", "/device/charge/1"},
-    {io::redirect::NODE_MQTT_TRASH_1, "/redmw/trash/1", "/device/trash/1"},
+    {io::redirect::NODE_MQTT_TRASH_1, "/redmw/trash/1", "/device/trash"},
 };
 
 static struct esp_info {
