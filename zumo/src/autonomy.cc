@@ -72,7 +72,6 @@ static int16_t rightSpeed;
 static int16_t lineSensorError;
 
 static uint8_t currentAddress = 0;
-static uint8_t stopAddress = 2;
 
 static bool emptyTrashAddress[3] = {1, 0, 1};
 static bool holdingTrash = false;
@@ -376,7 +375,7 @@ calibrateLineSensors()
     hal::controller.start();
     uint8_t speed = 75; // 255 / 4;
 
-    for (uint16_t i = 0; i < 115; i++) {
+    for (uint16_t i = 0; i < 110; i++) {
         hal::controller.calibrate();
 
         if (i > 30 && i < 85) {
@@ -405,14 +404,3 @@ printReadingsToSerial()
         << String(hal::controller.position()) << " | Line values: " << buffer
     );
 }
-
-/* TODO: unused? */
-/*
-void
-readSensorValues()
-{
-    lineSensors.readCalibrated(lineSensorValues);
-
-    printReadingsToSerial();
-}
-*/
