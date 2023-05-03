@@ -89,6 +89,22 @@
                 "name": "lightdata",
                 "kind": "i32"
             }
+        ],
+        "charge/1": [
+            {
+                "name": "batt_status",
+                "kind": "u8"
+            },
+            {
+                "name": "batt_health",
+                "kind": "u8"
+            }
+        ],
+        "trash/1": [
+            {
+                "name": "address",
+                "kind": "u8"
+            }
         ]
     },
     "devicemw": {
@@ -126,6 +142,26 @@
             {
                 "name": "arg2",
                 "kind": "i16"
+            }
+        ],
+        "charge/1": [
+            {
+                "name": "batt_status",
+                "kind": "u8"
+            },
+            {
+                "name": "batt_health",
+                "kind": "u8"
+            },
+            {
+                "name": "charge_cycles",
+                "kind": "u32"
+            }
+        ],
+        "trash/1": [
+            {
+                "name": "address",
+                "kind": "u8"
             }
         ]
     },

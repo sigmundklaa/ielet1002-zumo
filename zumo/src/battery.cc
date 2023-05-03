@@ -66,12 +66,14 @@ hold_buttons_()
 }
 
 struct __attribute__((packed)) charge_request_ {
-    uint32_t balance;
+    uint8_t status;
+    uint8_t health;
 };
 
 struct __attribute__((packed)) charge_response_ {
-    uint8_t charge;
-    uint32_t price;
+    uint8_t status;
+    uint8_t health;
+    uint8_t cycles;
 };
 
 static union {
@@ -121,7 +123,8 @@ battery__::transition_(enum state new_state)
     case STATE_DRAINING_:
         if (new_state == STATE_CHARGING_) {
             charge_buf_.request = (charge_request_){
-                .balance = common::remote_store.data.bank_currency,
+                .status = common::local_store.data.batt_status,
+                .health = common::local_store.data.batt_health,
             };
 
             comms::charge_gw.write(
@@ -171,14 +174,7 @@ battery__::service()
 {
     LOG_DEBUG(<< "servicing battery");
 
-    common::local_store.data.batt_health =
-        u8_clamp_(common::local_store.data.batt_health * 2);
-
-    if (common::local_store.data.batt_health > HEALTH_LEVEL_LOW_) {
-        health_state_ = HEALTH_NORM_;
-    } else if (common::local_store.data.batt_health > HEALTH_LEVEL_CRIT_) {
-        health_state_ = HEALTH_CRIT_;
-    }
+    transition_(STATE_CHARGING_);
 }
 
 void
@@ -186,15 +182,12 @@ battery__::replace()
 {
     LOG_DEBUG(<< "replacing battery");
 
-    health_state_ = HEALTH_LOW_;
-    common::local_store.data.batt_health = UINT8_MAX;
+    transition_(STATE_CHARGING_);
 }
 
 void
 battery__::charge()
 {
-    common::local_store.data.batt_n_charges++;
-
     transition_(STATE_CHARGING_);
 }
 
@@ -233,16 +226,18 @@ battery__::on_tick()
             break;
         }
 
-        common::local_store.data.batt_status = clamp_<uint8_t>(
-            static_cast<int64_t>(common::local_store.data.batt_status) +
-                charge_buf_.response.charge,
-            0, UINT8_MAX
-        );
-        common::remote_store.data.bank_currency = clamp_<uint32_t>(
-            static_cast<int64_t>(common::remote_store.data.bank_currency) -
-                charge_buf_.response.price,
-            0U, UINT32_MAX
-        );
+        common::local_store.data.batt_status = charge_buf_.response.status;
+        common::local_store.data.batt_health = charge_buf_.response.health;
+
+        if (common::local_store.data.batt_health < HEALTH_LEVEL_CRIT_) {
+            health_state_ = HEALTH_CRIT_;
+        } else if (common::local_store.data.batt_health < HEALTH_LEVEL_LOW_) {
+            health_state_ = HEALTH_LOW_;
+        } else {
+            health_state_ = HEALTH_NORM_;
+        }
+
+        common::local_store.data.batt_n_charges += charge_buf_.response.cycles;
 
         transition_(STATE_INACTIVE_);
         break;
@@ -254,17 +249,21 @@ battery__::on_tick()
             break;
         }
 
-        common::local_store.data.batt_status = clamp_<uint8_t>(
-            static_cast<int16_t>(common::local_store.data.batt_status) -
-                calc_drain_batt_(),
-            0, UINT8_MAX
-        );
+        if (tmp - time_last_drain_us_ >= 5e6) {
+            common::local_store.data.batt_status = clamp_<uint8_t>(
+                static_cast<int16_t>(common::local_store.data.batt_status) -
+                    calc_drain_batt_(),
+                0, UINT8_MAX
+            );
 
-        common::local_store.data.batt_health = clamp_<uint8_t>(
-            static_cast<int16_t>(common::local_store.data.batt_health) -
-                calc_drain_health_(),
-            0, UINT8_MAX
-        );
+            common::local_store.data.batt_health = clamp_<uint8_t>(
+                static_cast<int16_t>(common::local_store.data.batt_health) -
+                    calc_drain_health_(),
+                0, UINT8_MAX
+            );
+
+            time_last_drain_us_ = tmp;
+        }
 
         time_active_us_ += tmp - time_last_us_;
         time_last_us_ = tmp;

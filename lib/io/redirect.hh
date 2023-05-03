@@ -16,6 +16,7 @@ enum node_type {
     NODE_MQTT_CHARGE_1,
     NODE_MQTT_INIT_1,
     NODE_MQTT_CONTROL_1,
+    NODE_MQTT_TRASH_1,
 } __attribute__((packed));
 
 static_assert(sizeof(node_type) == 1, "size of header type is 1");

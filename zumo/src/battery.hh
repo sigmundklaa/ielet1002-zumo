@@ -27,6 +27,7 @@ class battery__
 
     uint64_t time_active_us_;
     uint64_t time_last_us_;
+    uint64_t time_last_drain_us_;
 
     void transition_(enum state new_state);
 

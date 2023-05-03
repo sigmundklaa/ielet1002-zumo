@@ -2,6 +2,7 @@
 #include "autonomy.hh"
 #include "battery.hh"
 #include "common.hh"
+#include "comms.hh"
 #include "controller.hh"
 #include "housekeep.hh"
 #include <Arduino.h>
@@ -56,29 +57,29 @@ struct TurnCheck {
 
 static uint8_t enabled = 1;
 
-TurnCheck turnCheck;
-DriveState driveState = waitInit;
+static TurnCheck turnCheck;
+static DriveState driveState = waitInit;
 
-uint16_t* lineSensorValues;
-uint16_t position = 2000;
-uint16_t maxSpeed = 100;
+static uint16_t* lineSensorValues;
+static uint16_t position = 2000;
+static uint16_t maxSpeed = 100;
 
-int16_t positionError = 0;
-int16_t lastError = 0;
-int16_t speedDifference = 0;
-int16_t leftSpeed;
-int16_t rightSpeed;
-int16_t lineSensorError;
+static int16_t positionError = 0;
+static int16_t lastError = 0;
+static int16_t speedDifference = 0;
+static int16_t leftSpeed;
+static int16_t rightSpeed;
+static int16_t lineSensorError;
 
-uint8_t currentAddress = 0;
-uint8_t stopAddress = 2;
+static uint8_t currentAddress = 0;
+static uint8_t stopAddress = 2;
 
-bool emptyTrashAddress[3] = {1, 0, 1};
-bool holdingTrash = false;
+static bool emptyTrashAddress[3] = {1, 0, 1};
+static bool holdingTrash = false;
 
-void calibrateLineSensors();
-void printReadingsToSerial();
-void readSensorValues();
+static void calibrateLineSensors();
+static void printReadingsToSerial();
+static void readSensorValues();
 
 // -----------------
 // ----- SETUP -----
@@ -149,16 +150,27 @@ autonomy::on_tick()
     }
 
     static uint32_t sampleTime = 0;
+    const uint8_t base = 150;
 
     position = hal::controller.position();
     positionError = position - 2000;
     speedDifference = positionError / 4 + 3 * (positionError - lastError);
     lineSensorError = lineSensorValues[1] - lineSensorValues[3];
     lastError = positionError;
-    leftSpeed = (int16_t)maxSpeed + speedDifference - lineSensorError / 7;
-    leftSpeed = constrain(leftSpeed, 0, (int16_t)maxSpeed);
-    rightSpeed = (int16_t)maxSpeed - speedDifference + lineSensorError / 7;
-    rightSpeed = constrain(rightSpeed, 0, (int16_t)maxSpeed);
+    leftSpeed = (int16_t)base + speedDifference - lineSensorError / 7;
+    leftSpeed = map(constrain(leftSpeed, 0, (int16_t)base), 0, 400, 0, 255);
+    rightSpeed = (int16_t)base - speedDifference + lineSensorError / 7;
+    rightSpeed = map(constrain(rightSpeed, 0, (int16_t)base), 0, 400, 0, 255);
+
+    uint8_t trashRemote;
+    if (comms::trash_gw.read(&trashRemote, sizeof(trashRemote)) ==
+        trashRemote) {
+        if (trashRemote > 0 && trashRemote <= 2) {
+            emptyTrashAddress[trashRemote] = 1;
+        } else {
+            LOG_ERR(<< "invalid trash index");
+        }
+    }
 
     if ((lineSensorValues[0] > 200 || lineSensorValues[4] > 200)) {
         turnCheck.update(lineSensorValues[0], lineSensorValues[4]);
@@ -244,7 +256,10 @@ autonomy::on_tick()
         if (millis() - sampleTime < 100) {
             hal::controller.set_speeds(0, 0);
 
-            if (swbat::battery.need_charge()) {
+            if (swbat::battery.need_charge() ||
+                swbat::battery.need_replacement() ||
+                swbat::battery.need_service()) {
+
                 swbat::battery.charge();
                 driveState = chargeBattery;
                 sampleTime = millis();
@@ -315,6 +330,8 @@ autonomy::on_tick()
         }
 
         if (emptyTrashAddress[currentAddress]) {
+            comms::trash_gw.write(&currentAddress, sizeof(currentAddress));
+
             emptyTrashAddress[currentAddress] = false;
             holdingTrash = true;
             driveState = stop;
@@ -340,9 +357,12 @@ autonomy::on_tick()
         }
 
         break;
+    case waitInit:
     case fullStop:
         break;
     }
+
+    // printReadingsToSerial();
 }
 
 // ---------------------
@@ -354,14 +374,15 @@ calibrateLineSensors()
 {
     delay(1000);
     hal::controller.start();
+    uint8_t speed = 75; // 255 / 4;
 
     for (uint16_t i = 0; i < 115; i++) {
         hal::controller.calibrate();
 
         if (i > 30 && i < 85) {
-            hal::controller.set_speeds(-60, 60);
+            hal::controller.set_speeds(-speed, speed);
         } else {
-            hal::controller.set_speeds(60, -60);
+            hal::controller.set_speeds(speed, -speed);
         }
 
         hal::controller.run();

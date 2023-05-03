@@ -54,6 +54,7 @@ template <typename T> class store
   protected:
     io::gateway* gateway_;
     uint32_t crc_last_;
+    uint64_t last_save_us_;
 
   public:
     static T buf;
@@ -94,6 +95,12 @@ template <typename T> class store
     inline int
     save()
     {
+        uint64_t tmp = micros();
+        if (tmp - last_save_us_ < 1e6) {
+            return 0;
+        }
+        last_save_us_ = tmp;
+
         uint32_t checksum =
             utils::crc32((const uint8_t*)&this->data, sizeof(T));
         if (crc_last_ && checksum == crc_last_) {
