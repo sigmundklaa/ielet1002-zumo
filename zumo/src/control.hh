@@ -24,11 +24,21 @@ class remote_
   public:
     remote_();
 
+    /**
+     * @brief To be run on every iteration. Checks if any commands from the
+     * remote controller has been recieved, and acts accordingly if it has.
+     *
+     */
     void on_tick();
 };
 
 extern remote_ remote;
 
+/**
+ * @brief To be run on every iteration. Checks if any commands from the
+ * remote controller has been recieved, and acts accordingly if it has.
+ *
+ */
 inline void
 on_tick()
 {

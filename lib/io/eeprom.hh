@@ -9,10 +9,10 @@
 /*
 While we could use the Arduino built-in library EEPROM.h here, it is
 unneccessary and less fitting for our use case. This code will only run on an
-AVR core anyways. Using the AVR eeprom.h library directly allows us to write/read the
-entire buffer at once, in contrast to the Arduino library which reads byte by
-byte. This also saves us from the overhead of the overloaded operators that make
-the EEPROM.h library.
+AVR core anyways. Using the AVR eeprom.h library directly allows us to
+write/read the entire buffer at once, in contrast to the Arduino library which
+reads byte by byte. This also saves us from the overhead of the overloaded
+operators that make the EEPROM.h library.
 */
 #include <avr/eeprom.h>
 

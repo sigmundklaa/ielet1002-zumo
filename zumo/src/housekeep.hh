@@ -7,10 +7,6 @@
 namespace hk
 {
 struct data_ {
-    template <typename T> struct vector {
-        T x, y, z;
-    };
-
     struct vel {
         int16_t velocity;
         int16_t last_count;
@@ -24,6 +20,11 @@ struct data_ {
 };
 extern data_ data;
 
+/**
+ * @brief To be called on every iteration of the main Arduino loop. Periodically
+ * updates housekeeping data at a set interval.
+ *
+ */
 void on_tick();
 
 }; // namespace hk

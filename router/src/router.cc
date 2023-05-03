@@ -198,6 +198,14 @@ redirect_network_(io::redirect::header* header, uint8_t* buf, size_t size)
     TRACE_EXIT(__func__);
 }
 
+/**
+ * @brief Called when the ESP32 recieves an ESP-NOW message. Redirect the
+ * message to the appropriate gateway
+ *
+ * @param mac_addr Mac address of peer
+ * @param data
+ * @param recv_sz
+ */
 static void
 esp_callback_(const uint8_t* mac_addr, const uint8_t* data, int recv_sz)
 {
@@ -209,6 +217,14 @@ esp_callback_(const uint8_t* mac_addr, const uint8_t* data, int recv_sz)
     }
 }
 
+/**
+ * @brief Called when the ESP32 recieves an MQTT message. Redirect the message
+ * to the appropriate gateway.
+ *
+ * @param topic Topic the message was published to
+ * @param data
+ * @param sz
+ */
 static void
 mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
 {
@@ -228,6 +244,12 @@ mqtt_callback_(char* topic, uint8_t* data, unsigned int sz)
     TRACE_EXIT(__func__);
 }
 
+/**
+ * @brief Attempt to reconnect and re-initialize the MQTT client @p client if it
+ * has lost connection
+ *
+ * @param client
+ */
 static void
 reconnect(PubSubClient& client)
 {
@@ -298,7 +320,6 @@ loop()
     size_t bread = serial_gateway_.read(buf, sizeof(io::redirect::header));
 
     if (bread != 0) {
-
         io::redirect::header* header =
             reinterpret_cast<io::redirect::header*>(buf);
 

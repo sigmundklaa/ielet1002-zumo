@@ -29,6 +29,11 @@ class battery__
     uint64_t time_last_us_;
     uint64_t time_last_drain_us_;
 
+    /**
+     * @brief Transition the battery into @p new_state
+     *
+     * @param new_state
+     */
     void transition_(enum state new_state);
 
     /**

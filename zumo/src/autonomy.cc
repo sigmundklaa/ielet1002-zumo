@@ -374,12 +374,12 @@ calibrateLineSensors()
 {
     delay(1000);
     hal::controller.start();
-    uint8_t speed = 90; // 255 / 4;
+    uint8_t speed = 75; // 255 / 4;
 
     for (uint16_t i = 0; i < 115; i++) {
         hal::controller.calibrate();
 
-        if (i > 30 && i < 90) {
+        if (i > 30 && i < 85) {
             hal::controller.set_speeds(-speed, speed);
         } else {
             hal::controller.set_speeds(speed, -speed);

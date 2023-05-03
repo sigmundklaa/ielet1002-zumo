@@ -48,23 +48,73 @@ class controller_
         uint64_t start_time_us_;
         uint8_t speed_;
 
+        /**
+         * @brief Call the underlying set speed command for the Zumo
+         *
+         * @param s Speed in the range 0-255
+         */
         void set_motor_speed_(uint8_t s);
 
         void transition_(state_ st);
+
+        /**
+         * @brief Called when the Zumo has entered the running state
+         *
+         */
         void start_();
+
+        /**
+         * @brief Called when the Zumo has entered the stopped state
+         *
+         */
         void stop_();
 
       public:
         side_(side_num sn);
 
+        /**
+         * @brief To be ran on every iteration. Handles things like sampling
+         * data from sensors and outputting speed to the motors.
+         *
+         */
         void run();
 
         void set_dir(direction dir);
+
+        /**
+         * @brief Set the speed given in @p speed, in the range 0-255.
+         * This will not affect the current direction.
+         *
+         * @param speed
+         */
         void set_speed(uint8_t speed);
+
+        /**
+         * @brief Set the speed given in @p speed, in the range -255-255. This
+         * will update the current direction if the sign of @p speed is
+         * different than the expected sign for the current direction.
+         *
+         * @param speed
+         */
         void set_speed_noabs(int16_t speed);
+
+        /**
+         * @brief Transition into the stopped state
+         *
+         */
         void stop();
+
+        /**
+         * @brief Transition into the running state
+         *
+         */
         void start();
 
+        /**
+         * @brief Returns 0 if not running, non-zero otherwise.
+         *
+         * @return uint8_t
+         */
         uint8_t running();
     };
 
@@ -82,6 +132,11 @@ class controller_
         btn_press_fn press_1s_;
         btn_press_fn press_instant_;
 
+        /**
+         * @brief Helper function to ensure @p fn is properly called.
+         *
+         * @param fn
+         */
         void
         call_callback_(btn_press_fn fn)
         {
@@ -93,6 +148,12 @@ class controller_
         }
 
       public:
+        /**
+         * @brief Monitors the button and calls the set callback if the button
+         * is pressed.
+         *
+         * @param delta_us Delta in microseconds since last call
+         */
         void
         handle(uint64_t delta_us)
         {
@@ -121,18 +182,36 @@ class controller_
             }
         }
 
+        /**
+         * @brief Set the callback function to @p fn for when the button is
+         * pressed atleast 3s
+         *
+         * @param fn
+         */
         void
         set_3s_callback(btn_press_fn fn)
         {
             press_3s_ = fn;
         }
 
+        /**
+         * @brief Set the callback function to @p fn for when the button is
+         * pressed atleast 1s
+         *
+         * @param fn
+         */
         void
         set_1s_callback(btn_press_fn fn)
         {
             press_1s_ = fn;
         }
 
+        /**
+         * @brief Set the callback function to @p fn for when the button is
+         * pressed atleast 10ms
+         *
+         * @param fn
+         */
         void
         set_0s_callback(btn_press_fn fn)
         {
@@ -146,7 +225,6 @@ class controller_
     uint8_t inited_;
 
     struct sensor_readings_ {
-        int16_t accel[3];   /* Acceleration X,Y,Z */
         int16_t encoder[2]; /* Readings from left and right encoders,
                                respectively */
         unsigned int lines[5];
@@ -160,6 +238,11 @@ class controller_
      *
      */
     void read_sensors_();
+
+    /**
+     * @brief Initialize the hardware components
+     *
+     */
     void init_();
 
   public:
@@ -172,14 +255,34 @@ class controller_
     controller_();
 
     /**
-     * @brief To be run on every loop iteration
+     * @brief To be ran on every iteration. Handles things like sampling
+     * data from sensors and outputting speed to the motors. Calls the @code run
+     * @endcode method on both sides
      *
      */
     void run();
 
+    /**
+     * @brief Set the speed of the left side to @p l an the speed of the right
+     * side to @p r. The speed is given in the range -255 - 255, where a
+     * negative sign specifies the motors should be going in the backwards
+     * direction
+     *
+     * @param l
+     * @param r
+     */
     void set_speeds(int16_t l, int16_t r);
 
+    /**
+     * @brief Transition both sides into the stopped state
+     *
+     */
     void stop();
+
+    /**
+     * @brief Transition both sides into the running state
+     *
+     */
     void start();
 
     /**
@@ -193,18 +296,32 @@ class controller_
         return readings_.encoder;
     }
 
+    /**
+     * @brief Returns the array to the contionusly updated line readings
+     *
+     * @return unsigned*
+     */
     unsigned int*
     lines_data()
     {
         return readings_.lines;
     }
 
+    /**
+     * @brief Return the position from the last reading
+     *
+     * @return int
+     */
     int
     position()
     {
         return readings_.position;
     }
 
+    /**
+     * @brief Calibrate the line sensors
+     *
+     */
     void calibrate();
 };
 extern controller_ controller;
