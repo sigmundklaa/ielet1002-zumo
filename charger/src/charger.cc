@@ -141,7 +141,8 @@ void charge_battery()
     Serial.print("Desired Charge: "); Serial.println(desired_charge);
     while((c.batt_status < desired_charge) && !cancel_flag){ // Charges battery to level from node-red (default: 255);
 
-        loopOledCode(); // Run oled code, otherwise it will be blocked by while-loop
+        loopOledCode(); // Run loop functions otherwise they get blocked by the while-loop();
+        loopConnectionCode();
 
         switch(ran_out){ // ran_out == ran out of money in the bank account
             case false: // Charges battery until account runs out of money or battery is charged

@@ -1,0 +1,3593 @@
+[
+    {
+        "id": "4199a097b4f29732",
+        "type": "tab",
+        "label": "Sensors",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "0305c0065c142a95",
+        "type": "tab",
+        "label": "Bank",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "bcb4b6c06c0a9fe9",
+        "type": "tab",
+        "label": "Maintenence",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "866e7880b7c995bc",
+        "type": "tab",
+        "label": "Generation",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5054b2dbb5d28496",
+        "type": "tab",
+        "label": "Statistics",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8caeb9a640e89eab",
+        "type": "ui_tab",
+        "name": "Maintenence",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "e24ee383f016df05",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "227287dae7ec6be2",
+        "type": "mqtt-broker",
+        "name": "piesage",
+        "broker": "192.168.137.226",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "f94361665139a4c7",
+        "type": "ui_group",
+        "name": "PowerPrice",
+        "tab": "8caeb9a640e89eab",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "a3837794c2126b5d",
+        "type": "ui_group",
+        "name": "SensorGraphs",
+        "tab": "639369e4950c2eda",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "639369e4950c2eda",
+        "type": "ui_tab",
+        "name": "Sensors",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "0d91e7d7ccb16955",
+        "type": "ui_group",
+        "name": "SensorGraphs 2",
+        "tab": "639369e4950c2eda",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2f08879af48f9f5a",
+        "type": "ui_group",
+        "name": "SensorDataDefault",
+        "tab": "639369e4950c2eda",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "7f1b999bc1a501ff",
+        "type": "ui_group",
+        "name": "Charging",
+        "tab": "8caeb9a640e89eab",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "8c5f5dd20f527006",
+        "type": "ui_tab",
+        "name": "Bank",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "f706f2c5cf91f2cc",
+        "type": "ui_group",
+        "name": "Garbage",
+        "tab": "8c5f5dd20f527006",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "253b6b83f99b740d",
+        "type": "ui_group",
+        "name": "Bank Account",
+        "tab": "8c5f5dd20f527006",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2855f35bbc92461a",
+        "type": "ui_tab",
+        "name": "Zumo Stats",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "3161b3bda4f3cfcf",
+        "type": "ui_group",
+        "name": "Round Time",
+        "tab": "2855f35bbc92461a",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "c6760f2ec87ab7b2",
+        "type": "ui_group",
+        "name": "Zumo Stats",
+        "tab": "2855f35bbc92461a",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "55fd95437f51192e",
+        "type": "ui_group",
+        "name": "Inputs",
+        "tab": "8c5f5dd20f527006",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "10e43d408b120d7e",
+        "type": "ui_group",
+        "name": "Battery Status",
+        "tab": "8caeb9a640e89eab",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1fcca5b49ce72ce6",
+        "type": "mqtt in",
+        "z": "4199a097b4f29732",
+        "name": "",
+        "topic": "/red/sensor/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "a227e412f027d7fa"
+            ]
+        ]
+    },
+    {
+        "id": "c39625d0e6151cb8",
+        "type": "ui_chart",
+        "z": "4199a097b4f29732",
+        "name": "TemperatureChart",
+        "group": "0d91e7d7ccb16955",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "Temperature",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Awaiting data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 790,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "782f1dd6df55e833",
+        "type": "ui_chart",
+        "z": "4199a097b4f29732",
+        "name": "HumidityChart",
+        "group": "0d91e7d7ccb16955",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Humidity",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Awaiting data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 780,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "af0ec74fb96a8ab1",
+        "type": "ui_chart",
+        "z": "4199a097b4f29732",
+        "name": "PressureChart",
+        "group": "a3837794c2126b5d",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "Pressure",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Awaiting data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 780,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d85b45bb1b83fdcd",
+        "type": "ui_chart",
+        "z": "4199a097b4f29732",
+        "name": "LightChart",
+        "group": "a3837794c2126b5d",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "label": "Light",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "Awaiting data",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 770,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c5461bd900f75e94",
+        "type": "mqtt out",
+        "z": "4199a097b4f29732",
+        "name": "",
+        "topic": "/sensor/get",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 350,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "4f9d6b6efd3aa3b6",
+        "type": "ui_button",
+        "z": "4199a097b4f29732",
+        "name": "FetchSensorDataButton",
+        "group": "2f08879af48f9f5a",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Update data",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "data",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "c5461bd900f75e94"
+            ]
+        ]
+    },
+    {
+        "id": "a227e412f027d7fa",
+        "type": "function",
+        "z": "4199a097b4f29732",
+        "name": "splitFunction",
+        "func": "topic = msg.topic;\nid = parseInt(topic.replace(\"/red/sensor/\", \"\"));\nglobal.set(\"sensorID\", id);\n\nmsg.temp = msg.payload.temperature;\nmsg.humi = msg.payload.humidity;\nmsg.press = msg.payload.pressure;\nmsg.light = msg.payload.lightdata;\n\nreturn [msg];",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 80,
+        "wires": [
+            [
+                "dd5cd7f5368fd674",
+                "1c9e918e7db1e6b9",
+                "0a156f906f27f2fd",
+                "fbfdc252799f5c9a"
+            ]
+        ]
+    },
+    {
+        "id": "dd5cd7f5368fd674",
+        "type": "function",
+        "z": "4199a097b4f29732",
+        "name": "graphTemp",
+        "func": "msg.payload = msg.temp;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 80,
+        "wires": [
+            [
+                "c39625d0e6151cb8"
+            ]
+        ]
+    },
+    {
+        "id": "1c9e918e7db1e6b9",
+        "type": "function",
+        "z": "4199a097b4f29732",
+        "name": "graphHumi",
+        "func": "msg.payload = msg.humi;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 120,
+        "wires": [
+            [
+                "782f1dd6df55e833"
+            ]
+        ]
+    },
+    {
+        "id": "0a156f906f27f2fd",
+        "type": "function",
+        "z": "4199a097b4f29732",
+        "name": "graphPress",
+        "func": "msg.payload = msg.press;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 160,
+        "wires": [
+            [
+                "af0ec74fb96a8ab1"
+            ]
+        ]
+    },
+    {
+        "id": "fbfdc252799f5c9a",
+        "type": "function",
+        "z": "4199a097b4f29732",
+        "name": "graphLight",
+        "func": "msg.payload = msg.light;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 200,
+        "wires": [
+            [
+                "d85b45bb1b83fdcd",
+                "a6a83bd0787444d2"
+            ]
+        ]
+    },
+    {
+        "id": "72c1f7cf88688f37",
+        "type": "comment",
+        "z": "4199a097b4f29732",
+        "name": "Sensor Flow",
+        "info": "## Sensor flow:\nThis flow recieves data from the sensor station ESP32\nIt seperates data based on topic ID in case of more stations\n    Our project only has one station.\nThen displayes sensor ID and revieced stats in a graph.\n\nIn addition it has a button that can request data\n    Our station also updates this data ever so often\n    this is set in station code. ",
+        "x": 110,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "a6a83bd0787444d2",
+        "type": "link out",
+        "z": "4199a097b4f29732",
+        "name": "link out 1",
+        "mode": "link",
+        "links": [
+            "8e7001fe50c9608c"
+        ],
+        "x": 715,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "fe2b97fc16da88c6",
+        "type": "link in",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/in/display",
+        "links": [
+            "0e58ea2356345d11",
+            "22f6db70dde44db4",
+            "a23a8764c4c8b580",
+            "90de643424bc703a",
+            "4f175f6d929a051b",
+            "8a4d73a809f7f9c7"
+        ],
+        "x": 55,
+        "y": 80,
+        "wires": [
+            [
+                "3585b6dc09d231c9"
+            ]
+        ]
+    },
+    {
+        "id": "3585b6dc09d231c9",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "27ce5c695a648b24"
+            ]
+        ]
+    },
+    {
+        "id": "f964dc30b0d64793",
+        "type": "inject",
+        "z": "0305c0065c142a95",
+        "name": "startupInitiate(bank)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "200",
+        "payloadType": "num",
+        "x": 140,
+        "y": 120,
+        "wires": [
+            [
+                "d40f9ddfadab0279",
+                "3585b6dc09d231c9",
+                "f5e8ba4e9a8c9511"
+            ]
+        ]
+    },
+    {
+        "id": "950e5b9d33be03b6",
+        "type": "ui_button",
+        "z": "0305c0065c142a95",
+        "name": "DepositButton",
+        "group": "55fd95437f51192e",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Deposit",
+        "tooltip": "Click to deposit.",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 120,
+        "y": 260,
+        "wires": [
+            [
+                "d0585a791f1f0b0f"
+            ]
+        ]
+    },
+    {
+        "id": "539215342b7d071e",
+        "type": "change",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "deposit",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 550,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "02e2d78180368bdf",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "depositIntoAccount",
+        "func": "account = \"account\"+global.get(\"selectID\");\ndeposit = global.get(\"deposit\");\namount = msg.payload[account].amount;\n\namount += deposit;\n\nmsg.payload[account].amount = amount;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 130,
+        "y": 300,
+        "wires": [
+            [
+                "6d64f6dbc779cbba"
+            ]
+        ]
+    },
+    {
+        "id": "3826e3229157bb55",
+        "type": "file",
+        "z": "0305c0065c142a95",
+        "name": "WriteBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 500,
+        "y": 300,
+        "wires": [
+            [
+                "0e58ea2356345d11"
+            ]
+        ]
+    },
+    {
+        "id": "0e58ea2356345d11",
+        "type": "link out",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/out/deposit",
+        "mode": "link",
+        "links": [
+            "fe2b97fc16da88c6"
+        ],
+        "x": 645,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "27ce5c695a648b24",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 570,
+        "y": 80,
+        "wires": [
+            [
+                "daf09c101e018eaf"
+            ]
+        ]
+    },
+    {
+        "id": "6d64f6dbc779cbba",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 310,
+        "y": 300,
+        "wires": [
+            [
+                "3826e3229157bb55"
+            ]
+        ]
+    },
+    {
+        "id": "4b8a53c8336a0664",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 530,
+        "y": 260,
+        "wires": [
+            [
+                "02e2d78180368bdf"
+            ]
+        ]
+    },
+    {
+        "id": "d0585a791f1f0b0f",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 340,
+        "y": 260,
+        "wires": [
+            [
+                "4b8a53c8336a0664"
+            ]
+        ]
+    },
+    {
+        "id": "8df7d3385bfe12fa",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 390,
+        "y": 400,
+        "wires": [
+            [
+                "0b82cef3a8064f0b"
+            ]
+        ]
+    },
+    {
+        "id": "e88f7bd7137444e0",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 200,
+        "y": 400,
+        "wires": [
+            [
+                "8df7d3385bfe12fa"
+            ]
+        ]
+    },
+    {
+        "id": "0b82cef3a8064f0b",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "addGarbagePayment",
+        "func": "account = \"account\"+global.get(\"accountID\");\namount = msg.payload[account].amount;\n\npayment = 50;\namount += payment;\n\nmsg.payload[account].amount = amount;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 400,
+        "wires": [
+            [
+                "4b0e71ab5f030ab8"
+            ]
+        ]
+    },
+    {
+        "id": "1eeeee9a8419afce",
+        "type": "file",
+        "z": "0305c0065c142a95",
+        "name": "WriteBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 960,
+        "y": 400,
+        "wires": [
+            [
+                "a23a8764c4c8b580"
+            ]
+        ]
+    },
+    {
+        "id": "a23a8764c4c8b580",
+        "type": "link out",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/out/garbage",
+        "mode": "link",
+        "links": [
+            "fe2b97fc16da88c6"
+        ],
+        "x": 1105,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "4b0e71ab5f030ab8",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 770,
+        "y": 400,
+        "wires": [
+            [
+                "1eeeee9a8419afce"
+            ]
+        ]
+    },
+    {
+        "id": "87546172a1988bbf",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "sellSolarPower",
+        "func": "solar = msg.payload;\nconverted = solar / 1000;\npower_price = global.get(\"power_price\");\n\nsold_solar = converted * power_price;\nflow.set(\"sold_solar\", sold_solar);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 180,
+        "y": 540,
+        "wires": [
+            [
+                "f4b1b139ab25c10c"
+            ]
+        ]
+    },
+    {
+        "id": "5ee0142e4a593abe",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 590,
+        "y": 540,
+        "wires": [
+            [
+                "0b06744079c45def"
+            ]
+        ]
+    },
+    {
+        "id": "f4b1b139ab25c10c",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 400,
+        "y": 540,
+        "wires": [
+            [
+                "5ee0142e4a593abe"
+            ]
+        ]
+    },
+    {
+        "id": "0b06744079c45def",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "addSolarPayment",
+        "func": "account = \"account\"+global.get(\"sensorID\");\namount = msg.payload[account].amount;\n\nsold_solar = flow.get(\"sold_solar\");\n\namount += Math.round(sold_solar);\n\nmsg.payload[account].amount = amount;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 580,
+        "wires": [
+            [
+                "786e82553f8b0f22"
+            ]
+        ]
+    },
+    {
+        "id": "696e994c26fe3901",
+        "type": "file",
+        "z": "0305c0065c142a95",
+        "name": "WriteBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 540,
+        "y": 580,
+        "wires": [
+            [
+                "22f6db70dde44db4"
+            ]
+        ]
+    },
+    {
+        "id": "22f6db70dde44db4",
+        "type": "link out",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/out/solar",
+        "mode": "link",
+        "links": [
+            "fe2b97fc16da88c6"
+        ],
+        "x": 685,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "786e82553f8b0f22",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 350,
+        "y": 580,
+        "wires": [
+            [
+                "696e994c26fe3901"
+            ]
+        ]
+    },
+    {
+        "id": "8e7001fe50c9608c",
+        "type": "link in",
+        "z": "0305c0065c142a95",
+        "name": "link in 1",
+        "links": [
+            "a6a83bd0787444d2"
+        ],
+        "x": 55,
+        "y": 540,
+        "wires": [
+            [
+                "87546172a1988bbf"
+            ]
+        ]
+    },
+    {
+        "id": "d0995ff6725432a6",
+        "type": "comment",
+        "z": "0305c0065c142a95",
+        "name": "Core Bank Flow",
+        "info": "This flow involves initiating the display and input\non the bank tab.\n    It displays the accounts, with amount and credit\n    As well as sets the initial global despoit amount. \nIt also includes a drop-down menu where you can choose\nwhich account to deposit to.\n\nNote: All prices are placeholders as this is a model and\n    the values set are only for testing.\n    In a real product these would be received from a \n    proper source. \n    \nThe amounts are stores on a json file on the server",
+        "x": 120,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "e544240d0f8f6b27",
+        "type": "comment",
+        "z": "0305c0065c142a95",
+        "name": "Garbage Payment Flow",
+        "info": "This flow handles payment for garbage dumped.\nIt receives an amount dumped from the zumo, then saves that\namount and the id for later use.\nThen it reads existing value for the relevant IDs account and adds payment (currently 10 NOK per garbage dumped), then writes the new value and updates Core Bank Flow",
+        "x": 140,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "e127ec6f98c66689",
+        "type": "comment",
+        "z": "0305c0065c142a95",
+        "name": "Solar Payment Flow",
+        "info": "This flow handles payment for selling solar power.\nAs the solar panel is a photoresistor will values be highly\ndifferent from a real scenario, but for the principle is\nthat the data reported is either kWh generated, or converted \nto kWh generated. \nThe amount is paid to the account with same ID as sensor\n    In our case this is 1\n    This is because initally the idea is for these solar\n    panels to be on the zumo, but this was impractical for\n    the model, but likely possible for a real product.",
+        "x": 130,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "d40f9ddfadab0279",
+        "type": "change",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "selectID",
+                "pt": "global",
+                "to": "1",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "daf09c101e018eaf",
+        "type": "ui_template",
+        "z": "0305c0065c142a95",
+        "group": "253b6b83f99b740d",
+        "name": "DisplayAccountInformation",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "<h2>Account 1:</h2>\n    <div>Amount {{msg.payload.account1.amount}}</div>\n    <div>Credit {{msg.payload.account1.credit}}</div>\n<h2>Account 2:</h2>\n    <div>Amount {{msg.payload.account2.amount}}</div>\n    <div>Credit {{msg.payload.account2.credit}}</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 780,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ea0bcbbea06a04d7",
+        "type": "comment",
+        "z": "0305c0065c142a95",
+        "name": "Deposit Flow",
+        "info": "This flow handles depositing an amount into an account\nIt reads the existing value, the deposit global and writes\nthe new value to the file, then updates the Core Bank Flow",
+        "x": 110,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "b8904e0a13341260",
+        "type": "ui_dropdown",
+        "z": "0305c0065c142a95",
+        "name": "choose(selectID)",
+        "label": "Select account:",
+        "tooltip": "Select account to deposit in",
+        "place": "Select option",
+        "group": "55fd95437f51192e",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "multiple": false,
+        "options": [
+            {
+                "label": "Account 1",
+                "value": 1,
+                "type": "num"
+            },
+            {
+                "label": "Account 2",
+                "value": 2,
+                "type": "num"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "x": 610,
+        "y": 160,
+        "wires": [
+            [
+                "49191d5b755e33e9"
+            ]
+        ]
+    },
+    {
+        "id": "49191d5b755e33e9",
+        "type": "change",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "selectID",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 830,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8d2ec79203c5065d",
+        "type": "comment",
+        "z": "0305c0065c142a95",
+        "name": "Charge Station Payment Flow",
+        "info": "These flows handles processing of cost from charging station.\nOne receives the order cost and subtracts it from the account\nThe other receives the credit and adds that to the account\nAll costs and credit is rounded to avoid long numbers, this\nwould of course be handled better in a real enviroment.",
+        "x": 160,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "71ad29a261426488",
+        "type": "mqtt in",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "topic": "/bank/payment/cost",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 680,
+        "wires": [
+            [
+                "4ffc0d11815c284b"
+            ]
+        ]
+    },
+    {
+        "id": "4ffc0d11815c284b",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "setCostContext",
+        "func": "id = global.get(\"maintenanceID\");\namount = msg.payload;\nr_amount = Math.round(amount);\n\nflow.set(\"order_cost\", r_amount);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 680,
+        "wires": [
+            [
+                "17740ec7f8a3fce9"
+            ]
+        ]
+    },
+    {
+        "id": "e24fd23e8efcc587",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 750,
+        "y": 680,
+        "wires": [
+            [
+                "d8c86a46d379bdec"
+            ]
+        ]
+    },
+    {
+        "id": "17740ec7f8a3fce9",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 560,
+        "y": 680,
+        "wires": [
+            [
+                "e24fd23e8efcc587"
+            ]
+        ]
+    },
+    {
+        "id": "d8c86a46d379bdec",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "subtractCost",
+        "func": "account = \"account\"+global.get(\"maintenanceID\");\naccount_value = msg.payload[account].amount;\n\naccount_value -= flow.get(\"order_cost\");\n\nmsg.payload[account].amount = account_value;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 720,
+        "wires": [
+            [
+                "9f24cc2eb46a6097"
+            ]
+        ]
+    },
+    {
+        "id": "7bab3c92c5266dd9",
+        "type": "file",
+        "z": "0305c0065c142a95",
+        "name": "WriteBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 700,
+        "y": 720,
+        "wires": [
+            [
+                "90de643424bc703a"
+            ]
+        ]
+    },
+    {
+        "id": "90de643424bc703a",
+        "type": "link out",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/out/payment",
+        "mode": "link",
+        "links": [
+            "fe2b97fc16da88c6"
+        ],
+        "x": 845,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "9f24cc2eb46a6097",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 510,
+        "y": 720,
+        "wires": [
+            [
+                "7bab3c92c5266dd9"
+            ]
+        ]
+    },
+    {
+        "id": "4db4e6dfd4e86ed2",
+        "type": "mqtt in",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "topic": "/bank/payment/credit",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 800,
+        "wires": [
+            [
+                "5543d04629f74c29"
+            ]
+        ]
+    },
+    {
+        "id": "5543d04629f74c29",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "setCreditContext",
+        "func": "id = global.get(\"maintenanceID\");\namount = msg.payload;\nr_amount = Math.round(amount);\n\nflow.set(\"credit\", r_amount);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 800,
+        "wires": [
+            [
+                "bbed0158686bbdd0"
+            ]
+        ]
+    },
+    {
+        "id": "1e54ef539f5cf54a",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 770,
+        "y": 800,
+        "wires": [
+            [
+                "76d518f0b9eeb8bd"
+            ]
+        ]
+    },
+    {
+        "id": "bbed0158686bbdd0",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 580,
+        "y": 800,
+        "wires": [
+            [
+                "1e54ef539f5cf54a"
+            ]
+        ]
+    },
+    {
+        "id": "76d518f0b9eeb8bd",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "addCredit",
+        "func": "account = \"account\"+global.get(\"maintenanceID\");\naccount_value = msg.payload[account].credit;\n\naccount_value += flow.get(\"credit\");\n\nmsg.payload[account].credit = account_value;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 840,
+        "wires": [
+            [
+                "96b0bcee7baec9d5"
+            ]
+        ]
+    },
+    {
+        "id": "0deb067cf6803623",
+        "type": "file",
+        "z": "0305c0065c142a95",
+        "name": "WriteBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 680,
+        "y": 840,
+        "wires": [
+            [
+                "4f175f6d929a051b"
+            ]
+        ]
+    },
+    {
+        "id": "96b0bcee7baec9d5",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 490,
+        "y": 840,
+        "wires": [
+            [
+                "0deb067cf6803623"
+            ]
+        ]
+    },
+    {
+        "id": "4f175f6d929a051b",
+        "type": "link out",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/out/credit",
+        "mode": "link",
+        "links": [
+            "fe2b97fc16da88c6"
+        ],
+        "x": 835,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "e76e043f8b1df883",
+        "type": "comment",
+        "z": "0305c0065c142a95",
+        "name": "Credit Flow",
+        "info": "This flow handles payment of credit through node red.\nUser selects amount in the depost amount input and that amount\nis subtracted from account and credit.\nIt handles most scenarios, for example:\n    If deposit is more than account, it deposits as much as\n    it can afford.\n    If deposit is more than credit, it only takes the correct\n    amount",
+        "x": 110,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "f5e8ba4e9a8c9511",
+        "type": "ui_text_input",
+        "z": "0305c0065c142a95",
+        "name": "set(deposit)",
+        "label": "Amount:",
+        "tooltip": "Amount to deposit or pay off credit.",
+        "group": "55fd95437f51192e",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "number",
+        "delay": 300,
+        "topic": "topic",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "msg",
+        "x": 350,
+        "y": 120,
+        "wires": [
+            [
+                "539215342b7d071e"
+            ]
+        ]
+    },
+    {
+        "id": "65c79693828b4e6b",
+        "type": "ui_button",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "group": "55fd95437f51192e",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Pay credit",
+        "tooltip": "Pay off set amount of credit",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 100,
+        "y": 940,
+        "wires": [
+            [
+                "fb270a2f0ca5e1a3"
+            ]
+        ]
+    },
+    {
+        "id": "8deb92d075b12f7e",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 490,
+        "y": 940,
+        "wires": [
+            [
+                "356d3a1f53136f15"
+            ]
+        ]
+    },
+    {
+        "id": "fb270a2f0ca5e1a3",
+        "type": "file in",
+        "z": "0305c0065c142a95",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 300,
+        "y": 940,
+        "wires": [
+            [
+                "8deb92d075b12f7e"
+            ]
+        ]
+    },
+    {
+        "id": "356d3a1f53136f15",
+        "type": "function",
+        "z": "0305c0065c142a95",
+        "name": "payCredit",
+        "func": "account = \"account\" + global.get(\"selectID\");\namount = msg.payload[account].amount;\ncredit = msg.payload[account].credit;\ndeposit = global.get(\"deposit\");\n\nif((amount-deposit)<0){\n    deposit = amount;\n}\n\nif((credit-deposit)>0){\n    amount -= deposit;\n    credit -= deposit;\n} else {\n    leftover = deposit-credit;\n    l_deposit = deposit - leftover;\n    amount -= l_deposit;\n    credit -= l_deposit;\n}\n\nmsg.payload[account].amount = amount;\nmsg.payload[account].credit = credit;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 940,
+        "wires": [
+            [
+                "50018733c960a3cc"
+            ]
+        ]
+    },
+    {
+        "id": "c33abe5fa7a180c8",
+        "type": "file",
+        "z": "0305c0065c142a95",
+        "name": "WriteBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 480,
+        "y": 980,
+        "wires": [
+            [
+                "8a4d73a809f7f9c7"
+            ]
+        ]
+    },
+    {
+        "id": "50018733c960a3cc",
+        "type": "json",
+        "z": "0305c0065c142a95",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 290,
+        "y": 980,
+        "wires": [
+            [
+                "c33abe5fa7a180c8"
+            ]
+        ]
+    },
+    {
+        "id": "8a4d73a809f7f9c7",
+        "type": "link out",
+        "z": "0305c0065c142a95",
+        "name": "/bank/update/out/credit",
+        "mode": "link",
+        "links": [
+            "fe2b97fc16da88c6"
+        ],
+        "x": 635,
+        "y": 980,
+        "wires": []
+    },
+    {
+        "id": "3d1a44ffc0d40bd5",
+        "type": "link in",
+        "z": "0305c0065c142a95",
+        "name": "/garbage/payment",
+        "links": [
+            "df94df31a0cca8ac"
+        ],
+        "x": 55,
+        "y": 400,
+        "wires": [
+            [
+                "e88f7bd7137444e0"
+            ]
+        ]
+    },
+    {
+        "id": "fad56ae567c9331c",
+        "type": "ui_slider",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "set(desired).as(%)",
+        "label": "Set desired charge level:",
+        "tooltip": "How much the charging station should charge the battery percentage",
+        "group": "7f1b999bc1a501ff",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "min": "20",
+        "max": "100",
+        "step": 1,
+        "className": "",
+        "x": 350,
+        "y": 280,
+        "wires": [
+            [
+                "582aa640e0476683"
+            ]
+        ]
+    },
+    {
+        "id": "90e1ac1d0f5e4989",
+        "type": "comment",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "Battery Display Flow",
+        "info": "This flow handles updates of the battery.\nThe reported input is also send to the Stats tab with \nthe Speed Display Flow\nIt recieves the reported data, either from zumo or chargning\nstation, then updates the display and sets them global\nso other functions can send them.\nIt also handles reported ID to seperate between zumos.\n\nNote: Thie display is split in two because it was quicker\nand simpler for displaying in a readable way. In a real\nproduct all the displays would have proper html and CSS\nbut this is not deemed relevant for the project to spend time\non this over other functions. ",
+        "x": 130,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "c29e931e05c22864",
+        "type": "mqtt out",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "topic": "/maintenance/order/desired/out",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 870,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "2bf6c01c601fdffd",
+        "type": "mqtt in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "topic": "/red/report/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "a3b9cf95b0de5bb0"
+            ]
+        ]
+    },
+    {
+        "id": "6fcd921f4adb920d",
+        "type": "comment",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "Charge Station Inputs Flow",
+        "info": "This flow initiates the desired charge as 100%\nand creates an input slider for selecting desired amount\nThis is in percentage then converted to 0-255. In a real\nproduct this would instead scale to the true battery capacity.\nIt also handles an request call from the charger once it\nbecomes online.",
+        "x": 150,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "360f367766a9eb9a",
+        "type": "link out",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "/red/report/speed",
+        "mode": "link",
+        "links": [
+            "c76b47be6fa4017b"
+        ],
+        "x": 425,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "2a4b438751aa30b3",
+        "type": "comment",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "Charge Request Flow",
+        "info": "This flow handles a charge request from a zumo.\nIt saves the ID as a global, then sends the data relevant to\nthis ID to the charger, which uses it.\n    The delay before the ID is to ensure the ID is sent last\n    as this activates the charge process on the station. \n    There is also an input that turns on and off auto mode, so\n    the charge can be initiated manually on the charger\n    and battery can be changed.\n    (auto mode automatically selects charging)",
+        "x": 140,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "1a794ad5bdaeedc2",
+        "type": "mqtt in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "topic": "/red/charge/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 420,
+        "wires": [
+            [
+                "a94cf80c397da441"
+            ]
+        ]
+    },
+    {
+        "id": "582aa640e0476683",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "convertTo(batt_status)",
+        "func": "function convertRange(value, r1, r2){\n    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];\n}\n\nbatt_percent = msg.payload;\nbatt_status = convertRange(batt_percent, [0,100], [0,255]);\nbatt_status = Math.round(batt_status);\nmsg.payload = batt_status;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 280,
+        "wires": [
+            [
+                "c29e931e05c22864",
+                "917653ab743fe527"
+            ]
+        ]
+    },
+    {
+        "id": "b2d533882656a748",
+        "type": "inject",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "startupSet(100%)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "100",
+        "payloadType": "num",
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "fad56ae567c9331c"
+            ]
+        ]
+    },
+    {
+        "id": "a94cf80c397da441",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "setID",
+        "func": "topic = msg.topic;\nid = parseInt(topic.replace(\"/red/charge/\", \"\"));\nglobal.set(\"maintenanceID\", id);\n\nc_cyc = msg.payload.charge_cycles\nzumo = \"zumo\" + id;\nid_c_cyc = zumo + c_cyc;\nglobal.set(id_c_cyc, c_cyc)\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 420,
+        "wires": [
+            [
+                "0d0e94f2c40bc176",
+                "fa01d7987c768822",
+                "8d9730b72e9c3de1",
+                "89c862eea7c98db5"
+            ]
+        ]
+    },
+    {
+        "id": "c7f07bb0a1f6fb3d",
+        "type": "ui_template",
+        "z": "bcb4b6c06c0a9fe9",
+        "group": "10e43d408b120d7e",
+        "name": "Battery Display Zumo 1",
+        "order": 2,
+        "width": "4",
+        "height": "2",
+        "format": "\n    <h3>Zumo 1:</h3>\n        <div>{{msg.payload.zumo1.batt_status}}</div>\n        <div>{{msg.payload.zumo1.batt_health}}</div>\n        <div>{{msg.payload.zumo1.charge_cycles}}</div>\n\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 710,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a3b9cf95b0de5bb0",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "setID",
+        "func": "topic = msg.topic;\nid = parseInt(topic.replace(\"/red/report/\", \"\"));\nglobal.set(\"reportID\", id);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 80,
+        "wires": [
+            [
+                "360f367766a9eb9a",
+                "c6b19f8cc515508f"
+            ]
+        ]
+    },
+    {
+        "id": "c6b19f8cc515508f",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "process(report)",
+        "func": "id = global.get(\"reportID\");\nzumo = \"zumo\" + id;\n\nbatt_status = msg.payload.batt_status;\nbatt_health = msg.payload.batt_health\n\nid_batt_status = zumo + \"batt_status\";\nid_batt_health = zumo + \"batt_health\";\nid_c_cyc = zumo + \"c_cyc\";\n\nglobal.set(id_batt_status, batt_status);\nglobal.set(id_batt_health, batt_health);\nc_cyc = global.get(id_c_cyc)\n\nobj_acc = {\n    \"zumo1\":{\"batt_status\": \"\", \"batt_health\":\"\", \"charge_cycles\": \"\"},\n    \"zumo2\":{\"batt_status\": \"\", \"batt_health\":\"\", \"charge_cycles\": \"\",}\n};\n\nfunction convertRange(value, r1, r2){\n    return ( value - r1[ 0 ] ) * ( r2[ 1 ] - r2[ 0 ] ) / ( r1[ 1 ] - r1[ 0 ] ) + r2[ 0 ];\n}\n\n\nbatt_percent = convertRange(batt_status, [0,255], [0,100]);\nobj_acc[zumo].batt_status = \"Battery percentage: \" + Math.round(batt_percent) + \"%\";\n\nif(batt_health >= 127){\n    health_status = \"OK\";\n} else if (batt_health >= 27){\n    health_status = \"POOR\";\n} else {\n    health_status = \"CRITICAL\";\n}\nobj_acc[zumo].batt_health = \"Battery status: \" + health_status;\n\nobj_acc[zumo].charge_cycles = \"Times charged: \" + c_cyc;\n\nObject.keys(obj_acc).forEach((key) => (key==zumo) || delete obj_acc[key]);\n\nif(zumo == \"zumo1\"){\n    msg.payload = obj_acc;\n    return [msg, null]\n} else if (zumo == \"zumo2\"){\n    msg.payload = obj_acc;\n    return [null, msg]\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 80,
+        "wires": [
+            [
+                "c7f07bb0a1f6fb3d"
+            ],
+            [
+                "fe8273bdfddfb0e2"
+            ]
+        ],
+        "outputLabels": [
+            "msg.payload.zumo1",
+            "msg.payload.zumo2"
+        ]
+    },
+    {
+        "id": "fe8273bdfddfb0e2",
+        "type": "ui_template",
+        "z": "bcb4b6c06c0a9fe9",
+        "group": "10e43d408b120d7e",
+        "name": "Battery Display Zumo 2",
+        "order": 2,
+        "width": "4",
+        "height": "2",
+        "format": "    <h3>Zumo 2:</h3>\n        <div>{{msg.payload.zumo2.batt_status}}</div>\n        <div>{{msg.payload.zumo2.batt_health}}</div>\n        <div>{{msg.payload.zumo2.charge_cycles}}</div>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 710,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "0efd63e6ba76dfb2",
+        "type": "json",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 690,
+        "y": 420,
+        "wires": [
+            [
+                "6fc1dffb2a99faaa"
+            ]
+        ]
+    },
+    {
+        "id": "0d0e94f2c40bc176",
+        "type": "file in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "ReadBankAccountFile",
+        "filename": "/home/pi/datatek/bank_account.txt",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 500,
+        "y": 420,
+        "wires": [
+            [
+                "0efd63e6ba76dfb2"
+            ]
+        ]
+    },
+    {
+        "id": "6fc1dffb2a99faaa",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "send(amount)",
+        "func": "account = \"account\"+global.get(\"maintenanceID\");\n\nmsg.topic = \"/charger/order/account\";\namount = msg.payload[account].amount;\n\nmsg.payload = amount;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 420,
+        "wires": [
+            [
+                "9be9484e7d9d8a7b"
+            ]
+        ]
+    },
+    {
+        "id": "9be9484e7d9d8a7b",
+        "type": "mqtt out",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "/charger/order/#",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 860,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "fa01d7987c768822",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "send(batt_status)",
+        "func": "msg.topic = \"/charger/order/b_level\"\n\nbatt_status = msg.payload.batt_status\n\nmsg.payload = batt_status;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 460,
+        "wires": [
+            [
+                "9be9484e7d9d8a7b"
+            ]
+        ]
+    },
+    {
+        "id": "8d9730b72e9c3de1",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "send(batt_health)",
+        "func": "msg.topic = \"/charger/order/health\";\n\nbatt_health = msg.payload.batt_health;\n\nmsg.payload = batt_health;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 500,
+        "wires": [
+            [
+                "9be9484e7d9d8a7b"
+            ]
+        ]
+    },
+    {
+        "id": "89c862eea7c98db5",
+        "type": "delay",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 470,
+        "y": 540,
+        "wires": [
+            [
+                "938f7f03eaf31e66"
+            ]
+        ]
+    },
+    {
+        "id": "938f7f03eaf31e66",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "send(id)",
+        "func": "msg.topic = \"/charger/order/begin\";\nmsg.payload = global.get(\"maintenanceID\");\n    \nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 540,
+        "wires": [
+            [
+                "9be9484e7d9d8a7b"
+            ]
+        ]
+    },
+    {
+        "id": "e1011e44ef3da30f",
+        "type": "mqtt in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "topic": "/bank/payment/order",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 720,
+        "wires": [
+            [
+                "3832fe42412feeec"
+            ]
+        ]
+    },
+    {
+        "id": "e3d8a7925fe7fd4e",
+        "type": "ui_switch",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "label": "Auto Mode",
+        "tooltip": "Let zumo initiate charge without Node-Red Input",
+        "group": "7f1b999bc1a501ff",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 470,
+        "y": 580,
+        "wires": [
+            [
+                "2e216fc91a091995"
+            ]
+        ]
+    },
+    {
+        "id": "2e216fc91a091995",
+        "type": "change",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "auto_mode",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 680,
+        "y": 580,
+        "wires": [
+            [
+                "1586404150d615f8"
+            ]
+        ]
+    },
+    {
+        "id": "21cb1e7ec8c207e3",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "postProcess(order)",
+        "func": "id = global.get(\"maintenanceID\");\n\ntopic = \"/devicemw/charge/\" + id;\nmsg.topic = topic;\n\nid_batt_status = \"zumo\" + id + \"batt_status\";\nid_batt_health = \"zumo\" + id + \"batt_health\";\nid_c_cyc = \"zumo\" + id + \"c_cyc\";\n\nc_cyc = global.get(id_c_cyc);\norder_type = msg.payload;\ndesired_charge = global.get(\"desired\");\n\nif(isNaN(c_cyc)){\n    c_cyc = 1;\n} else {\n    c_cyc += 1;\n}\n\nglobal.set(id_c_cyc, c_cyc);\nif(order_type == 1){\n    msg.payload = {\n        \"batt_status\": global.get(id_batt_status), \n        \"batt_health\": global.get(id_batt_health),\n        \"charge_cycles\": 1\n    }\n    return msg;\n} else if (order_type == 2) {\n    msg.payload = {\n        \"batt_status\": 255, \n        \"batt_health\": 255,\n        \"charge_cycles\": 0\n    }\n    return msg;\n} ",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 720,
+        "wires": [
+            [
+                "3579671c2e2c795e",
+                "b9ce2704e254aae1"
+            ]
+        ]
+    },
+    {
+        "id": "3579671c2e2c795e",
+        "type": "link out",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "/maintenance/finalize",
+        "mode": "link",
+        "links": [
+            "a4011bd2cc8cfe1b"
+        ],
+        "x": 505,
+        "y": 760,
+        "wires": []
+    },
+    {
+        "id": "a4011bd2cc8cfe1b",
+        "type": "link in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "/maintenance/finalize/report",
+        "links": [
+            "3579671c2e2c795e"
+        ],
+        "x": 335,
+        "y": 40,
+        "wires": [
+            [
+                "c6b19f8cc515508f"
+            ]
+        ]
+    },
+    {
+        "id": "095ab08246572595",
+        "type": "comment",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "Finalize Order Flow",
+        "info": "This flow recieves the order type from the charge station\nthen gathers relevant information and proceedes to flows\nthat displays data, and sends updated relevant data to zumo. ",
+        "x": 130,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "d7078d7efa2f7fa6",
+        "type": "link in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "/charger/update/desired",
+        "links": [
+            "922fbb61967af156"
+        ],
+        "x": 425,
+        "y": 320,
+        "wires": [
+            [
+                "230c34164c73f719"
+            ]
+        ]
+    },
+    {
+        "id": "230c34164c73f719",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "send(desired)",
+        "func": "batt_status = global.get(\"desired\");\nmsg.payload = batt_status;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 320,
+        "wires": [
+            [
+                "c29e931e05c22864"
+            ]
+        ]
+    },
+    {
+        "id": "b9ce2704e254aae1",
+        "type": "mqtt out",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "/devicemw/charge/#",
+        "topic": "",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 640,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "1586404150d615f8",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "send(auto_mode)",
+        "func": "auto = global.get(\"auto_mode\");\nmsg.payload = auto;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
+        "y": 540,
+        "wires": [
+            [
+                "d52c3668ce11602d"
+            ]
+        ]
+    },
+    {
+        "id": "745abfaaca3d986f",
+        "type": "link in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "link in 2",
+        "links": [
+            "922fbb61967af156"
+        ],
+        "x": 765,
+        "y": 540,
+        "wires": [
+            [
+                "1586404150d615f8"
+            ]
+        ]
+    },
+    {
+        "id": "d52c3668ce11602d",
+        "type": "mqtt out",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "topic": "/charger/order/mode",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 940,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "a3aec740fb438a4c",
+        "type": "mqtt in",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "topic": "/charger/charge/finish",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 140,
+        "y": 660,
+        "wires": [
+            [
+                "f9c1ca166941e2da"
+            ]
+        ]
+    },
+    {
+        "id": "917653ab743fe527",
+        "type": "change",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "desired",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 830,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3832fe42412feeec",
+        "type": "delay",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 240,
+        "y": 760,
+        "wires": [
+            [
+                "21cb1e7ec8c207e3"
+            ]
+        ]
+    },
+    {
+        "id": "f9c1ca166941e2da",
+        "type": "function",
+        "z": "bcb4b6c06c0a9fe9",
+        "name": "set(batt_status)",
+        "func": "id = global.get(\"maintenanceID\");\nbatt_status = msg.payload;\nid_batt_status = \"zumo\" + id + \"batt_status\";\nglobal.set(id_batt_status, batt_status)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b758d0a9c85640e8",
+        "type": "inject",
+        "z": "866e7880b7c995bc",
+        "name": "updateClock(10s)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 440,
+        "wires": [
+            [
+                "6641b45ea015c197"
+            ]
+        ]
+    },
+    {
+        "id": "d8e533beb3021efa",
+        "type": "function",
+        "z": "866e7880b7c995bc",
+        "name": "randomize(garbage) & send(address)",
+        "func": "garbage_array = msg.payload;\n\naddress = Math.floor(Math.random()*2);\nfilled = Math.random() < 0.5;\n\nif(filled){\n    garbage_array[address] = 1;\n    msg.payload = {address};\n    return msg;\n}\n\nglobal.set(\"garbage_array\", garbage_array);",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 440,
+        "wires": [
+            [
+                "608cd84273544900",
+                "79572ce9a7f28dcd"
+            ]
+        ]
+    },
+    {
+        "id": "088c61baf2c69222",
+        "type": "inject",
+        "z": "866e7880b7c995bc",
+        "name": "startupInitiate(garbage)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 150,
+        "y": 400,
+        "wires": [
+            [
+                "33dda99d0827b967"
+            ]
+        ]
+    },
+    {
+        "id": "ed7aca49e1240ffd",
+        "type": "change",
+        "z": "866e7880b7c995bc",
+        "name": "get global.garbage_array",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "garbage_array",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 230,
+        "y": 360,
+        "wires": [
+            [
+                "5fc44c6a375fcce5"
+            ]
+        ]
+    },
+    {
+        "id": "6641b45ea015c197",
+        "type": "change",
+        "z": "866e7880b7c995bc",
+        "name": "get global.garbage_array",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "garbage_array",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 440,
+        "wires": [
+            [
+                "d8e533beb3021efa"
+            ]
+        ]
+    },
+    {
+        "id": "49c868bf8f4ddcbb",
+        "type": "link in",
+        "z": "866e7880b7c995bc",
+        "name": "GarbageUpdateIN1",
+        "links": [
+            "3645e82c77029ed2",
+            "608cd84273544900",
+            "df94df31a0cca8ac"
+        ],
+        "x": 55,
+        "y": 360,
+        "wires": [
+            [
+                "ed7aca49e1240ffd"
+            ]
+        ]
+    },
+    {
+        "id": "3645e82c77029ed2",
+        "type": "link out",
+        "z": "866e7880b7c995bc",
+        "name": "GarbageUpdateOUT1",
+        "mode": "link",
+        "links": [
+            "49c868bf8f4ddcbb"
+        ],
+        "x": 785,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "608cd84273544900",
+        "type": "link out",
+        "z": "866e7880b7c995bc",
+        "name": "GarbageUpdateOUT2",
+        "mode": "link",
+        "links": [
+            "49c868bf8f4ddcbb"
+        ],
+        "x": 875,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "7eff1788077f9462",
+        "type": "mqtt in",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "topic": "/red/trash/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 110,
+        "y": 480,
+        "wires": [
+            [
+                "959cb195f9c1d829"
+            ]
+        ]
+    },
+    {
+        "id": "df94df31a0cca8ac",
+        "type": "link out",
+        "z": "866e7880b7c995bc",
+        "name": "/garbage/update/zumo",
+        "mode": "link",
+        "links": [
+            "3d1a44ffc0d40bd5",
+            "49c868bf8f4ddcbb"
+        ],
+        "x": 425,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "79572ce9a7f28dcd",
+        "type": "mqtt out",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "topic": "/devicemw/trash",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 940,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "b7b7186c4286d601",
+        "type": "mqtt out",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "topic": "/maintenance/price/power",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 830,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "3485545ea235f6d0",
+        "type": "random",
+        "z": "866e7880b7c995bc",
+        "name": "power_price = [50 -> 150]",
+        "low": "50",
+        "high": "150",
+        "inte": "true",
+        "property": "payload",
+        "x": 370,
+        "y": 80,
+        "wires": [
+            [
+                "02ffc473a5616e4f"
+            ]
+        ]
+    },
+    {
+        "id": "2327bf82ed46ba46",
+        "type": "ui_text",
+        "z": "866e7880b7c995bc",
+        "group": "f94361665139a4c7",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "display(power_price)",
+        "label": "Current Power Price: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "className": "",
+        "x": 820,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "2709f26c3f0b9ab5",
+        "type": "ui_chart",
+        "z": "866e7880b7c995bc",
+        "name": "graph(power_price)",
+        "group": "f94361665139a4c7",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "Power price over time:",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "awaiting data.",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 810,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1f58b06aa60be1b3",
+        "type": "inject",
+        "z": "866e7880b7c995bc",
+        "name": "updateClock(30s)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "30",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "3485545ea235f6d0"
+            ]
+        ]
+    },
+    {
+        "id": "02ffc473a5616e4f",
+        "type": "function",
+        "z": "866e7880b7c995bc",
+        "name": "convertToNOK",
+        "func": "price = Math.round(msg.payload);\npriceInKr = price / 100;\nmsg.payload = priceInKr;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 80,
+        "wires": [
+            [
+                "2327bf82ed46ba46",
+                "b7b7186c4286d601",
+                "9ee34d33637b5367",
+                "2709f26c3f0b9ab5"
+            ]
+        ]
+    },
+    {
+        "id": "9ee34d33637b5367",
+        "type": "change",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "power_price",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "91b7ce9dca0f07a8",
+        "type": "comment",
+        "z": "866e7880b7c995bc",
+        "name": "Charge Price Generation",
+        "info": "This flow generates prices for battery and power.\nIt is a random number between:\n50-150 for power, converted to NOK later, every 30s\n255-610 for battery, every 90s",
+        "x": 150,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "6eb840dc6d1b49fc",
+        "type": "comment",
+        "z": "866e7880b7c995bc",
+        "name": "Garbage Generation",
+        "info": "This flow handles updating the status of garbage\nAt the start of the program, it assumes all adresses are \nempty, and every 10 seconds it randomly choses an adress, then\nrandomizes the chance that it gets filled.\nIf it succeedes, does it send the adress to the zumo.\nWhen the zumo picks up garbage it sends the adress which is\nthen updated.\nAll adresses is shown on on the bank tab.",
+        "x": 130,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "83d41bfa6fd777a3",
+        "type": "mqtt in",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "topic": "/maintenance/price/in",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 360,
+        "y": 160,
+        "wires": [
+            [
+                "4a40064af19c945f",
+                "922fbb61967af156",
+                "cc52b676060d425b"
+            ]
+        ]
+    },
+    {
+        "id": "4a40064af19c945f",
+        "type": "function",
+        "z": "866e7880b7c995bc",
+        "name": "send(power_price)",
+        "func": "msg.payload = global.get(\"power_price\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 160,
+        "wires": [
+            [
+                "b7b7186c4286d601"
+            ]
+        ]
+    },
+    {
+        "id": "922fbb61967af156",
+        "type": "link out",
+        "z": "866e7880b7c995bc",
+        "name": "/charger/update/request",
+        "mode": "link",
+        "links": [
+            "d7078d7efa2f7fa6",
+            "745abfaaca3d986f"
+        ],
+        "x": 515,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "959cb195f9c1d829",
+        "type": "function",
+        "z": "866e7880b7c995bc",
+        "name": "set(collected)",
+        "func": "topic = msg.topic;\nid = parseInt(topic.replace(\"/red/trash/\", \"\"));\nglobal.set(\"accountID\", id);\n\naddress = msg.payload.address;\ngarbage_array = global.get(\"garbage_array\");\n\ngarbage_array[address] = 0;\nglobal.get(\"garbage_array\", garbage_array);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 480,
+        "wires": [
+            [
+                "df94df31a0cca8ac"
+            ]
+        ]
+    },
+    {
+        "id": "5fc44c6a375fcce5",
+        "type": "ui_template",
+        "z": "866e7880b7c995bc",
+        "group": "f706f2c5cf91f2cc",
+        "name": "display(garbage)",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div>Address 1: {{msg.payload[0]}}</div>\n<div>Address 2: {{msg.payload[1]}}</div>\n<div>Address 3: {{msg.payload[2]}}</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 470,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2e3508b6d2249d4b",
+        "type": "change",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "garbage_array",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 630,
+        "y": 400,
+        "wires": [
+            [
+                "3645e82c77029ed2"
+            ]
+        ]
+    },
+    {
+        "id": "33dda99d0827b967",
+        "type": "function",
+        "z": "866e7880b7c995bc",
+        "name": "set(garbage_array)",
+        "func": "msg.payload = [0,0,0]\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 400,
+        "wires": [
+            [
+                "2e3508b6d2249d4b"
+            ]
+        ]
+    },
+    {
+        "id": "658b52bcdfb4eede",
+        "type": "inject",
+        "z": "866e7880b7c995bc",
+        "name": "updateClock(90s)",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "90",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "126fec9c2294d85d"
+            ]
+        ]
+    },
+    {
+        "id": "126fec9c2294d85d",
+        "type": "random",
+        "z": "866e7880b7c995bc",
+        "name": "batt_price = [255 -> 610]",
+        "low": "255",
+        "high": "610",
+        "inte": "true",
+        "property": "payload",
+        "x": 370,
+        "y": 280,
+        "wires": [
+            [
+                "93dd9ea1371c40e6",
+                "6b429f3fc9053679",
+                "bf103d0a209d11a2"
+            ]
+        ]
+    },
+    {
+        "id": "93dd9ea1371c40e6",
+        "type": "change",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "batt_price",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 820,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf103d0a209d11a2",
+        "type": "mqtt out",
+        "z": "866e7880b7c995bc",
+        "name": "",
+        "topic": "/maintenance/price/batt",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 830,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "6b429f3fc9053679",
+        "type": "ui_text",
+        "z": "866e7880b7c995bc",
+        "group": "f94361665139a4c7",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "display(batt_price)",
+        "label": "Current Battery Price:",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "className": "",
+        "x": 810,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "cc52b676060d425b",
+        "type": "function",
+        "z": "866e7880b7c995bc",
+        "name": "send(batt_price)",
+        "func": "msg.payload = global.get(\"batt_price\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 240,
+        "wires": [
+            [
+                "bf103d0a209d11a2"
+            ]
+        ]
+    },
+    {
+        "id": "d075f26763484bec",
+        "type": "comment",
+        "z": "5054b2dbb5d28496",
+        "name": "Breaker Display ",
+        "info": "This flow as supposed to display the race mode.\nIt was supposed to be hooked up to a breaker beam that\nsends the time in millis between when the Zumo passes\nand remembers the best time\nAs the breaker beam function was not completed\nis this display useless outside of visualizing work and\nposibility for future implementation. ",
+        "x": 120,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "3a28bc0a97c499fa",
+        "type": "ui_switch",
+        "z": "5054b2dbb5d28496",
+        "name": "BreakerBeamSlider",
+        "label": "Breaker Beam",
+        "tooltip": "Activates IR breaker beam when set up.",
+        "group": "3161b3bda4f3cfcf",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": false,
+        "className": "",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "57a88647a881efdd"
+            ]
+        ]
+    },
+    {
+        "id": "57a88647a881efdd",
+        "type": "mqtt out",
+        "z": "5054b2dbb5d28496",
+        "name": "",
+        "topic": "/breaker/out",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "227287dae7ec6be2",
+        "x": 330,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "5c1878388f63f83e",
+        "type": "mqtt in",
+        "z": "5054b2dbb5d28496",
+        "name": "",
+        "topic": "/breaker/in",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "227287dae7ec6be2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 100,
+        "y": 160,
+        "wires": [
+            [
+                "dfd4cd89ba9e14ca",
+                "a9e19cebd154c404"
+            ]
+        ]
+    },
+    {
+        "id": "dfd4cd89ba9e14ca",
+        "type": "function",
+        "z": "5054b2dbb5d28496",
+        "name": "convertFromMillis",
+        "func": "millis = msg.payload;\n\nminutes = Math.floor(millis/60000);\nseconds = Math.floor((millis % 60000) / 1000).toFixed(0);\ntime = minutes + \":\"+ (seconds < 10 ? '0' : '') + seconds;\n\nmsg.payload = time\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 160,
+        "wires": [
+            [
+                "e0fcaab54b5e861a"
+            ]
+        ]
+    },
+    {
+        "id": "e0fcaab54b5e861a",
+        "type": "ui_text",
+        "z": "5054b2dbb5d28496",
+        "group": "3161b3bda4f3cfcf",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "PreviousRoundTime",
+        "label": "Previous Round Time",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "className": "",
+        "x": 620,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "6e76dd657854d371",
+        "type": "ui_text",
+        "z": "5054b2dbb5d28496",
+        "group": "3161b3bda4f3cfcf",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "BestTime",
+        "label": "Best Time:",
+        "format": "{{msg.payload}}",
+        "layout": "row-center",
+        "className": "",
+        "x": 580,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "963cc5820aec773f",
+        "type": "inject",
+        "z": "5054b2dbb5d28496",
+        "name": "StartupBestTime",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "3599000",
+        "payloadType": "num",
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "a6b305a4e5d150ec"
+            ]
+        ]
+    },
+    {
+        "id": "a6b305a4e5d150ec",
+        "type": "function",
+        "z": "5054b2dbb5d28496",
+        "name": "SetStartupBestTime",
+        "func": "millis = msg.payload;\nflow.set(\"best_time\", millis);\n\nminutes = Math.floor(millis/60000);\nseconds = Math.floor((millis % 60000) / 1000).toFixed(0);\ntime = minutes + \":\"+ (seconds < 10 ? '0' : '') + seconds\nmsg.payload = time;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 120,
+        "wires": [
+            [
+                "6e76dd657854d371"
+            ]
+        ]
+    },
+    {
+        "id": "a9e19cebd154c404",
+        "type": "function",
+        "z": "5054b2dbb5d28496",
+        "name": "compateToBestTime",
+        "func": "millis = msg.payload;\n\nminutes = Math.floor(millis/60000);\nseconds = Math.floor((millis % 60000) / 1000).toFixed(0);\ntime = minutes + \":\"+ (seconds < 10 ? '0' : '') + seconds;\n\nbest = flow.get(\"best_time\");\n\nif(millis < best){\n    flow.set(\"best_time\");\n    msg.payload = time;\n    return msg;\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 200,
+        "wires": [
+            [
+                "6e76dd657854d371"
+            ]
+        ]
+    },
+    {
+        "id": "c76b47be6fa4017b",
+        "type": "link in",
+        "z": "5054b2dbb5d28496",
+        "name": "/red/report/1 IN",
+        "links": [
+            "360f367766a9eb9a"
+        ],
+        "x": 55,
+        "y": 300,
+        "wires": [
+            [
+                "381811f38e9cd7ad"
+            ]
+        ]
+    },
+    {
+        "id": "08ae89f453b1f146",
+        "type": "comment",
+        "z": "5054b2dbb5d28496",
+        "name": "Speed Display",
+        "info": "This flow handles a input of speedometer stats from the zumo\nand displays current speed, max speed and average speed.\nIt only displays stats of the reporting zumo, but also\ndisplays the ID of the reporting zumo. ",
+        "x": 110,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "381811f38e9cd7ad",
+        "type": "function",
+        "z": "5054b2dbb5d28496",
+        "name": "speedPayload;",
+        "func": "id = global.get(\"reportID\");\nzumo = \"Zumo \" + id;\n\nl_velocity = (msg.payload.l_velocity);\nr_velocity = (msg.payload.r_velocity);\nvelocity = Math.abs((l_velocity + r_velocity) / 2);\n\nl_max = msg.payload.l_max;\nr_max = msg.payload.r_max;\nmax = Math.abs((l_max + r_max) / 2);\n\nl_sum = msg.payload.l_vel_sum;\nl_n = msg.payload.l_vel_n;\nr_sum = msg.payload.r_vel_sum;\nr_n = msg.payload.r_vel_n;\n\nl_avg = l_sum / l_n;\nr_avg = r_sum / r_n;\navg = Math.abs((l_avg + r_avg) / 2);\n\nmsg.payload.cur = velocity;\nmsg.payload.max = max;\nmsg.payload.avg = avg;\nmsg.payload.report_id = zumo;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 180,
+        "y": 300,
+        "wires": [
+            [
+                "516e6ae27d0e6d08",
+                "72283ce15e4bdac4"
+            ]
+        ]
+    },
+    {
+        "id": "516e6ae27d0e6d08",
+        "type": "ui_gauge",
+        "z": "5054b2dbb5d28496",
+        "name": "",
+        "group": "c6760f2ec87ab7b2",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Speedometer",
+        "label": "",
+        "format": "{{msg.payload.cur}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 380,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "72283ce15e4bdac4",
+        "type": "ui_template",
+        "z": "5054b2dbb5d28496",
+        "group": "c6760f2ec87ab7b2",
+        "name": "Display stats",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<h2>Zumo Stats:</h2>\n    <h3>{{msg.payload.report_id}}</h3>\n        <div>Current Speed: {{msg.payload.cur}}</div>\n        <div>Max Speed: {{msg.payload.max}}</div>\n        <div>Average Speed: {{msg.payload.avg}}</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 370,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "588d9d060944335c",
+        "type": "ui_button",
+        "z": "5054b2dbb5d28496",
+        "name": "",
+        "group": "3161b3bda4f3cfcf",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Reset round time",
+        "tooltip": "Reset best round time",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "3599000",
+        "payloadType": "num",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 110,
+        "y": 220,
+        "wires": [
+            [
+                "a6b305a4e5d150ec"
+            ]
+        ]
+    }
+]

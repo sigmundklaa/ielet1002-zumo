@@ -3,7 +3,6 @@
 #include <common.hh>
 #include <connection.hh>
 #include <charger.hh>
-#include <breaker.hh>
 #include <payment.hh>
 
 void setupPins()
@@ -35,7 +34,6 @@ void setup()
 void loop()
 {
     loopStationCode(); // charger.cc
-    //loopBreakerCode(); // breaker.cc
     loopConnectionCode(); // connection.cc
     loopOledCode(); // charger.cc
 }

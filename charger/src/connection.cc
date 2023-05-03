@@ -3,7 +3,6 @@
 #include <connection.hh>
 #include <charger.hh>
 #include <payment.hh>
-#include <breaker.hh>
 
 /*
     connection.cc: File containing code for connection between charging station and Node-red
@@ -52,13 +51,6 @@ void mqtt_callback(char* topic, u_int8_t* message, unsigned int length){
         int message_int = messageTemp.toInt();
         desired_charge = message_int;
     }  
-
-    if(String(topic) == "/breaker/out"){
-        Serial.print("Breaker state: "); Serial.println(messageTemp);
-        if(messageTemp == "True"){
-            build_phase = false;
-        }
-    }
 
     if(String(topic) == "/bank/details/out"){
         Serial.print("Account amount: "); Serial.println(messageTemp);
