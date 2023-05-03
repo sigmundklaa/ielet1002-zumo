@@ -40,6 +40,7 @@ init_serial_gateway_(io::serial_gateway<HardwareSerial>& mem)
     new (&mem) io::serial_gateway<HardwareSerial>(Serial1, 115200);
 }
 
+/* Ensures Serial is created and initialized exactly once. */
 static io::serial_gateway<HardwareSerial>& serial_gateway_ =
     init_guarded(io::serial_gateway<HardwareSerial>, init_serial_gateway_);
 
@@ -72,6 +73,11 @@ template <typename T> class store
         ::memcpy(&this->data, &data_init, sizeof(T));
     }
 
+    /**
+     * @brief Update internal memory if new data is available from the peer.
+     *
+     * @return size_t Size of data read from peer
+     */
     inline size_t
     sync()
     {
@@ -126,7 +132,6 @@ template <typename T> class store
  *
  */
 struct __attribute__((packed)) remote_data {
-    uint32_t bank_currency;
 };
 
 /**
@@ -143,6 +148,11 @@ struct __attribute__((packed)) local_data {
 extern store<remote_data> remote_store;
 extern store<local_data> local_store;
 
+/**
+ * @brief To be run on every iteration. Ensures that the stores are synced with
+ * their respective peers.
+ *
+ */
 void on_tick();
 
 }; // namespace common

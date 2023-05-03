@@ -17,12 +17,7 @@ namespace common
 
 template <typename T> T store<T>::buf;
 
-store<remote_data> remote_store(
-    &comms::store_gw,
-    (remote_data){
-        0,
-    }
-);
+store<remote_data> remote_store(&comms::store_gw, (remote_data){});
 
 static io::eeprom_gateway eeprom_;
 

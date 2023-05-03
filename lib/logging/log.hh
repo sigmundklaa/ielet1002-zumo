@@ -24,6 +24,12 @@ namespace logging
 #define LOG_BUF_SIZE_ (0)
 #endif
 
+/**
+ * @brief Get the string representation of the log level @p level
+ *
+ * @param level
+ * @return const char*
+ */
 inline const char* level_to_str_(unsigned int level);
 
 class logger_
@@ -35,6 +41,11 @@ class logger_
     uint8_t m_buf[LOG_BUF_SIZE_];
     size_t m_written;
 
+    /**
+     * @brief Send everything written in the buffer to the connected gateway.
+     *
+     * @return size_t
+     */
     size_t
     send_buf_()
     {
@@ -73,6 +84,14 @@ class logger_
         return size;
     }
 
+    /**
+     * @brief Calls write and returns the logger object. This method is used by
+     * the overloaded stream operators,
+     *
+     * @param data
+     * @param size
+     * @return logger_&
+     */
     logger_&
     stream_write_(const char* data, size_t size)
     {
@@ -90,6 +109,11 @@ class logger_
         memset(m_buf, 0, sizeof(m_buf));
     }
 
+    /**
+     * @brief If the logger uses a buffer a manual call to this will send the
+     * data to the connected gateway.
+     *
+     */
     void
     save()
     {

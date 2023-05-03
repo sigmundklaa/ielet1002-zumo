@@ -54,9 +54,11 @@ hold_buttons_()
 
     /*  */
     if (tmp - last_press < 100e3) {
-#if 0
+#if 1
         common::local_store.data.batt_health = 255;
         common::local_store.data.batt_status = 255;
+        common::local_store.data.batt_n_charges = 0;
+        common::local_store.data.batt_n_drained = 0;
 #else
         callback();
 #endif
@@ -146,12 +148,12 @@ battery__::calc_drain_health_()
           common::local_store.data.batt_n_charges) /
          5);
 
-    uint8_t total = battdmg +
-                    (hk::data.vel_l.velocity / 200 +
-                     (400 * 0.7 * (hk::data.vel_l.us_above_70p / 1e6)) / 4000 +
-                     hk::data.vel_r.velocity / 200 +
-                     (400 * 0.7 * (hk::data.vel_r.us_above_70p / 1e6)) / 4000) /
-                        2;
+    uint8_t total =
+        battdmg + (hk::data.vel_l.velocity / 200 +
+                   (400 * 0.7 * (hk::data.vel_l.us_above_70p / 1e6)) / 40000 +
+                   hk::data.vel_r.velocity / 200 +
+                   (400 * 0.7 * (hk::data.vel_r.us_above_70p / 1e6)) / 40000) /
+                      2;
 
     /* Battery production error */
     if (random(0, 100) == 0) {
@@ -194,7 +196,7 @@ battery__::charge()
 uint8_t
 battery__::need_charge()
 {
-    return common::local_store.data.batt_status > CHARGE_THRESHHOLD_;
+    return common::local_store.data.batt_status < CHARGE_THRESHHOLD_;
 }
 
 void

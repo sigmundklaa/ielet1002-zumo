@@ -48,8 +48,6 @@ on_tick()
     static uint64_t last_read_us;
     uint64_t tmp = micros();
 
-    /* A delay is required to allow for all the bytes to be filled in to the
-     * buffer */
     if (tmp - last_read_us <= 100e3) {
         return;
     }

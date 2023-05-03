@@ -35,6 +35,12 @@ template <typename T> class reporter_
     {
     }
 
+    /**
+     * @brief To be run on every iteration. Generates and sends a report if the
+     * time elapsed since the last send has exceeded the interval specified in
+     * the constructor.
+     *
+     */
     void
     on_tick()
     {

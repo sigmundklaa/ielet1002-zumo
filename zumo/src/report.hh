@@ -22,7 +22,6 @@ struct __attribute__((packed)) zumo_report_ {
 
     uint8_t batt_status;
     uint8_t batt_health;
-    
 };
 
 class zumo_reporter_ : public reporter_<zumo_report_>

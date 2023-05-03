@@ -112,6 +112,8 @@ controller_::side_::transition_(side_::state_ st)
         start_();
         break;
     case STATE_CHANGE_DIR_:
+        /* To prevent damage to the motors there needs to be a delay between
+         * switching directions. */
         if (stop_time_us_ >= start_time_us_ ||
             (speed_ == 0 && micros() - stop_time_us_ >= DIR_CHANGE_DELAY_US_)) {
             break;
@@ -234,6 +236,8 @@ controller_::run()
         last_read_us_ = tmp;
     }
 
+    /* Line readings need to be more frequent than the read interval for the
+     * rest of the hardware. */
     readings_.position = components_.lines.readLine(readings_.lines);
 
     left.run();

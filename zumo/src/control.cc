@@ -23,6 +23,7 @@ remote_::on_tick()
     }
 
     switch (buf_.cmd) {
+    /* Trigger autonomy */
     case remote_::packet_::CMD_AUTONOMY: {
         uint8_t mode = static_cast<uint8_t>(buf_.arg1);
         LOG_INFO(<< "setting autonomy " << String(mode));
@@ -42,6 +43,7 @@ remote_::on_tick()
 
         break;
     }
+    /* Set the speed */
     case remote_::packet_::CMD_SET_SPEED: {
         LOG_INFO(<< "setting speed");
         if (auto_enabled_) {
