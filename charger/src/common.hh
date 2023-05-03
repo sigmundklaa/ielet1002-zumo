@@ -4,6 +4,8 @@
 
 /*
     common.hh: Header file that declares variables and functions used by main.cc and most other files. 
+    Needed for the .cc files to recognize that functions exists if they are further down in the code,
+    it also gives an overview of functions in relevant .cc file. 
 */
 
 #include <Arduino.h>
@@ -24,7 +26,6 @@ inline const int confirm_button_pin = 25;
 inline const int select_button_pin = 26;
 //OLED PINS 22 -> SCK, 21 -> SDA; // Set by library
 
-    // Structs
     // Struct for customer data
 inline struct __attribute__((packed)) Customer {
     int id;

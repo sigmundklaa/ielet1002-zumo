@@ -10,14 +10,16 @@
 #include <connection.hh>
 
 // Variables:
+    // FLAGS
 inline bool ran_out;
 
+    // PRICES
 inline float power_price;
 inline float battery_price;
 
+    // DETAILS
 inline float account_amount;
 inline float credit;
-
 inline char cost_string;
 
 // Functions:

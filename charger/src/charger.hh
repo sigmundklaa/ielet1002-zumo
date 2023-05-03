@@ -15,17 +15,19 @@ inline float order_cost;
 inline int set_orders = 2;
 
     // FLAGS
+        // MODES
 inline bool auto_mode;
 inline bool begin_maintenance;
+        // ORDER DETAILS
 inline bool allow_credit_message;
 inline bool cancel_flag;
 inline bool order_completed;
-
+        // PRE SERVICE
 inline bool node_red_call;
 inline bool customer_waiting;
 inline int customer_order;
-
-inline int allow_credit = -1;
+        // POST SERVICE
+inline int allow_credit;
 inline bool charged = true;
 inline bool changed = true;
     
@@ -76,7 +78,7 @@ void change_battery();
 void send_zumo(float order_cost, float credit, int batt_status, int order_type);
 void resetVariables();
 
-    // OLed
+    // Oled
 void loopOledCode();
 void print_to_display(String text);
 

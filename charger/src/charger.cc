@@ -7,14 +7,14 @@
 #include <payment.hh>
 
 // PRE-SERVICE:
-void loopStationCode()
+void loopStationCode() // Core switch that chooses if service runs or not
 {
     switch(begin_maintenance){
         case true:
             begin_service();
             break;
         case false:
-            if(node_red_call && customer_waiting){
+            if(node_red_call && customer_waiting){ // Initiates service if Node-Red and Customer calls for it. 
                 begin_maintenance = true;
             }
             break;
@@ -48,17 +48,18 @@ void updateSelectButtonState() // Used to check if the button change state (mean
     select_button_state = new_state;
 }
 
-void updateSelectButtonPressed() // Checks if button has been pressed and changes relevant value
+void updateSelectButtonPressed() // If button state changes, relevant value changes, as described:
 {
     if((select_button_state == true) && (previous_select_button_state == false)){ 
-        if(!confirm_order_button_pressed){ // Only runs before order is set
+        if(!confirm_order_button_pressed){ // 1) Runs before order is set, used to set order. 
             if(select_button_value == set_orders){ // Edit "set_orders" if more order choices (currently 2);
                 select_button_value = 1;
             } else {
                 select_button_value++;
             }
             Serial.print("Current selected order: "); Serial.println(select_button_value);
-        } else if(ran_out){ // Only runs if customer runs out of money
+
+        } else if(ran_out){ // 2) Runs after order is set and customer runs out of money, cancels service. 
             Serial.println("Ending charge order");
             cancel_flag = true;
             allow_credit = false;
@@ -67,7 +68,7 @@ void updateSelectButtonPressed() // Checks if button has been pressed and change
     previous_select_button_state = select_button_state; 
 }
 
-void updateConfirmButtonState(){ // Same as select
+void updateConfirmButtonState(){ // Same as updateSelectButtonState, instead for select button
     if((millis() - confirm_button_timer) < debounce_delay){
         return;
     }
@@ -81,17 +82,17 @@ void updateConfirmButtonState(){ // Same as select
     confirm_button_state = new_state;
 }
 
-void updateConfirmButtonPressed() // Checks if button has been pressed and proceedes.
+void updateConfirmButtonPressed() // If button state changes, relevant value changes, as described:
 {
     if((confirm_button_state == true) && (previous_confirm_button_state == false)){
-        if(!confirm_order_button_pressed){
-            if((select_button_value > 0) && (select_button_value < 4)){ // Makes sure order is withing order types. 
+        if(!confirm_order_button_pressed){ // 1) Runs before order is set, confirms order choice
+            if((select_button_value > 0) && (select_button_value < 4)){ // Makes sure order is within acceptable values
                 customer_order == select_button_value;
                 confirm_order_button_pressed = true;
                 Serial.println("Confirm button pressed.");
             }
              
-        } else if(ran_out){ // Same as select
+        } else if(ran_out){ // 2) Runs after order is set and customer runs out of money, allows paying with credit and completes order
             allow_credit = true;
             Serial.println("Allowing to pay with credit");
         }   
@@ -116,13 +117,12 @@ void begin_service()
                         confirm_order_button_pressed = true;
                     }
                     
-                    //print_to_display(String(customer_order));
                     break;
                 case true:
                     customer_order = select_button_value;
             }
             break;
-        case 1: // Charge battery to desired level, default 100 (percent)
+        case 1: // Charge battery to desired level, default 255, changed in node-red
             charge_battery();
             break;
         case 2:
@@ -130,6 +130,7 @@ void begin_service()
             break;
         case 3:
             // ??? Add new orders, edit set_orders to allow selection of these.
+            // This is left to demonstrate it can be added more modes if needed
             break;
     }
 }
@@ -146,7 +147,7 @@ void charge_battery()
 
         switch(ran_out){ // ran_out == ran out of money in the bank account
             case false: // Charges battery until account runs out of money or battery is charged
-                if((c.account_amount - order_cost) < 0){ // Checks if customer can afford it.
+                if((c.account_amount - order_cost) < 0){ // Checks if customer can afford a new charge.
                     Serial.println("Customer ran out of money.");
                     ran_out = true;
                     break;
@@ -157,27 +158,25 @@ void charge_battery()
                     c.batt_status++;
                     order_cost += power_price;
                             
-                    //print_to_display(String(c.battery_level));
                     Serial.print("Battery charge: ");
                     Serial.println(c.batt_status);
                 }
                 break;
-            case true: // Charges rest of battery on credit
-                switch(allow_credit){
+            case true: // Customer runs out of money, waits for input
+                switch(allow_credit){ // If customer orders to allow credit, it charges battery to desired level
                     case true:
-                        if((millis() - wait_millis) > 100){    
+                        if((millis() - wait_millis) > 100){ // Delay as above
                             charged = false;
                             wait_millis = millis();
                             c.batt_status++;
                             credit += power_price;
 
-                            //print_to_display(String(c.battery_level));
                             Serial.print("Battery charge: ");
                             Serial.println(c.batt_status);
                         }
                         break;
-                    case false:
-                        if(allow_credit_message){
+                    case false: // Waits for input on buttons
+                        if(allow_credit_message){ // Sends message in serial to instruct
                             Serial.println("Press 'Confirm' to pay with credit, 'select' to end charge");
                             allow_credit_message = false;
                         }
@@ -204,9 +203,9 @@ void charge_battery()
 
     if(charged = true){
         send_zumo(order_cost, credit, c.batt_status, customer_order);
-    } else {
+    } else { // Only occures if unforseen errors makes charge not work
         Serial.print("Error, battery was not charged correctly.");
-        send_zumo(order_cost, credit, c.batt_status, customer_order); // Still sends zumo to not interrupt.
+        send_zumo(order_cost, credit, c.batt_status, customer_order); // Still sends zumo to not interrupt other modules.
     }
 }; 
 
@@ -222,7 +221,6 @@ void change_battery()
 
     } else if (!changed && ((millis()-battery_change_timer) > change_delay)){ // Completes change order. 
         Serial.println(" Completed!");  
-        //print_to_display("Competed!");
         order_completed = true;
         changed = true;
         c.batt_status = 255;
@@ -232,12 +230,13 @@ void change_battery()
 
         if((c.account_amount - order_cost) < 0){ // Checks if customer can afford, adds unpaid amount to account credit. 
             Serial.println("Not enough money, adding rest to credit.");
-            float leftover = order_cost - c.account_amount + 1; //+1 to prevent overflow, that 1 is also added to credit
+            float leftover = order_cost - c.account_amount + 1; //+1 to prevent rounding errors causing overflow
             order_cost = order_cost - leftover; 
-            credit = leftover;
+            credit = leftover; //the +1 above is also part of credit
         }
 
         send_zumo(order_cost, credit, c.batt_status, customer_order);
+
     } else if (!changed && ((millis()-battery_change_timer) < change_delay)){ // Delay to simulate time to change
         if((millis()-wait_millis)>500){
             wait_millis = millis();
@@ -300,27 +299,27 @@ void print_to_display(String str) // Core display code
 };
 
 void loopOledCode(){ // Code that displays messages on Oled based on flags from other functions
-    if((millis() - oled_millis) > 500) {
-        if(customer_waiting){
-            if(customer_order == 0){
+    if((millis() - oled_millis) > 500) { // Only updates oled every half second to avoid potential errors or damage
+        if(customer_waiting){ // Runs if a customer is waiting
+            if(customer_order == 0){ // Runs if order is being selected to show what order is selected
                 print_to_display(String(select_button_value));
-            } else if(customer_order == 1){
+            } else if(customer_order == 1){ // Runs to show charge percent and price. 
                 if(!charged){
                     int batt_percent = map(c.batt_status, 0, 255, 0, 100);
                     String text = String(batt_percent) + "%,   " + String(order_cost) + " Kr";
                     print_to_display(text);
                 }
-            } else if(customer_order == 2){
+            } else if(customer_order == 2){ // Runs to show battery is being changed
                 if(!changed){
                     print_to_display("Changing...");
                     
                 }
             }
-            if(order_completed){
+            if(order_completed){ // Runs if order is completed
                 print_to_display("Complete.");
                 oled_delay = millis();
             }
-        } else if ((millis() - oled_delay) > 3000){
+        } else if ((millis() - oled_delay) > 3000){ // Clears oled 3s after customer leaves. 
             print_to_display("");
         }
     };
