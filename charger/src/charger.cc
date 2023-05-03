@@ -306,7 +306,7 @@ void loopOledCode(){ // Code that displays messages on Oled based on flags from 
             } else if(customer_order == 1){
                 if(!charged){
                     int batt_percent = map(c.batt_status, 0, 255, 0, 100);
-                    String text = String(batt_percent) + "%,   " + String(order_cost) + " NOK";
+                    String text = String(batt_percent) + "%,   " + String(order_cost) + " Kr";
                     print_to_display(text);
                 }
             } else if(customer_order == 2){
