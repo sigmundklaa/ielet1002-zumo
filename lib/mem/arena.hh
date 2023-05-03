@@ -7,6 +7,12 @@
 
 namespace mem
 {
+
+/**
+ * @brief Simple arena allocator.
+ *
+ * @tparam mem_size_
+ */
 template <size_t mem_size_> class arena
 {
   protected:

@@ -10,9 +10,6 @@ void setupPins()
 {
     pinMode(confirm_button_pin, INPUT);
     pinMode(select_button_pin, INPUT);
-
-    pinMode(ired_pin, INPUT);
-    pinMode(ired_diode, OUTPUT); // Only used if diode is connected to charge station
 }
 
 void setupReset(){ // Resets variabels and set startup values

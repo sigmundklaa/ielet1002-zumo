@@ -21,6 +21,9 @@ extern uint8_t buf_[256];
     X(control_gw, io::redirect::NODE_MQTT_CONTROL_1)                           \
     X(trash_gw, io::redirect::NODE_MQTT_TRASH_1)
 
+/* Since this class is templated it will create a redirect gateway for each node
+ * type. This ensures that exactly one gateway is created and initialized per
+ * type, regardless of how many translation units include the header file. */
 template <io::redirect::node_type node> class dummy__
 {
   public:
@@ -37,6 +40,11 @@ io::redirect::redirect_gateway
 COMMS_NODES__
 #undef X
 
+/**
+ * @brief To be run on every iteration. Handles incoming data over serial and
+ * redirects it to the appropriate gateway.
+ *
+ */
 void on_tick();
 
 }; // namespace comms

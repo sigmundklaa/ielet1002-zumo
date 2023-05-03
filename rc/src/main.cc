@@ -27,6 +27,11 @@ static cmd_packet packet;
 #define LOG_MODULE rc
 LOG_REGISTER(serial_gw);
 
+/**
+ * @brief Attempt to reconnect and re-initalize the MQTT client if it loses
+ * connection.
+ *
+ */
 static void
 reconnect()
 {
@@ -47,6 +52,14 @@ reconnect()
     }
 }
 
+/**
+ * @brief Center the reading from the joystick around 0, so that it is -2048 -
+ * 2048 instead of 0-4096. If the read value is less than 200 it is discarded as
+ * noise.
+ *
+ * @param in
+ * @return int16_t
+ */
 static int16_t
 calc_axis_(int16_t in)
 {
@@ -55,6 +68,12 @@ calc_axis_(int16_t in)
     return abs(in) > 200 ? in : 0;
 }
 
+/**
+ * @brief Ensure the speed @p n is within the range -255 - 255.
+ *
+ * @param n
+ * @return int16_t
+ */
 static int16_t
 clamp_speed_(int16_t n)
 {
@@ -67,6 +86,13 @@ clamp_speed_(int16_t n)
     return n;
 }
 
+/**
+ * @brief Send a @code cmd_packet @endcode to the MQTT gateway.
+ *
+ * @param cmd Command type
+ * @param arg1
+ * @param arg2
+ */
 static void
 send_(uint8_t cmd, int16_t arg1, int16_t arg2)
 {
@@ -79,6 +105,12 @@ send_(uint8_t cmd, int16_t arg1, int16_t arg2)
     mqtt_gw.write(&packet, sizeof(packet));
 }
 
+/**
+ * @brief Map the reading from the joystick to a speed appropriate to the Zumo.
+ *
+ * @param n
+ * @return int16_t
+ */
 static int16_t
 map_speed_(int16_t n)
 {
@@ -91,6 +123,12 @@ map_speed_(int16_t n)
     return calc;
 }
 
+/**
+ * @brief Handle button debouncing for the button connected to the joystick.
+ *
+ * @param pin
+ * @return uint8_t
+ */
 static uint8_t
 button_handle_(uint8_t pin)
 {
@@ -164,6 +202,9 @@ loop()
     uint64_t tmp = micros();
 
     int16_t speed_l = suml / N_SAMPLES_, speed_r = sumr / N_SAMPLES_;
+
+    /* Make sure we are not sending the same-ish speed continously, as the Zumo
+     * can only handle so many commands. */
     if (abs(l - speed_l) > 10 || abs(r - speed_r) > 10) {
         l = speed_l;
         r = speed_r;
