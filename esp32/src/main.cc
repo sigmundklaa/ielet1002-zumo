@@ -7,18 +7,8 @@
 #include <io/mqtt.hh>
 #include <WiFi.h>
 
-
+//definerer mqtt gateway
 static io::mqtt_gateway mqtt(&io::mqtt_client, "/redmw/sensor/1", nullptr);
-
-//Definerer en struct som skal sendes over NodeRED
-struct __attribute__ ((packed)) SensorData {
-  float temperature;
-  float humidity;
-  float pressure;
-  int lightData;
-};
-
-SensorData sensorData;
 
 //Definerer pin-navn
 #define BME_SCK 25
@@ -31,9 +21,18 @@ SensorData sensorData;
 float temperature;
 float humidity;
 float pressure;
-float gasResistance;
 int period = 10000;
 unsigned long time_now = 0;
+
+//Definerer en struct som skal sendes over NodeRED
+struct __attribute__ ((packed)) SensorData {
+  float temperature;
+  float humidity;
+  float pressure;
+  int lightData;
+};
+
+SensorData sensorData;
 
 //Sier til bme688 hva pin-navnene den skal bruke heter
 Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
@@ -53,6 +52,37 @@ void getBME688Readings(){
   temperature = bme.temperature;
   pressure = bme.pressure / 100.0;
   humidity = bme.humidity;
+}
+
+void SaveData(){
+  //lagrer sensordataene til structen
+  sensorData.lightData = analogRead(lightsensor);
+  sensorData.temperature = temperature;
+  sensorData.humidity = humidity;
+  sensorData.pressure = pressure;
+}
+
+void SendData(){
+          //Printer dataene til Serial for enkel dataovervåking
+          Serial.print("Temperature = ");
+          Serial.print(sensorData.temperature);
+          Serial.println(" *C");
+
+          Serial.print("Pressure = ");
+          Serial.print(sensorData.pressure);
+          Serial.println(" hPa");
+
+          Serial.print("Humidity = ");
+          Serial.print(sensorData.humidity);
+          Serial.println(" %");
+
+          Serial.print("Lightdata = ");
+          Serial.println(sensorData.lightData);
+
+          Serial.println();
+          //sender structen
+          mqtt.write(&sensorData, sizeof(sensorData));
+    
 }
 
 //Callback funksjon som sjekker om knappen på NodeRED dashbordet blir trykket, og hvis den blir det vil den sende sensordataen.
@@ -127,37 +157,18 @@ void setup() {
 
 void loop() {
   reconnect(io::mqtt_client);
+  
+  //Henter sensordataene og lagrer de til variabler
   getBME688Readings();
-
-//lagrer sensordataene til structen
-  sensorData.lightData = analogRead(lightsensor);
-  sensorData.temperature = temperature;
-  sensorData.humidity = humidity;
-  sensorData.pressure = pressure;
-
-//Sender oppdaterte sensordataer hvert tiende sekund
- if(millis() >= time_now + period){
+  
+  //Lagrer sensordata fra variablene til structen
+  SaveData();
+  
+  //Sender oppdaterte sensordataer hvert tiende sekund
+  if(millis() >= time_now + period){
         time_now += period;
-          //Printer dataene til Serial for enkel dataovervåking
-          Serial.print("Temperature = ");
-          Serial.print(sensorData.temperature);
-          Serial.println(" *C");
-
-          Serial.print("Pressure = ");
-          Serial.print(sensorData.pressure);
-          Serial.println(" hPa");
-
-          Serial.print("Humidity = ");
-          Serial.print(sensorData.humidity);
-          Serial.println(" %");
-
-          Serial.print("Lightdata = ");
-          Serial.println(sensorData.lightData);
-
-          Serial.println();
-          //sender structen
-          mqtt.write(&sensorData, sizeof(sensorData));
-    }
+        SendData();
+ }
   io::mqtt_client.loop();
 
 }
