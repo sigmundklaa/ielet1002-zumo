@@ -13,22 +13,24 @@
 #define LOG_MODULE autonomy
 LOG_REGISTER(common::log_gateway);
 
+// Enum for driveState-switchen for bedre oversikt
 enum DriveState {
-    followLine,    // 0
-    intersection,  // 1
-    turnLeft,      // 2
-    turnRight,     // 3
-    deadEnd,       // 4
-    chargeBattery, // 5
-    emptyTrash,    // 6
-    reverse,       // 7
-    missingLine,   // 8
-    address,       // 9
-    stop,          // 10
+    followLine,
+    intersection,
+    turnLeft,
+    turnRight,
+    deadEnd,
+    chargeBattery,
+    emptyTrash,
+    reverse,
+    missingLine,
+    address,
+    stop,
     waitInit,
     fullStop,
 };
 
+// Struct for ryddigere måte for å sjekke svinger i banen
 struct TurnCheck {
     uint16_t left;
     uint16_t deadEnd;
@@ -73,16 +75,11 @@ static int16_t lineSensorError;
 
 static uint8_t currentAddress = 0;
 
-static bool emptyTrashAddress[3] = {1, 0, 1};
+static bool emptyTrashAddress[3] = {0, 0, 0};
 static bool holdingTrash = false;
 
 static void calibrateLineSensors();
 static void printReadingsToSerial();
-static void readSensorValues();
-
-// -----------------
-// ----- SETUP -----
-// -----------------
 
 static void
 initButtonPress()
@@ -151,6 +148,7 @@ autonomy::on_tick()
     static uint32_t sampleTime = 0;
     const uint8_t base = 150;
 
+    // Sjekker posisjon ift. linjen og beregner motorhastighet for å rette opp
     position = hal::controller.position();
     positionError = position - 2000;
     speedDifference = positionError / 4 + 3 * (positionError - lastError);
@@ -161,6 +159,7 @@ autonomy::on_tick()
     rightSpeed = (int16_t)base - speedDifference + lineSensorError / 7;
     rightSpeed = map(constrain(rightSpeed, 0, (int16_t)base), 0, 400, 0, 255);
 
+    // Oppdaterer søppelstatus for adressene fra serveren
     uint8_t trashRemote;
     if (comms::trash_gw.read(&trashRemote, sizeof(trashRemote)) ==
         trashRemote) {
@@ -179,6 +178,10 @@ autonomy::on_tick()
         }
     }
 
+    // Switchen for linjefølgingen. Inneholder mange sensorsjekk for å være
+    // sikker på at den er pålitelig. millis()-delayene brukes stort sett for å
+    // sørge for at motorene ikke endrer retning uten stopp i mellom for å 
+    // spare tannhjulene
     switch (driveState) {
     case followLine:
         if (millis() - sampleTime > 100) {
@@ -296,6 +299,7 @@ autonomy::on_tick()
             driveState = deadEnd;
             sampleTime = millis();
         }
+
         break;
     case reverse:
         if (turnCheck.left) {
@@ -360,14 +364,9 @@ autonomy::on_tick()
     case fullStop:
         break;
     }
-
-    // printReadingsToSerial();
 }
 
-// ---------------------
-// ----- FUNCTIONS -----
-// ---------------------
-
+// Funksjonen kjøres før linjefølgingen for å kalibrere linjefølgingssensorene
 void
 calibrateLineSensors()
 {
@@ -375,7 +374,7 @@ calibrateLineSensors()
     hal::controller.start();
     uint8_t speed = 75; // 255 / 4;
 
-    for (uint16_t i = 0; i < 110; i++) {
+    for (uint16_t i = 0; i < 112; i++) {
         hal::controller.calibrate();
 
         if (i > 30 && i < 85) {
@@ -390,6 +389,8 @@ calibrateLineSensors()
     hal::controller.stop();
 }
 
+// Funksjon som ble brukt mye under programmering for å printe til serial det Zumoens 
+// sensorer leste
 void
 printReadingsToSerial()
 {
