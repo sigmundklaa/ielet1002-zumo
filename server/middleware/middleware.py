@@ -227,8 +227,7 @@ class _handler:
         for dtopic in self.config['devicemw'].keys():
             self._subscribe(_build_topic('/devicemw', dtopic))
 
-        # Subscribe to topic for Device -> Node-RED direction. This is not
-        # prepended by a particular endpoint like /device.
+        # Subscribe to topic for Device -> Node-RED direction.
         for rtopic in self.config['red'].keys():
             self._subscribe(_build_topic('redmw', rtopic))
             self._subscribe(_build_topic('red', rtopic))

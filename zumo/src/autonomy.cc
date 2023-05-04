@@ -81,6 +81,12 @@ static bool holdingTrash = false;
 static void calibrateLineSensors();
 static void printReadingsToSerial();
 
+/**
+ * @brief Handles button press for a specific button, and acts depending on the
+ * current state. If the Zumo is waiting for initialization, it will be
+ * calibrated. If it is stopped, it will start and vice versa.
+ *
+ */
 static void
 initButtonPress()
 {
@@ -180,7 +186,7 @@ autonomy::on_tick()
 
     // Switchen for linjefølgingen. Inneholder mange sensorsjekk for å være
     // sikker på at den er pålitelig. millis()-delayene brukes stort sett for å
-    // sørge for at motorene ikke endrer retning uten stopp i mellom for å 
+    // sørge for at motorene ikke endrer retning uten stopp i mellom for å
     // spare tannhjulene
     switch (driveState) {
     case followLine:
@@ -389,8 +395,8 @@ calibrateLineSensors()
     hal::controller.stop();
 }
 
-// Funksjon som ble brukt mye under programmering for å printe til serial det Zumoens 
-// sensorer leste
+// Funksjon som ble brukt mye under programmering for å printe til serial det
+// Zumoens sensorer leste
 void
 printReadingsToSerial()
 {

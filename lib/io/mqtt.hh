@@ -67,6 +67,7 @@ class mqtt_gateway : public pushable_gateway
     }
 };
 
+#if 0
 #define IO_MQTT_NUM_gatewayS_MAX_ (10)
 
 class mqtt_handler__
@@ -137,6 +138,7 @@ mqtt_handler__::callback_(char* topic, uint8_t* payload, unsigned int size)
 #define IO_MQTT_NODE_ZUMO 1
 
 #define IO_MQTT_PATH(path, node) UTILS_STR_CONCAT(path, UTILS_STR(node))
+#endif
 
 }; // namespace io
 

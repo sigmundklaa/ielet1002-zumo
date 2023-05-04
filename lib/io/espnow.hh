@@ -22,6 +22,10 @@ static class esp_init__
     esp_init__() { ::esp_now_init(); }
 } esp_init_;
 
+/**
+ * @brief Gateway for communicating with a ESP-NOW peer.
+ *
+ */
 class esp_now_gateway : public pushable_gateway
 {
   protected:

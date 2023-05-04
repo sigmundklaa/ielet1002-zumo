@@ -10,6 +10,11 @@
 namespace io
 {
 
+/**
+ * @brief Gateway for handling communication over serial
+ *
+ * @tparam T
+ */
 template <typename T> class serial_gateway : public gateway
 {
   protected:
@@ -21,6 +26,15 @@ template <typename T> class serial_gateway : public gateway
         return hw_serial_.write(data, size);
     }
 
+    /**
+     * @brief Read data from serial. If there is data available, this will cause
+     * a delay as it needs to make sure that all bytes are recieved before
+     * finishing.
+     *
+     * @param buf
+     * @param buf_size
+     * @return size_t
+     */
     size_t
     read_(uint8_t* buf, size_t buf_size) override__
     {

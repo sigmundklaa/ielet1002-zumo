@@ -19,6 +19,7 @@ enum node_type {
     NODE_MQTT_TRASH_1,
 } __attribute__((packed));
 
+/* Ensure that the enum is the expected size. */
 static_assert(sizeof(node_type) == 1, "size of header type is 1");
 
 struct __attribute__((packed)) header {
@@ -28,6 +29,14 @@ struct __attribute__((packed)) header {
 
 #define MAX_PACKET_SIZE_ (256 - sizeof(header))
 
+/**
+ * @brief Prepare header for redirecting.
+ *
+ * @param type
+ * @param buf Temporary buffer to write the header to
+ * @param size Size of payload
+ * @return size_t
+ */
 inline size_t
 prepare_header(node_type type, uint8_t* buf, size_t size)
 {
@@ -44,12 +53,23 @@ prepare_header(node_type type, uint8_t* buf, size_t size)
     return sizeof(*h);
 }
 
+/**
+ * @brief Get the total size of a packet, header size inclusive
+ *
+ * @param data_size
+ * @return size_t
+ */
 inline size_t
 total_size(size_t data_size)
 {
     return sizeof(header) + data_size;
 }
 
+/**
+ * @brief Gateway that is used for redirecting data over a connected router and
+ * to the endpoint determined by the node type.
+ *
+ */
 class redirect_gateway : public pushable_gateway
 {
   protected:
