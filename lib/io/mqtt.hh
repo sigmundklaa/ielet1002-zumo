@@ -138,6 +138,13 @@ mqtt_handler__::callback_(char* topic, uint8_t* payload, unsigned int size)
 #define IO_MQTT_NODE_ZUMO 1
 
 #define IO_MQTT_PATH(path, node) UTILS_STR_CONCAT(path, UTILS_STR(node))
+#else
+inline mqtt_gateway::mqtt_gateway(
+    PubSubClient* client, const char* pub_topic, const char* sub_topic
+)
+    : m_client(client), m_pub_topic(pub_topic)
+{
+}
 #endif
 
 }; // namespace io
